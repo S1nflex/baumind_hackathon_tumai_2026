@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Unter [localhost:3000](http://127.0.0.1:3000) öffnet **Beispiel öffnen** das sofort nutzbare Beispiel. Für ein eigenes Projekt eine PDF-, GAEB- oder XLSX-Datei hochladen. SQLite speichert Projekte und Originaldateien lokal in `.data/bauton.sqlite`. Die Anwendung bindet standardmäßig an die lokale Adresse und hat keine Benutzeranmeldung.
+Unter [localhost:3000](http://127.0.0.1:3000) öffnet **Beispiel öffnen** das sofort nutzbare Beispiel. Für ein eigenes Projekt ein PDF oder eine Excel-Datei (.xlsx) hochladen. SQLite speichert Projekte und Originaldateien lokal in `.data/bauton.sqlite`. Die Anwendung bindet standardmäßig an die lokale Adresse und hat keine Benutzeranmeldung.
 
 ## Geteilte Testvorschau
 
@@ -19,7 +19,7 @@ Für eine Vorschau über HTTPS mit getrennten Projekten pro Browser `BAUTON_PREV
 
 ## Ablauf
 
-1. **Importieren.** PDF mit Textschicht, GAEB XML (.x81, .x83–.x86, .xml), GAEB 90 (.d81, .d83–.d86) oder XLSX mit Spalten für OZ, Beschreibung, Menge und Einheit. Tabelle durchsuchen oder nach Abschnitt, Prüffall, Preisstatus und Herkunft filtern. Bei PDFs bringt die Positionsansicht zur Originalseite.
+1. **Importieren.** PDF mit Textschicht oder XLSX mit Spalten für OZ, Beschreibung, Menge und Einheit. Tabelle durchsuchen oder nach Abschnitt, Prüffall, Preisstatus und Herkunft filtern. Bei PDFs bringt die Positionsansicht zur Originalseite.
 2. **Prüfen.** Regeln markieren fehlende Positionsverweise, formale Felder, Rechenabweichungen, mögliche Dubletten und widersprüchliche Einbauorte. Ein Hinweis zeigt Beleg und Rückfrage zur Klärung. Bei einer bestätigten Dublette bleibt die Originalzeile sichtbar und die ausgeschlossene Zeile wird nicht berechnet.
 3. **Kalkulieren.** Eigene Material-, Lohn- oder Kolonnenzeilen ergänzen. Vorgeschlagene Zeilen sind gekennzeichnet und werden erst nach Bestätigung berechnet. Einzelpreise stammen aus einer übernommenen Preisangabe, den eingegebenen Kosten oder einem gewählten Lieferanten. Vergleichbare Lieferangebote werden nach Nettokosten der benötigten Packungen einschließlich Versand sortiert. Unklare Packungsgrößen oder Lieferkosten brauchen eine Bestätigung.
 4. **Zuschläge vergleichen.** Der Ausgangswert ist 25 % auf erfasste direkte Kosten. Eine Position mit anwendbarer, belegter Marktreferenz kann einen höheren Zuschlag vorschlagen. Der Kalkulator entscheidet und kann jeden Vorschlag ablehnen.
@@ -45,4 +45,4 @@ npm run build
 npm run benchmark -- "/Pfad/zu/Challenge A Dataset"
 ```
 
-Der Datensatz wird für den Benchmark lokal eingelesen und ist nicht Bestandteil des Repositories. Details und Vorführablauf stehen in [DEMO.md](DEMO.md).
+Der Datensatz wird für den Benchmark lokal eingelesen. GAEB-Dateien dienen dort als Referenz für den PDF-Import. Der Datensatz ist nicht Bestandteil des Repositories. Details und Vorführablauf stehen in [DEMO.md](DEMO.md).

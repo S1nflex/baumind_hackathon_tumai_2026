@@ -8,6 +8,7 @@ import { findSuppliers, referenceOffers, shopConfigured } from '@/lib/suppliers'
 import { createProject, getPreferences, listProjects, ProjectError } from '@/lib/store'
 import { errorResponse } from '@/lib/http'
 import { workspaceId } from '@/lib/workspace'
+import { canUploadLv, lvUploadFormatMessage } from '@/lib/upload'
 import type { Project } from '@/lib/model'
 
 export const runtime = 'nodejs'
@@ -28,6 +29,7 @@ export async function POST(request: Request) {
     if (!demo && (!(file instanceof File) || !file.size || file.size > 24 * 1024 * 1024)) {
       throw new ProjectError('Bitte eine Datei bis 24 MB auswählen.')
     }
+    if (!demo && !canUploadLv(name)) throw new ProjectError(lvUploadFormatMessage)
     const bytes = !demo && file instanceof File ? Buffer.from(await file.arrayBuffer()) : undefined
     if (bytes && /\.pdf$/i.test(name) && !bytes.subarray(0, 5).equals(Buffer.from('%PDF-'))) throw new ProjectError('Die Datei ist kein lesbares PDF.')
     const parsed = demo ? demoImport() : await importLv(bytes!, name).catch(error => {

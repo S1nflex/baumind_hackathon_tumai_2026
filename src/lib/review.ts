@@ -1,6 +1,6 @@
 import Decimal from 'decimal.js'
 import { estimateRow, round } from './estimate'
-import { position, type Finding, type Position, type Preference } from './model'
+import { normalizeOz, position, type Finding, type Position, type Preference } from './model'
 
 function wording(text: string) { return text.trim().toLowerCase().replace(/\s+/g, ' ') }
 function sourceEvidence(row: Position, quote = row.title) { return { positionId: row.id, location: row.source?.location ?? 'Kalkulation', quote } }
@@ -18,7 +18,7 @@ export function reviewRules(rows: Position[]): Finding[] {
   const byText = new Map<string, Position[]>()
 
   for (const row of rows) {
-    const code = row.oz.trim().replace(/\.$/, '')
+    const code = normalizeOz(row.oz)
     byCode.set(code, [...(byCode.get(code) ?? []), row])
     const description = wording(row.description)
     if (description.length > 40 && !/^(?:wie vor|wie zuvor|alternativ|\[person_\d+\])/.test(description)) {
@@ -49,10 +49,10 @@ export function reviewRules(rows: Position[]): Finding[] {
   }
 
   for (const row of rows) {
-    const referenceList = [...row.description.matchAll(/\b(?:Pos(?:ition)?[.-]?\s+(?:Nr\.?\s*)?|OZ\s+)(\d+(?:\.\d+){1,5})\b/gi)]
+    const referenceList = [...row.description.matchAll(/\b(?:Pos(?:ition)?[.-]?\s+(?:Nr\.?\s*)?|OZ\s+)(\d+(?:\.+\d+){1,6})\b/gi)]
     const seen = new Set<string>()
     for (const reference of referenceList) {
-      const target = reference[1]
+      const target = normalizeOz(reference[1])
       if (!byCode.has(target) && target !== row.oz && !seen.has(target)) {
         seen.add(target)
         finding('reference', row.id + '-' + target, 'Verweis auf fehlende OZ ' + target,

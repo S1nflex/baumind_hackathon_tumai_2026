@@ -29,7 +29,7 @@ Gemessen auf dem übergebenen Challenge-A-Datensatz. Vier PDFs wurden anhand von
 | Einheitspreise und Gesamtpreise im bepreisten PDF/GAEB-Paar | 274/274 Positionen |
 | Summe der importierten GP aus `Abgabe LV.pdf` | 835.804,22 € netto, identisch mit der gedruckten Summenzeile |
 | Kontrollfälle im realen Dach-LV | Zwei Verweise auf die fehlende OZ 6.1.80 und ein abweichender Einbauort erkannt |
-| Breiter Importlauf ohne vollständige Referenzannotation | 34/34 PDFs geöffnet, 2.360 Positionen extrahiert, drei Mengen oder Einheiten als unvollständig markiert |
+| Breiter Importlauf ohne vollständige Referenzannotation | 34/34 PDFs geöffnet, 2.411 Positionen extrahiert, neun fehlende Einheiten markiert |
 
 Der Abgleich misst Importgenauigkeit in den vier referenzierten Paaren. Drei exemplarische Prüffälle zeigen die Nachvollziehbarkeit der Regeln. Für eine Trefferquote der Risikoprüfung braucht es separat annotierte Prüffälle über mehrere Gewerke.
 

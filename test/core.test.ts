@@ -27,6 +27,23 @@ test('PDF preserves same-line, next-page and unit-only quantities', () => {
   assert.deepEqual(parsed.positions[0].source?.pages,[1,2])
 })
 
+test('PDF accepts repeated OZ separators and keeps a quantity when the unit is blank', () => {
+  const table = [
+    'OZ           Leistungsbeschreibung          Menge Einheit      Einheitspreis     Gesamtbetrag',
+    '2.6.         KG 456 Gefahrenmelde- und Alarmanlage',
+    '2.6..1       Kommunikations-Stele',
+    ' '.repeat(58) + '1,000           .........................   .........................',
+    '2.6..2       Türstation',
+    '             Anschluss an Pos. 2.6..1.',
+    ' '.repeat(58) + '2,000 St        .........................   .........................',
+  ].join('\n')
+  const result = parsePdfText(table, 'Elektro.pdf')
+  assert.deepEqual(result.positions.map(row => [row.oz, row.quantity, row.unit]),
+    [['2.6.1', 1, ''], ['2.6.2', 2, 'St']])
+  assert.equal(result.positions[0].groupLabel, 'KG 456 Gefahrenmelde- und Alarmanlage')
+  assert.deepEqual(reviewRules(result.positions).map(finding => finding.type), ['data'])
+})
+
 test('GAEB preserves hierarchy, decimal quantity and rejects external declarations', () => {
   const xml = '<GAEB><Award><BoQ><BoQInfo><LblBoQ>Test</LblBoQ></BoQInfo><BoQBody><BoQCtgy RNoPart="01"><LblTx>Dach</LblTx><BoQBody><Itemlist><Item RNoPart="0010"><Qty>1.250</Qty><QU>m2</QU><Description><p>Material</p><p>Montage</p></Description></Item></Itemlist></BoQBody></BoQCtgy></BoQBody></BoQ></Award></GAEB>'
   const {positions:[row]} = parseGaebXml(xml,'test.X83')
