@@ -620,6 +620,8 @@ The system should aim to maintain:
 
 ## Getting Started
 
+This branch includes the Bauton LV prototype. See the [prototype guide](BAUTON.md) for requirements and [demo notes](DEMO.md) for the walkthrough and validation results. The PDF importer requires Poppler, and the application requires Node.js 22.13 or newer.
+
 ### Prerequisites
 
 - Node.js
@@ -636,7 +638,7 @@ cd <repository-directory>
 ### 2. Install Dependencies
 
 ```bash
-npm install
+npm ci
 ```
 
 ### 3. Configure Environment Variables

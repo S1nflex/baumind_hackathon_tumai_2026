@@ -1,0 +1,43 @@
+{
+  "name": "bauton-lv",
+  "version": "1.0.0",
+  "description": "Prüfen, kalkulieren und freigeben: Angebotswerkstatt für Leistungsverzeichnisse",
+  "scripts": {
+    "test": "tsx --test test/*.test.ts",
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "benchmark": "tsx scripts/benchmark.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.143",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/manrope": "^5.3.0",
+    "ai": "^6.0.333",
+    "decimal.js": "^10.6.0",
+    "exceljs": "^4.4.0",
+    "fast-xml-parser": "^5.12.1",
+    "lucide-react": "^1.77.0",
+    "next": "^16.4.6",
+    "pdf-lib": "^1.17.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "overrides": {
+    "exceljs": {
+      "uuid": "11.1.1"
+    }
+  }
+}
