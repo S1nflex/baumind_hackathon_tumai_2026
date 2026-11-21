@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowDown, ArrowUpRight, Check, ChevronRight, ExternalLink, FileText, Package, Search, Sparkles, TriangleAlert, X } from 'lucide-react'
+import { ArrowDown, ArrowUpRight, Check, ChevronLeft, ChevronRight, ExternalLink, FileText, Maximize2, Minimize2, Package, Search, Sparkles, TriangleAlert, X } from 'lucide-react'
 import type { FormEvent, ReactNode } from 'react'
 import { useState } from 'react'
 import { bestOffer, comparable, decimal, estimateRow, eur, markupSuggestion, offerAmount, quantityOf, unitEur, unitOf } from '@/lib/estimate'
@@ -8,6 +8,7 @@ import type { Finding, Offer, Position, Project } from '@/lib/model'
 
 export type RunAction = (action: Record<string, unknown>) => Promise<boolean>
 export type DetailTab = 'detail' | 'offers' | 'source'
+export type InspectorMode = 'compact' | 'focus'
 
 export function optionalNumber(form: FormData, name: string) {
   const value = String(form.get(name) ?? '').trim()
@@ -17,6 +18,40 @@ export const amountLabel = (value: number | null | undefined) => value == null ?
 
 function Num({ name, label, value, max, placeholder }: { name: string; label: string; value?: number | null; max?: number; placeholder?: string }) {
   return <label className="field"><span>{label}</span><input name={name} type="number" step="any" min="0" max={max || 100000000} defaultValue={value ?? ''} placeholder={placeholder || '—'} /></label>
+}
+
+
+// A native, keyboard-accessible unit selector. Unrecognized imported units are
+// preserved verbatim until the user explicitly edits them.
+export const COMMON_UNITS = [
+  ['m²','m² · Quadratmeter'], ['m³','m³ · Kubikmeter'], ['m','m · Meter'],
+  ['lfm','lfm · Laufmeter'], ['St','St · Stück'], ['Stk','Stk · Stück'],
+  ['psch','psch · Pauschal'], ['h','h · Stunde'], ['Std','Std · Stunden'],
+  ['kg','kg · Kilogramm'], ['t','t · Tonne'], ['l','l · Liter'],
+  ['Paar','Paar'], ['Set','Set'], ['Tag','Tag'], ['Wo','Wo · Woche'],
+  ['Monat','Monat'], ['km','km · Kilometer'], ['m2','m2 · Quadratmeter'],
+  ['m3','m3 · Kubikmeter']
+] as const
+
+export function UnitPicker({ initial = 'St', label = 'Einheit' }: { initial?: string; label?: string }) {
+  const known = COMMON_UNITS.some(([id]) => id === initial)
+  const [selected,setSelected] = useState(known ? initial : 'custom')
+  const [custom,setCustom] = useState(known ? '' : initial)
+  return <div className="field bm-unit-picker">
+    <span>{label}</span>
+    <select aria-label="Mengeneinheit auswählen" value={selected} onChange={event => setSelected(event.target.value)}>
+      <optgroup label="Häufige Einheiten">
+        {COMMON_UNITS.slice(0,12).map(([id,text])=><option key={id} value={id}>{text}</option>)}
+      </optgroup>
+      <optgroup label="Weitere Einheiten">
+        {COMMON_UNITS.slice(12).map(([id,text])=><option key={id} value={id}>{text}</option>)}
+      </optgroup>
+      <option value="custom">Eigene Einheit …</option>
+    </select>
+    {selected === 'custom' ? <input name="unit" aria-label="Eigene Mengeneinheit" placeholder="z. B. Rolle" value={custom}
+      onChange={event => setCustom(event.target.value)} maxLength={12} required /> :
+      <input type="hidden" name="unit" value={selected}/>}
+  </div>
 }
 
 export function FindingCard({ finding, project, busy, run, currentId, onSource }:
@@ -84,7 +119,7 @@ function OffersPanel({ row, busy, run, project }: { row: Position; busy: boolean
     </form>}
     {row.category === 'crew' && <a className="text-button" target="_blank" rel="noreferrer" href={'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([row.trade || row.title, project.postcode, 'Deutschland'].join(' '))}>Betriebe in der Nähe suchen <ArrowUpRight size={14}/></a>}
     {!offers.length && <div className="inset empty-small"><Package size={23}/><strong>Keine Angebote hinterlegt</strong><span>Suche nach Artikelnummer oder ergänze ein Lieferantenangebot.</span></div>}
-    {offers.map(offer => {
+    <div className="offer-grid">{offers.map(offer => {
       const active = row.selectedOfferId === offer.id
       const result = quantity === null ? null : offerAmount(offer, quantity)
       return <article className={'offer-card ' + (active ? 'selected' : '')} key={offer.id}>
@@ -105,7 +140,7 @@ function OffersPanel({ row, busy, run, project }: { row: Position; busy: boolean
           </button>}
         </div>
       </article>
-    })}
+    })}</div>
     {chosen && <form onSubmit={acceptShipping} className="inset pane-stack">
       <strong>Daten für „{chosen.merchant}“ bestätigen</strong>
       <p className="small muted">Packungsgröße in {unitOf(row)} und Nettoversand für die bestellte Menge eingeben. Eignung und Lieferbarkeit bitte anhand des Angebots prüfen.</p>
@@ -137,9 +172,10 @@ function OffersPanel({ row, busy, run, project }: { row: Position; busy: boolean
   </div>
 }
 
-export function PositionDetail({ project, row, tab, setTab, close, run, busy, onSource }: {
+export function PositionDetail({ project, row, tab, setTab, close, run, busy, onSource, mode, setMode, previous, next, indexLabel }: {
   project: Project; row: Position; tab: DetailTab; setTab: (tab: DetailTab) => void; close: () => void; run: RunAction; busy: boolean;
-  onSource: (rowId: string) => void
+  onSource: (rowId: string) => void; mode: InspectorMode; setMode: (mode: InspectorMode) => void;
+  previous: (() => void) | null; next: (() => void) | null; indexLabel?: string
 }) {
   const [pdfVisible, setPdfVisible] = useState(false)
   const calc = estimateRow(row, project.baseMarkup)
@@ -159,16 +195,30 @@ export function PositionDetail({ project, row, tab, setTab, close, run, busy, on
     {key:'detail',label:'Details'}, {key:'offers',label:<>Preise {row.offers.length > 0 && <span>{row.offers.length}</span>}</>},
     {key:'source',label:'Quelle'},
   ]
-  return <aside className="inspector" aria-label="Positionsdetails">
-    <header className="inspector-header">
+  return <aside className={'inspector bm-inspector bm-inspector--' + mode} aria-label="Positionsdetails">
+    <header className="inspector-header bm-inspector-header">
       <span className="eyebrow">POSITION {row.oz}</span>
-      <button className="icon-button" onClick={close} aria-label="Positionsdetails schließen"><X size={18}/></button>
+      <div className="bm-inspector-actions" aria-label="Größe der Positionsansicht">
+        <button type="button" className="bm-inspector-mode-button bm-fullscreen-button" title={mode === 'focus' ? 'Zur Seitenansicht' : 'Vollbild öffnen'} aria-label={mode === 'focus' ? 'Vollbild schließen' : 'Vollbild öffnen'} aria-pressed={mode === 'focus'} onClick={() => setMode(mode === 'focus' ? 'compact' : 'focus')}>
+          {mode === 'focus' ? <Minimize2 size={18}/> : <Maximize2 size={18}/>}
+          <span>{mode === 'focus' ? 'Verkleinern' : 'Vollbild'}</span>
+        </button>
+        <span className="bm-action-divider" aria-hidden="true"/>
+        <button type="button" className="bm-inspector-mode-button bm-close-button" onClick={close} title="Position schließen" aria-label="Positionsdetails schließen"><X size={19}/></button>
+      </div>
       <h2>{row.title}</h2>
       <div className="detail-tags">
         <span className={'tag ' + (row.origin === 'suggested' ? 'tag-purple' : row.origin === 'manual' ? 'tag-teal' : 'tag-neutral')}>
           {row.origin === 'suggested' ? <><Sparkles size={12}/> Vorschlag</> : row.origin === 'manual' ? 'Ergänzt' : 'Original'}
         </span>
         <span className="muted small">{row.groupLabel || row.group}</span>
+      </div>
+      <div className="bm-position-navigator">
+        <span>{indexLabel || ('OZ ' + row.oz)}</span>
+        <div>
+          <button type="button" aria-label="Vorherige Position" title="Vorherige Position" disabled={!previous} onClick={previous || undefined}><ChevronLeft size={17}/></button>
+          <button type="button" aria-label="Nächste Position" title="Nächste Position" disabled={!next} onClick={next || undefined}><ChevronRight size={17}/></button>
+        </div>
       </div>
     </header>
     <nav className="detail-tabs" aria-label="Positionsansicht">{tabs.map(item =>
@@ -184,9 +234,11 @@ export function PositionDetail({ project, row, tab, setTab, close, run, busy, on
       </div>}
       {tab === 'offers' && <OffersPanel row={row} project={project} run={run} busy={busy}/>}
       {tab === 'detail' && <div className="pane-stack">
-        <div className="line-totals"><div><span>Menge</span><strong>{calc.quantity === null ? '—' : decimal.format(calc.quantity)} {unitOf(row)}</strong></div>
-          <div><span>EP netto</span><strong>{calc.unitPrice === null ? '—' : unitEur.format(calc.unitPrice)}</strong></div>
-          <div><span>GP netto</span><strong>{!row.included ? '—' : amountLabel(calc.total)}</strong></div></div>
+        <div className="line-totals bm-calculation-totals" aria-label="Menge, Einheitspreis und Gesamtpreis">
+          <div className="bm-total-quantity"><span>Menge</span><strong>{calc.quantity === null ? '—' : decimal.format(calc.quantity)} {unitOf(row)}</strong></div>
+          <div className="bm-total-unit"><span>EP netto</span><strong>{calc.unitPrice === null ? '—' : unitEur.format(calc.unitPrice)}</strong></div>
+          <div className="bm-total-grand"><span>GP netto</span><strong>{!row.included ? '—' : amountLabel(calc.total)}</strong></div>
+        </div>
         {row.origin === 'suggested' && <div className="inset suggested"><p>{row.description}</p>
           {row.laborReference && <p className="small">Lohnorientierung: <b>{eur.format(row.laborReference.value)} / h</b> <a href={row.laborReference.url} target="_blank" rel="noreferrer">{row.laborReference.label} <ArrowUpRight size={12}/></a></p>}
           {!project.archivedAt && <button className="button small-button" disabled={busy} onClick={() => run({ action:'suggestion', rowId:row.id, accept:!row.accepted })}>
@@ -202,22 +254,38 @@ export function PositionDetail({ project, row, tab, setTab, close, run, busy, on
         {!project.archivedAt && <form className="pane-stack cost-form" key={project.revision + row.id} onSubmit={saveRow}>
           <h3>Kalkulation bearbeiten</h3>
           <p className="small muted">Kosten pro Mengeneinheit. Ein manuell gesetzter EP hat Vorrang.</p>
-          <div className="field-grid">
-            <label className="field"><span>Menge</span><input name="quantity" type="number" defaultValue={quantityOf(row) ?? ''} step="any" /></label>
-            <label className="field"><span>Einheit</span><input name="unit" maxLength={12} defaultValue={unitOf(row)} /></label>
-            <Num name="material" label="Material (€)" value={row.costs.material} placeholder={calc.totalMaterial === null ? '—' : 'Lieferant gewählt'} />
-            <Num name="hours" label="Arbeitsstunden" value={row.costs.hours}/>
-            <Num name="rate" label="Lohnsatz (€/h)" value={row.costs.rate}/>
-            <Num name="equipment" label="Geräte (€)" value={row.costs.equipment}/>
-            <Num name="other" label="Sonstiges (€)" value={row.costs.other}/>
-            <Num name="markup" label="Zuschlag (%)" value={row.markup} max={300} placeholder={String(project.baseMarkup)}/>
-          </div>
-          {calc.laborIncomplete && <p className="inline-warning"><TriangleAlert size={14}/> Für Lohnkosten Stunden und Satz ergänzen.</p>}
-          <label className="field"><span>EP netto festlegen (€)</span><input name="override" type="number" step="any" defaultValue={row.overridePrice ?? ''} placeholder={row.sourcePrice === undefined ? 'Berechnet' : String(row.sourcePrice)} /></label>
-          <div className="field-grid">
-            <Num name="market" label="Marktreferenz (€/ME)" value={row.marketPrice}/>
-            <label className="field"><span>Referenzquelle</span><input name="marketSource" maxLength={230} defaultValue={row.marketSource || ''} /></label>
-          </div>
+          <section className="bm-form-section bm-form-section--measure">
+            <h4>Menge & Einheit</h4>
+            <div className="field-grid bm-measure-grid">
+              <label className="field"><span>Menge</span><input name="quantity" type="number" min="0" defaultValue={quantityOf(row) ?? ''} step="any" /></label>
+              <UnitPicker initial={unitOf(row)} />
+            </div>
+          </section>
+          <section className="bm-form-section bm-form-section--cost">
+            <h4>Kostenbestandteile <small>je Mengeneinheit</small></h4>
+            <div className="field-grid">
+              <Num name="material" label="Material (€)" value={row.costs.material} placeholder={calc.totalMaterial === null ? '—' : 'Lieferant gewählt'} />
+              <Num name="hours" label="Arbeitsstunden" value={row.costs.hours}/>
+              <Num name="rate" label="Lohnsatz (€/h)" value={row.costs.rate}/>
+              <Num name="equipment" label="Geräte (€)" value={row.costs.equipment}/>
+              <Num name="other" label="Sonstiges (€)" value={row.costs.other}/>
+            </div>
+            {calc.laborIncomplete && <p className="inline-warning"><TriangleAlert size={14}/> Für Lohnkosten Stunden und Satz ergänzen.</p>}
+          </section>
+          <section className="bm-form-section bm-form-section--price">
+            <h4>Preis & Zuschlag</h4>
+            <div className="field-grid">
+              <Num name="markup" label="Zuschlag (%)" value={row.markup} max={300} placeholder={String(project.baseMarkup)}/>
+              <label className="field"><span>EP netto festlegen (€)</span><input name="override" type="number" min="0" step="any" defaultValue={row.overridePrice ?? ''} placeholder={row.sourcePrice === undefined ? 'Berechnet' : String(row.sourcePrice)} /></label>
+            </div>
+          </section>
+          <section className="bm-form-section bm-form-section--reference">
+            <h4>Preisreferenz <small>optional</small></h4>
+            <div className="field-grid">
+              <Num name="market" label="Marktreferenz (€/ME)" value={row.marketPrice}/>
+              <label className="field"><span>Referenzquelle</span><input name="marketSource" maxLength={230} defaultValue={row.marketSource || ''} /></label>
+            </div>
+          </section>
           {row.type !== 'unit-only' && row.accepted && <label className="check"><input name="included" type="checkbox" defaultChecked={row.included} /> In Angebotssumme aufnehmen</label>}
           <button className="button button-primary" disabled={busy}>Kalkulation speichern</button>
         </form>}

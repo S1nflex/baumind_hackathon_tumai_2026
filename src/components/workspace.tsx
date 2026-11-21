@@ -4,11 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type
 import {
   Archive, ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Calculator, Check, ChevronLeft, ChevronRight, CircleHelp,
   ClipboardCheck, Download, FileText, LayoutGrid, Layers3, Plus, Search, Settings2, RotateCcw,
-  Sparkles, TriangleAlert, Upload, X,
+  Sparkles, TriangleAlert, Upload, X, Languages,
 } from 'lucide-react'
 import { decimal, estimateRow, eur, quantityOf, summarize, unitEur, unitOf } from '@/lib/estimate'
 import type { Position, Project, ProjectListItem } from '@/lib/model'
-import { amountLabel, FindingCard, optionalNumber, PositionDetail, type DetailTab } from './position-detail'
+import { amountLabel, FindingCard, optionalNumber, PositionDetail, type DetailTab, type InspectorMode, UnitPicker } from './position-detail'
 
 type Section = 'lv' | 'review' | 'bid'
 type Modal = 'new' | 'add' | 'finalize' | null
@@ -62,7 +62,7 @@ function UploadForm({ busy, submit, error, embedded = false }: { busy: boolean; 
     <div className={'bm-dropzone ' + (drag ? 'is-dragging ' : '') + (file ? 'has-file' : '')} role="group" aria-label="Datei hochladen"
       onDragOver={event=>{event.preventDefault();setDrag(true)}} onDragLeave={event=>{event.preventDefault();setDrag(false)}}
       onDrop={event=>{event.preventDefault();setDrag(false);acceptFile(event.dataTransfer.files[0])}}>
-      <img className="bm-drop-cloud" src="/brand/elements/cloud-small.webp" alt="" aria-hidden="true"/>
+      <img className="bm-drop-cloud" src="/brand/elements/bm-cloud-small.webp" alt="" aria-hidden="true"/>
       <div className="bm-drop-content">
         <span className="bm-drop-icon"><FileText size={23}/></span>
         <div className="bm-drop-copy"><strong>{file ? file.name : 'Leistungsverzeichnis ablegen'}</strong>
@@ -103,7 +103,7 @@ function AddForm({ project, busy, submit, error }: { project: Project; busy: boo
       </select></label>
       <label className="field"><span>Abschnitt</span><select name="group"><option value="">Ergänzungen</option>{groups.map(([key,label]) => <option key={key} value={key}>{key} {label}</option>)}</select></label>
       <label className="field"><span>Menge</span><input type="number" name="quantity" min="0" step="any" defaultValue="1" required/></label>
-      <label className="field"><span>Einheit</span><input key={category} name="unit" maxLength={12} defaultValue={category === 'labor' ? 'h' : category === 'crew' ? 'psch' : 'St'} required/></label>
+      <UnitPicker key={category} initial={category === 'labor' ? 'h' : category === 'crew' ? 'psch' : 'St'}/>
       <label className="field"><span>Kosten je Einheit (€)</span><input name="price" type="number" min="0" step="any" /></label>
       <label className="field"><span>Gewerk</span><input name="trade" placeholder="z. B. Elektro" maxLength={40} /></label>
     </div>
@@ -129,7 +129,7 @@ function ProjectsView({ projects, archive, open, create, submit, demo, busy, err
         <p>{archive ? 'Abgeschlossene Kalkulationen und freigegebene Angebote.' : 'Datei importieren, Positionen prüfen und das Angebot kalkulieren.'}</p>
       </div>
       {!archive && <button className="button bm-demo-shortcut" onClick={demo} disabled={busy}><Sparkles size={16}/> Demo öffnen</button>}
-      <img className="bm-heading-cloud" src="/brand/elements/cloud-bank.webp" alt="" aria-hidden="true"/>
+      <img className="bm-heading-cloud" src="/brand/elements/bm-cloud-soft.webp" alt="" aria-hidden="true"/>
     </div>
     <div className={'bm-dashboard-grid ' + (archive ? 'is-archive' : '')}>
       {!archive && <section className="bm-import-panel" aria-label="Leistungsverzeichnis importieren">
@@ -138,7 +138,7 @@ function ProjectsView({ projects, archive, open, create, submit, demo, busy, err
           <div><h2>LV importieren</h2><p>Starte mit einer vorhandenen Datei.</p></div>
         </div>
         <UploadForm busy={busy} submit={submit} error={error} embedded />
-        <img className="bm-panel-ivy" src="/brand/elements/ivy-right.webp" alt="" aria-hidden="true"/>
+        <img className="bm-panel-ivy" src="/brand/elements/bm-blueprint.webp" alt="" aria-hidden="true"/>
       </section>}
       <section className="bm-files-panel" aria-label={archive ? 'Archivierte Projekte' : 'Projekte und Dateien'}>
         <div className="bm-files-title">
@@ -157,7 +157,7 @@ function ProjectsView({ projects, archive, open, create, submit, demo, busy, err
             <span className="bm-project-item-body"><strong>{project.name}</strong><small title={project.fileName}>{project.fileName}</small><span>{project.count} Positionen <span aria-hidden="true">·</span> {formatDate(project.createdAt)}</span></span>
             <span className="bm-project-item-meta"><span className={'tag ' + (project.archivedAt ? 'tag-green' : 'tag-neutral')}>{project.archivedAt ? 'Freigegeben' : project.demo ? 'Demo' : project.format}</span><ChevronRight size={17}/></span>
           </button>) : <div className="bm-no-files">
-            <img src="/brand/elements/cloud-small.webp" alt="" aria-hidden="true"/>
+            <img src="/brand/elements/bm-blueprint.webp" alt="" aria-hidden="true"/>
             <strong>{search ? 'Nichts gefunden' : archive ? 'Noch nichts archiviert' : 'Hier erscheinen deine Projekte'}</strong>
             <span>{search ? 'Suche ändern oder zurücksetzen.' : archive ? 'Freigegebene Angebote werden hier gespeichert.' : 'Importiere links ein LV oder öffne die Demo.'}</span>
           </div>}
@@ -184,12 +184,25 @@ export function Workspace() {
   const [section,setSection] = useState<Section>('lv')
   const [rowId,setRowId] = useState<string | null>(null)
   const [tab,setTab] = useState<DetailTab>('detail')
+  const [inspectorMode,setInspectorMode] = useState<InspectorMode>('compact')
   const [query,setQuery] = useState('')
   const [group,setGroup] = useState('all')
   const [filter,setFilter] = useState<Filter>('all')
   const [sort,setSort] = useState<{field:Sort; asc:boolean}>({field:'oz',asc:true})
   const [page,setPage] = useState(0)
+  const [language,setLanguage] = useState<'de'|'en'|'ru'>('de')
   const searchRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem('baumind-language')
+      if (saved === 'de' || saved === 'en' || saved === 'ru') setLanguage(saved)
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    try { window.localStorage.setItem('baumind-language', language) } catch {}
+  }, [language])
 
   const updateProjects = useCallback(async () => {
     const data = await responseData(await fetch('/api/projects', {cache:'no-store'}))
@@ -210,7 +223,7 @@ export function Workspace() {
     void initial()
   }, [updateProjects,loadProject])
 
-  function resetTable() { setRowId(null); setSection('lv'); setQuery(''); setFilter('all'); setGroup('all'); setPage(0); setTab('detail') }
+  function resetTable() { setInspectorMode('compact'); setRowId(null); setSection('lv'); setQuery(''); setFilter('all'); setGroup('all'); setPage(0); setTab('detail') }
   function projectUrl(id: string | null) {
     history.replaceState(null, '', id ? '?projekt=' + encodeURIComponent(id) : location.pathname)
   }
@@ -296,6 +309,12 @@ export function Workspace() {
   const effectivePage = Math.min(page,lastPage)
   const from = effectivePage * pageSize
   const activeRows = shown.slice(from,from+pageSize)
+  function navigateToShown(index:number) {
+    const item = shown[index]
+    if (!item) return
+    selectRow(item.row.id,tab)
+    setPage(Math.floor(index / pageSize))
+  }
   useEffect(() => {
     function shortcuts(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null
@@ -303,11 +322,14 @@ export function Workspace() {
       if (event.key === '/' && !typing && current && section === 'lv' && !modal) {
         event.preventDefault();searchRef.current?.focus()
       }
-      if (event.key === 'Escape' && !modal && rowId && !typing) setRowId(null)
+      if (event.key === 'Escape' && !modal && rowId && !typing) {
+        if (inspectorMode !== 'compact') setInspectorMode('compact')
+        else setRowId(null)
+      }
     }
     window.addEventListener('keydown',shortcuts)
     return () => window.removeEventListener('keydown',shortcuts)
-  },[current,section,modal,rowId])
+  },[current,section,modal,rowId,inspectorMode])
 
   const closeDialog = () => {setModal(null);setError('')}
   function toggleSort(field:Sort) {
@@ -317,6 +339,18 @@ export function Workspace() {
     return <th className={numeric ? 'num' : ''} aria-sort={sort.field === field ? (sort.asc ? 'ascending' : 'descending') : undefined}><button onClick={() => toggleSort(field)}>
       {label} {sort.field === field ? (sort.asc ? <ArrowUp size={12}/> : <ArrowDown size={12}/>) : null}
     </button></th>
+  }
+
+
+  function LanguageSwitcher({ mobile = false }: { mobile?: boolean }) {
+    return <label className={'bm-language-switcher' + (mobile ? ' bm-language-switcher--mobile' : '')}>
+      <span><Languages size={15}/> Sprache</span>
+      <select aria-label="Sprache auswählen" value={language} onChange={event => setLanguage(event.target.value as 'de'|'en'|'ru')}>
+        <option value="de">DE</option>
+        <option value="en">EN</option>
+        <option value="ru">RU</option>
+      </select>
+    </label>
   }
 
   return <div className="app-shell">
@@ -333,13 +367,16 @@ export function Workspace() {
         {groups.map(([id,label])=><button key={id} className={group === id && section === 'lv' ? 'current' : ''}
           title={id + ' ' + label} onClick={()=>{setGroup(id);setSection('lv');setPage(0)}}><span>{id}</span>{label}</button>)}
       </div>}
-      <div className="bm-sidebar-bottom"><img src="/brand/elements/cloud-small.webp" alt=""/><span><strong>BauMind</strong><small>Dein Arbeitsbereich</small></span></div>
+      <div className="bm-sidebar-bottom">
+        <LanguageSwitcher />
+        <div className="bm-sidebar-card"><img src="/brand/elements/bm-bricks.webp" alt=""/><span><strong>BauMind</strong><small>Dein Arbeitsbereich</small></span></div>
+      </div>
     </aside>
     <div className="surface">
       <header className="topbar">
         <div className="breadcrumbs"><button onClick={() => list(Boolean(current?.archivedAt || archive))}>{current?.archivedAt || archive ? 'Archiv' : 'Projekte'}</button>
           {current && <><ChevronRight size={14}/><span title={current.name}>{current.name}</span></>}</div>
-        <div className="top-actions"><button className="button mobile-archive" aria-label={archive || current?.archivedAt ? 'Projekte' : 'Archiv'} onClick={() => list(!(archive || current?.archivedAt))}>
+        <div className="top-actions"><LanguageSwitcher mobile /><button className="button mobile-archive" aria-label={archive || current?.archivedAt ? 'Projekte' : 'Archiv'} onClick={() => list(!(archive || current?.archivedAt))}>
           {archive || current?.archivedAt ? <LayoutGrid size={15}/> : <Archive size={15}/>}</button>
         <button className="button top-create" onClick={() => {setError('');setModal('new')}} disabled={busy}><Plus size={15}/> Neues Projekt</button></div>
       </header>
@@ -348,7 +385,7 @@ export function Workspace() {
           <ProjectsView projects={projects} archive={archive} create={() => {setError('');setModal('new')}} submit={form => void create(form)} demo={openDemo} open={openProject} busy={busy} error={error}/></> :
         <>
           <div className="project-head bm-project-head">
-            <img className="bm-project-cloud" src="/brand/elements/cloud-small.webp" alt="" aria-hidden="true"/>
+            <img className="bm-project-cloud" src="/brand/elements/bm-cloud-small.webp" alt="" aria-hidden="true"/>
             <div className="project-title-badges"><span className="tag tag-neutral">{current.format}</span>
               <span className={'tag ' + (current.archivedAt ? 'tag-green' : 'tag-teal')}>{current.archivedAt ? 'Freigegeben' : 'In Kalkulation'}</span>
               {current.demo && <span className="tag tag-purple">Übungsdaten</span>}
@@ -368,15 +405,15 @@ export function Workspace() {
             <ul>{current.warnings.map((warning,i) => <li key={i}>{warning}</li>)}</ul></details>}
           <div className="stats">
             <div className="stat"><span><Layers3 size={15}/> Originalpositionen</span><strong>{current.positions.filter(row=>row.origin === 'imported').length}</strong><small>{groups.length} Abschnitte</small></div>
-            <button className="stat" onClick={() => {setSection('review');setRowId(null)}}><span><ClipboardCheck size={15}/> Offene Prüfpunkte</span><strong>{summary?.open}</strong><small>{current.analysis.mode === 'rules' ? 'Regelprüfung' : 'Regeln und KI'}</small></button>
-            <div className="stat"><span><CircleHelp size={15}/> Ohne vollständigen Preis</span><strong>{summary?.withoutPrice}</strong><small>Aktive Positionen</small></div>
+            <button className={'stat ' + ((summary?.open || 0) > 0 ? 'stat-danger' : 'stat-success')} onClick={() => {setSection('review');setRowId(null)}}><span><ClipboardCheck size={15}/> Offene Prüfpunkte</span><strong>{summary?.open}</strong><small>{current.analysis.mode === 'rules' ? 'Regelprüfung' : 'Regeln und KI'}</small></button>
+            <div className={'stat ' + ((summary?.withoutPrice || 0) > 0 ? 'stat-warning' : 'stat-success')}><span><CircleHelp size={15}/> Ohne vollständigen Preis</span><strong>{summary?.withoutPrice}</strong><small>{(summary?.withoutPrice || 0) > 0 ? 'Noch nicht freigabefähig' : 'Alles vollständig kalkuliert'}</small></div>
             <div className="stat total-stat"><span><Calculator size={15}/> Angebot netto</span><strong>{amountLabel(summary?.net)}</strong><small>{current.archivedAt ? 'Freigegeben' : 'Aktueller Entwurf'}</small></div>
           </div>
           <nav className="view-tabs" aria-label="Projektansichten">{statuses.map(({key,label,icon:Icon}) =>
             <button className={section === key ? 'active' : ''} key={key} aria-current={section === key ? 'page' : undefined} onClick={()=>{setSection(key);setRowId(null)}}>
               <Icon size={16}/>{label}{key === 'review' && !!summary?.open && <span>{summary.open}</span>}
             </button>)}</nav>
-          {section === 'lv' && <div className={'workspace-body ' + (selected ? 'with-inspector' : '')}>
+          {section === 'lv' && <div className={'workspace-body ' + (selected ? 'with-inspector' : '') + (selected && inspectorMode !== 'compact' ? ' inspector-expanded' : '')}>
             <div className="positions-panel">
               <header className="toolbar bm-table-toolbar">
                 <div className="bm-table-topline"><div><h2>Positionen <span>{shown.length}</span></h2><p>Position auswählen, um Menge, Preise und Quelle zu bearbeiten.</p></div>
@@ -396,7 +433,7 @@ export function Workspace() {
               <div className="table-scroll">
                 <table className="lv-table"><thead><tr>
                   {header('OZ','oz')}{header('Leistung','title')}{header('Menge','quantity',true)}
-                  <th>ME</th>{header('EP netto','price',true)}{header('GP netto','total',true)}<th>Status</th>
+                  <th className="bm-unit-head">ME</th>{header('EP netto','price',true)}{header('GP netto','total',true)}<th>Status</th>
                 </tr></thead><tbody>{activeRows.map(({row,calc}) => {
                   const needs = openIds.has(row.id)
                   const outside = !row.included
@@ -404,13 +441,13 @@ export function Workspace() {
                   return <tr tabIndex={0} role="button" aria-label={'Position ' + row.oz + ' öffnen: ' + row.title} onKeyDown={event=>{if(event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')){event.preventDefault();selectRow(row.id)}}} className={(rowId === row.id ? 'selected-row ' : '') + (row.origin === 'suggested' ? 'suggested-row ' : '') + (outside ? 'outside-row' : '')} key={row.id} onClick={()=>selectRow(row.id)}>
                     <td><button className="oz-button" onClick={event=>{event.stopPropagation();selectRow(row.id)}} aria-label={'Position ' + row.oz}>{row.oz}</button></td>
                     <td className="title-cell"><b title={row.title}>{row.title}</b>{row.origin !== 'imported' && <span>{row.origin === 'suggested' ? 'Vorgeschlagen' : 'Ergänzt'}</span>}</td>
-                    <td className="num">{calc.quantity === null ? '—' : decimal.format(calc.quantity)}</td><td className="unit">{unitOf(row) || '—'}</td>
-                    <td className="num"><button className="price-cell" aria-label={'Preise für ' + row.oz} onClick={event => { event.stopPropagation(); selectRow(row.id,'offers') }}>
+                    <td className="num bm-qty-cell">{calc.quantity === null ? '—' : decimal.format(calc.quantity)}</td><td className="unit bm-unit-cell">{unitOf(row) || '—'}</td>
+                    <td className="num bm-ep-cell"><button className="price-cell" aria-label={'Preise für ' + row.oz} onClick={event => { event.stopPropagation(); selectRow(row.id,'offers') }}>
                       {calc.unitPrice === null ? '—' : unitEur.format(calc.unitPrice)}
                     </button></td>
-                    <td className="num">{!row.included ? '—' : amountLabel(calc.total)}</td>
+                    <td className="num bm-gp-cell">{!row.included ? '—' : amountLabel(calc.total)}</td>
                     <td className="cell-status">
-                      {needs ? <span className="tag tag-amber"><TriangleAlert size={13}/> Prüfen</span> :
+                      {needs ? <span className="tag tag-danger"><TriangleAlert size={13}/> Problem prüfen</span> :
                         high ? <span className="tag tag-amber"><TriangleAlert size={13}/> Über Referenz</span> :
                           row.origin === 'suggested' && !row.accepted ? <span className="tag tag-purple"><Sparkles size={12}/> Vorschlag</span> :
                             row.type === 'unit-only' ? <span className="tag tag-neutral">Nur EP</span> :
@@ -424,8 +461,15 @@ export function Workspace() {
                 <div className="button-row"><button className="icon-button" aria-label="Vorherige Seite" onClick={()=>setPage(effectivePage-1)} disabled={!effectivePage}><ChevronLeft size={16}/></button>
                   <span>Seite {effectivePage+1} / {lastPage+1}</span><button className="icon-button" aria-label="Nächste Seite" onClick={()=>setPage(effectivePage+1)} disabled={effectivePage===lastPage}><ChevronRight size={16}/></button></div></footer>
             </div>
-            {selected && <PositionDetail key={selected.id} project={current} row={selected} tab={tab} setTab={setTab} close={()=>setRowId(null)} run={run} busy={busy}
-              onSource={id=>selectRow(id,'source')}/>}
+            {selected && <>
+              {inspectorMode === 'focus' && <button className="bm-inspector-backdrop" type="button" aria-label="Fokusansicht verlassen" title="Zur kompakten Ansicht" onClick={() => setInspectorMode('compact')}/>}
+              <PositionDetail key={selected.id} project={current} row={selected} tab={tab} setTab={setTab} close={()=>setRowId(null)} run={run} busy={busy}
+                mode={inspectorMode} setMode={setInspectorMode}
+                indexLabel={(() => { const index = shown.findIndex(item => item.row.id === selected.id); return index >= 0 ? `${index + 1} von ${shown.length} Positionen` : `OZ ${selected.oz}` })()}
+                previous={(() => {const index = shown.findIndex(item => item.row.id === selected.id);return index > 0 ? () => navigateToShown(index - 1) : null})()}
+                next={(() => {const index = shown.findIndex(item => item.row.id === selected.id);return index >= 0 && index < shown.length - 1 ? () => navigateToShown(index + 1) : null})()}
+                onSource={id=>selectRow(id,'source')}/>
+            </>}
           </div>}
           {section === 'review' && <div className="view-body review-body">
             <div className="view-title"><div><h2>Prüfprotokoll</h2><p className="muted">Fundstellen und Entscheidungen zum Leistungsverzeichnis.</p></div>
@@ -470,15 +514,23 @@ export function Workspace() {
     {modal === 'finalize' && current && <Dialog label="Angebot freigeben" close={closeDialog} busy={busy}>
       <div className="pane-stack">
         <p>Die geprüfte Kalkulation wird als Abgabe-LV gespeichert und im Archiv abgelegt.</p>
-        <div className="inset">
-          <div className="bid-line"><span>Offene Prüfpunkte</span><b>{summary?.open}</b></div>
-          <div className="bid-line"><span>Unvollständig kalkuliert</span><b>{summary?.withoutPrice}</b></div>
-          <div className="bid-line"><strong>Angebot netto</strong><strong>{amountLabel(summary?.net)}</strong></div>
+        {((summary?.open || 0) > 0 || (summary?.withoutPrice || 0) > 0) ? <div className="bm-finalize-status bm-finalize-status--danger" role="alert">
+          <TriangleAlert size={18}/>
+          <div><strong>Freigabe blockiert</strong><p>Behebe zuerst alle offenen Prüfpunkte und fehlenden Preise. Erst dann kann das Angebot sauber abgegeben werden.</p></div>
+        </div> : <div className="bm-finalize-status bm-finalize-status--success">
+          <Check size={18}/>
+          <div><strong>Freigabe ist möglich</strong><p>Alle Prüfpunkte sind geklärt und alle aktiven Positionen sind kalkuliert.</p></div>
+        </div>}
+        <div className="inset bm-finalize-metrics">
+          <div className={'bm-finalize-check ' + ((summary?.open || 0) > 0 ? 'is-danger' : 'is-ok')}><span>Offene Prüfpunkte</span><b>{summary?.open}</b><small>{(summary?.open || 0) > 0 ? 'Muss vor der Abgabe geklärt werden' : 'Keine offenen Prüfprobleme'}</small></div>
+          <div className={'bm-finalize-check ' + ((summary?.withoutPrice || 0) > 0 ? 'is-warning' : 'is-ok')}><span>Unvollständig kalkuliert</span><b>{summary?.withoutPrice}</b><small>{(summary?.withoutPrice || 0) > 0 ? 'Aktive Positionen ohne vollständigen Preis' : 'Alle aktiven Positionen haben einen Preis'}</small></div>
+          <div className="bm-finalize-check is-total"><span>Angebot netto</span><b>{amountLabel(summary?.net)}</b><small>Wird als Abgabe-LV archiviert</small></div>
         </div>
         {error && <div className="error-inline" role="alert">{error}</div>}
         <div className="dialog-actions"><button className="button" onClick={closeDialog} disabled={busy}><ArrowLeft size={15}/> Zurück</button>
           <button className="button button-primary" disabled={busy || !!summary?.open || !!summary?.withoutPrice}
             onClick={async ()=>{if(await run({action:'finalize'})){setModal(null);setSection('bid')}}}><Check size={16}/> Freigeben und archivieren</button></div>
+        {((summary?.open || 0) > 0 || (summary?.withoutPrice || 0) > 0) && <p className="bm-submit-help">Hinweis: Die Freigabe bleibt gesperrt, bis alle Probleme gelöst sind.</p>}
       </div>
     </Dialog>}
   </div>
