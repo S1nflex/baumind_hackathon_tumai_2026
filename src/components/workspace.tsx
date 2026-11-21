@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import {
   Archive, ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpRight, Calculator, Check, ChevronLeft, ChevronRight, CircleHelp,
-  ClipboardCheck, Download, FileText, FolderOpen, LayoutGrid, Layers3, Plus, Search, Settings2,
+  ClipboardCheck, Download, FileText, LayoutGrid, Layers3, Plus, Search, Settings2, RotateCcw,
   Sparkles, TriangleAlert, Upload, X,
 } from 'lucide-react'
 import { decimal, estimateRow, eur, quantityOf, summarize, unitEur, unitOf } from '@/lib/estimate'
@@ -43,38 +43,50 @@ function Dialog({ label, close, children, busy }: { label: string; close: () => 
 function UploadForm({ busy, submit, error, embedded = false }: { busy: boolean; submit: (form: FormData) => void; error: string; embedded?: boolean }) {
   const [file, setFile] = useState<File>()
   const [drag, setDrag] = useState(false)
+  const [localError,setLocalError] = useState('')
+  const input = useRef<HTMLInputElement>(null)
+  function acceptFile(value: File | undefined) {
+    if (!value) return
+    if (value.size > 24 * 1024 * 1024) {setFile(undefined);setLocalError('Datei zu groß: maximal 24 MB.');return}
+    if (!/\.(?:pdf|x8[1-6]|d8[1-6]|xml|xlsx)$/i.test(value.name)) {setFile(undefined);setLocalError('Unterstützt werden PDF, GAEB und XLSX.');return}
+    setLocalError('');setFile(value)
+  }
   function send(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (!file) return
     const form = new FormData(event.currentTarget)
-    if (file) form.set('file', file)
+    form.set('file',file)
     submit(form)
   }
-  return <form className={embedded ? 'bm-direct-upload' : 'pane-stack'} onSubmit={send}>
-    {!embedded && <p className="muted">Leistungsverzeichnis als Ausgangspunkt für eine neue Kalkulation importieren.</p>}
-    <label className={'upload-zone bm-dropzone ' + (drag ? 'dragging' : '') + (file ? ' selected' : '')}
-      onDragOver={event => {event.preventDefault(); setDrag(true)}}
-      onDragLeave={event => {event.preventDefault(); setDrag(false)}}
-      onDrop={event => {event.preventDefault(); setDrag(false); if (event.dataTransfer.files[0]) setFile(event.dataTransfer.files[0])}}>
-      <span className="bm-drop-symbol" aria-hidden="true"><Upload size={25}/></span>
-      <strong>{file ? file.name : 'Datei hier ablegen oder auswählen'}</strong>
-      <span>{file ? 'Datei ausgewählt · Bereit zum Import' : 'PDF, GAEB oder Excel · maximal 24 MB'}</span>
-      <span className="bm-choose-file">{file ? 'Andere Datei auswählen' : 'Datei auswählen'} <ArrowRight size={15}/></span>
-      <input type="file" name="file" accept=".pdf,.x81,.x83,.x84,.x85,.x86,.xml,.d81,.d83,.d84,.d85,.d86,.xlsx"
-        onChange={event => {if(event.target.files?.[0]) setFile(event.target.files[0])}} aria-label="Leistungsverzeichnis auswählen" />
-    </label>
-    <div className="bm-file-types"><span>DATEIFORMATE</span><b>PDF</b><b>GAEB</b><b>XLSX</b><span>bis 24 MB</span></div>
-    <label className="field bm-name-field"><span>Projektname <small>(optional)</small></span><input name="name" placeholder="z. B. Neubau Wohnhaus München" maxLength={120}/></label>
-    <details className="bm-advanced-import"><summary><Settings2 size={15}/> Erweiterte Importoptionen</summary>
+  return <form className={embedded ? 'bm-import-form' : 'pane-stack bm-import-form'} onSubmit={send}>
+    <div className={'bm-dropzone ' + (drag ? 'is-dragging ' : '') + (file ? 'has-file' : '')} role="group" aria-label="Datei hochladen"
+      onDragOver={event=>{event.preventDefault();setDrag(true)}} onDragLeave={event=>{event.preventDefault();setDrag(false)}}
+      onDrop={event=>{event.preventDefault();setDrag(false);acceptFile(event.dataTransfer.files[0])}}>
+      <img className="bm-drop-cloud" src="/brand/elements/cloud-small.webp" alt="" aria-hidden="true"/>
+      <div className="bm-drop-content">
+        <span className="bm-drop-icon"><FileText size={23}/></span>
+        <div className="bm-drop-copy"><strong>{file ? file.name : 'Leistungsverzeichnis ablegen'}</strong>
+          <span>{file ? `${(file.size / 1024 / 1024).toFixed(2)} MB · bereit zum Import` : 'PDF, GAEB oder XLSX hierher ziehen'}</span></div>
+        <button type="button" className="button bm-file-picker" onClick={()=>input.current?.click()} disabled={busy}>
+          <Upload size={16}/>{file ? 'Datei wechseln' : 'Datei auswählen'}
+        </button>
+      </div>
+      <input ref={input} className="bm-upload-input" type="file" name="file" accept=".pdf,.x81,.x83,.x84,.x85,.x86,.xml,.d81,.d83,.d84,.d85,.d86,.xlsx"
+        onChange={event=>acceptFile(event.target.files?.[0])} aria-label="Datei auswählen"/>
+    </div>
+    <div className="bm-upload-legend"><span><Check size={13}/> PDF</span><span><Check size={13}/> GAEB</span><span><Check size={13}/> XLSX</span><small>Max. 24 MB</small></div>
+    <label className="field bm-name-field"><span>Projektname <small>optional</small></span><input name="name" placeholder="z. B. Neubau Wohnhaus München" maxLength={120}/></label>
+    <details className="bm-import-options"><summary><Settings2 size={16}/> Weitere Importoptionen</summary>
       <div className="field-grid">
-        <label className="field"><span>Bieter / Unternehmen</span><input name="company" maxLength={120}/></label>
+        <label className="field"><span>Unternehmen</span><input name="company" maxLength={120}/></label>
         <label className="field"><span>PLZ der Baustelle</span><input name="postcode" inputMode="numeric" pattern="[0-9]{5}" maxLength={5}/></label>
       </div>
-      <label className="check"><input type="checkbox" name="prices" value="1" defaultChecked/> Lieferanten für erkannte Artikel suchen</label>
-      <label className="check"><input type="checkbox" name="ai" value="1"/> KI-Textprüfung ausführen, falls Anbieter konfiguriert</label>
+      <label className="check"><input type="checkbox" name="prices" value="1" defaultChecked/> Lieferantenpreise suchen</label>
+      <label className="check"><input type="checkbox" name="ai" value="1"/> KI-Textprüfung (mit API-Schlüssel)</label>
     </details>
-    {error && <div className="error-inline" role="alert">{error}</div>}
+    {(error || localError) && <div className="error-inline" role="alert">{localError || error}</div>}
     <button type="submit" className="button button-primary bm-import-submit" disabled={busy || !file}>
-      {busy ? 'Datei wird verarbeitet …' : 'LV importieren & prüfen'} <ArrowRight size={17}/>
+      {busy ? 'Datei wird verarbeitet …' : 'Importieren und prüfen'} <ArrowRight size={17}/>
     </button>
   </form>
 }
@@ -106,43 +118,56 @@ function ProjectsView({ projects, archive, open, create, submit, demo, busy, err
   submit: (form: FormData) => void; demo: () => void; busy: boolean; error: string
 }) {
   const [search, setSearch] = useState('')
+  const [order,setOrder] = useState<'newest'|'name'>('newest')
   const visible = projects.filter(project => Boolean(project.archivedAt) === archive)
   const filtered = visible.filter(project => `${project.name} ${project.fileName} ${project.format}`.toLowerCase().includes(search.trim().toLowerCase()))
-    .sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .sort((a,b) => order === 'name' ? a.name.localeCompare(b.name,'de') : new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   return <main className="projects-page bm-work-home">
     <div className="bm-work-heading">
-      <div><h1>{archive ? 'Archiv' : 'Dateien & Kalkulation'}</h1>
-        <p>{archive ? 'Freigegebene Angebote und abgeschlossene Kalkulationen.' : 'Leistungsverzeichnisse hochladen, prüfen und Preise kalkulieren.'}</p>
+      <div className="bm-page-headline"><span className="bm-overline"><span className="bm-overline-dot"/> BAUMIND WORKSPACE</span>
+        <h1>{archive ? 'Archiv' : 'Dateien & Kalkulation'}</h1>
+        <p>{archive ? 'Abgeschlossene Kalkulationen und freigegebene Angebote.' : 'Datei importieren, Positionen prüfen und das Angebot kalkulieren.'}</p>
       </div>
-      {!archive && <button className="button bm-demo-shortcut" onClick={demo} disabled={busy}><Sparkles size={16}/> Beispielprojekt öffnen</button>}
+      {!archive && <button className="button bm-demo-shortcut" onClick={demo} disabled={busy}><Sparkles size={16}/> Demo öffnen</button>}
+      <img className="bm-heading-cloud" src="/brand/elements/cloud-bank.webp" alt="" aria-hidden="true"/>
     </div>
     <div className={'bm-dashboard-grid ' + (archive ? 'is-archive' : '')}>
-      {!archive && <section className="bm-import-panel" aria-label="LV importieren">
+      {!archive && <section className="bm-import-panel" aria-label="Leistungsverzeichnis importieren">
         <div className="bm-panel-heading">
-          <div className="bm-panel-icon"><img src="/brand/elements/icon-upload.webp" alt=""/></div>
-          <div><span className="bm-panel-kicker">01 / IMPORT</span><h2>Neues Leistungsverzeichnis</h2><p>Beginne direkt mit deiner Datei.</p></div>
+          <div className="bm-panel-icon"><Upload size={21}/></div>
+          <div><h2>LV importieren</h2><p>Starte mit einer vorhandenen Datei.</p></div>
         </div>
         <UploadForm busy={busy} submit={submit} error={error} embedded />
+        <img className="bm-panel-ivy" src="/brand/elements/ivy-right.webp" alt="" aria-hidden="true"/>
       </section>}
-      <section className="bm-files-panel" aria-label={archive ? 'Archivierte Projekte' : 'Meine Projekte'}>
+      <section className="bm-files-panel" aria-label={archive ? 'Archivierte Projekte' : 'Projekte und Dateien'}>
         <div className="bm-files-title">
-          <div><span className="bm-panel-kicker">{archive ? 'ABLAGE' : '02 / DATEIVERWALTUNG'}</span><h2>{archive ? 'Archivierte Projekte' : 'Meine Projekte'} <span className="bm-project-count">{visible.length}</span></h2></div>
-          {!archive && <button className="bm-icon-action" onClick={create} disabled={busy} aria-label="Projekt mit Dateiupload erstellen" title="Weiteres Projekt importieren"><Plus size={18}/></button>}
+          <div><h2>{archive ? 'Archivierte Projekte' : 'Meine Projekte'} <span className="bm-project-count">{visible.length}</span></h2>
+            <p>Deine Dateien und Kalkulationen an einem Ort.</p></div>
+          {!archive && <button className="bm-icon-action" onClick={create} disabled={busy} aria-label="Projekt hinzufügen" title="Projekt hinzufügen"><Plus size={19}/></button>}
         </div>
-        <label className="bm-project-search"><Search size={17}/><input value={search} onChange={event=>setSearch(event.target.value)} placeholder="Dateien oder Projekte suchen" aria-label="Projekte durchsuchen"/></label>
+        <div className="bm-file-tools">
+          <label className="bm-project-search"><Search size={18}/><input value={search} onChange={event=>setSearch(event.target.value)} placeholder="Projekt oder Datei suchen" aria-label="Projekte durchsuchen"/>
+            {search && <button type="button" aria-label="Suche löschen" onClick={()=>setSearch('')}><X size={14}/></button>}</label>
+          <select aria-label="Projekte sortieren" value={order} onChange={event=>setOrder(event.target.value as 'newest'|'name')}><option value="newest">Neueste</option><option value="name">A–Z</option></select>
+        </div>
         <div className="bm-project-list">
-          {filtered.length ? filtered.map(project => <button key={project.id} className="bm-project-item" onClick={() => open(project.id)} disabled={busy}>
-            <span className="bm-project-item-icon"><FileText size={20}/></span>
-            <span className="bm-project-item-body"><strong>{project.name}</strong><small>{project.fileName}</small><span>{project.count} Positionen · {formatDate(project.createdAt)}</span></span>
-            <span className="bm-project-item-meta"><span className={'tag ' + (project.archivedAt ? 'tag-green' : 'tag-neutral')}>{project.archivedAt ? 'Freigegeben' : project.demo ? 'Beispiel' : project.format}</span><ArrowUpRight size={17}/></span>
+          {filtered.length ? filtered.map(project => <button key={project.id} className="bm-project-item" onClick={()=>open(project.id)} disabled={busy}>
+            <span className="bm-project-item-icon"><FileText size={21}/></span>
+            <span className="bm-project-item-body"><strong>{project.name}</strong><small title={project.fileName}>{project.fileName}</small><span>{project.count} Positionen <span aria-hidden="true">·</span> {formatDate(project.createdAt)}</span></span>
+            <span className="bm-project-item-meta"><span className={'tag ' + (project.archivedAt ? 'tag-green' : 'tag-neutral')}>{project.archivedAt ? 'Freigegeben' : project.demo ? 'Demo' : project.format}</span><ChevronRight size={17}/></span>
           </button>) : <div className="bm-no-files">
-            <FolderOpen size={27}/><strong>{search ? 'Keine Treffer' : archive ? 'Noch keine archivierten Projekte' : 'Noch keine Projekte'}</strong>
-            <span>{search ? 'Versuche einen anderen Suchbegriff.' : archive ? 'Freigegebene Angebote erscheinen hier.' : 'Importiere links eine Datei. Sie erscheint danach hier.'}</span>
+            <img src="/brand/elements/cloud-small.webp" alt="" aria-hidden="true"/>
+            <strong>{search ? 'Nichts gefunden' : archive ? 'Noch nichts archiviert' : 'Hier erscheinen deine Projekte'}</strong>
+            <span>{search ? 'Suche ändern oder zurücksetzen.' : archive ? 'Freigegebene Angebote werden hier gespeichert.' : 'Importiere links ein LV oder öffne die Demo.'}</span>
           </div>}
         </div>
-        {!archive && <div className="bm-files-footer"><span><Check size={15}/> Deine Projekte bleiben bearbeitbar</span><button onClick={demo} disabled={busy}>Beispiel testen <ArrowRight size={15}/></button></div>}
+        {!archive && <div className="bm-files-footer"><span><Check size={15}/> Änderungen werden im Projekt gespeichert</span><button onClick={demo} disabled={busy}>Demo testen <ArrowUpRight size={15}/></button></div>}
       </section>
     </div>
+    <div className="bm-work-tips"><div><FileText size={18}/><span><strong>Dateien importieren</strong><small>PDF, GAEB, XLSX</small></span></div>
+      <div><ClipboardCheck size={18}/><span><strong>Positionen prüfen</strong><small>Risiken und Unklarheiten</small></span></div>
+      <div><Calculator size={18}/><span><strong>Kosten kalkulieren</strong><small>Preise und Angebote</small></span></div></div>
   </main>
 }
 
@@ -164,6 +189,7 @@ export function Workspace() {
   const [filter,setFilter] = useState<Filter>('all')
   const [sort,setSort] = useState<{field:Sort; asc:boolean}>({field:'oz',asc:true})
   const [page,setPage] = useState(0)
+  const searchRef = useRef<HTMLInputElement>(null)
 
   const updateProjects = useCallback(async () => {
     const data = await responseData(await fetch('/api/projects', {cache:'no-store'}))
@@ -270,6 +296,18 @@ export function Workspace() {
   const effectivePage = Math.min(page,lastPage)
   const from = effectivePage * pageSize
   const activeRows = shown.slice(from,from+pageSize)
+  useEffect(() => {
+    function shortcuts(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null
+      const typing = !!target?.closest('input, textarea, select, [contenteditable="true"]')
+      if (event.key === '/' && !typing && current && section === 'lv' && !modal) {
+        event.preventDefault();searchRef.current?.focus()
+      }
+      if (event.key === 'Escape' && !modal && rowId && !typing) setRowId(null)
+    }
+    window.addEventListener('keydown',shortcuts)
+    return () => window.removeEventListener('keydown',shortcuts)
+  },[current,section,modal,rowId])
 
   const closeDialog = () => {setModal(null);setError('')}
   function toggleSort(field:Sort) {
@@ -286,16 +324,16 @@ export function Workspace() {
       <button className="brand" onClick={() => list(false)} aria-label="BauMind Projekte"><span className="brand-icon"><img src="/brand/mountain-mark.png" alt="BauMind Bergsymbol" /></span><span>BauMind<small>BAUKALKULATION & DATEIEN</small></span></button>
       <div className="side-divider"/>
       <nav aria-label="Arbeitsbereich" className="side-nav">
-        <button className={!(current?.archivedAt || archive) ? 'active' : ''} onClick={() => list(false)}><LayoutGrid size={17}/> Projekte</button>
-        <button className={current?.archivedAt || archive ? 'active' : ''} onClick={() => list(true)}><Archive size={17}/> Archiv</button>
+        <button className={!(current?.archivedAt || archive) ? 'active' : ''} onClick={()=>list(false)}><LayoutGrid size={18}/> Projekte</button>
+        <button className={current?.archivedAt || archive ? 'active' : ''} onClick={()=>list(true)}><Archive size={18}/> Archiv</button>
       </nav>
       {current && groups.length > 1 && <div className="side-section">
-        <div className="side-label">ABSCHNITTE</div>
-        <button className={group === 'all' && section === 'lv' ? 'current' : ''} onClick={() => {setGroup('all');setSection('lv');setPage(0)}}>Alle Positionen</button>
-        {groups.map(([id,label]) => <button key={id} className={group === id && section === 'lv' ? 'current' : ''}
-          title={id + ' ' + label} onClick={() => {setGroup(id);setSection('lv');setPage(0)}}><span>{id}</span>{label}</button>)}
+        <div className="side-label">Gewerke / Abschnitte</div>
+        <button className={group === 'all' && section === 'lv' ? 'current' : ''} onClick={()=>{setGroup('all');setSection('lv');setPage(0)}}>Alle Positionen</button>
+        {groups.map(([id,label])=><button key={id} className={group === id && section === 'lv' ? 'current' : ''}
+          title={id + ' ' + label} onClick={()=>{setGroup(id);setSection('lv');setPage(0)}}><span>{id}</span>{label}</button>)}
       </div>}
-      <div className="side-bottom"><span className="avatar">BM</span><div><strong>BauMind Studio</strong><span>Arbeitsbereich</span></div></div>
+      <div className="bm-sidebar-bottom"><img src="/brand/elements/cloud-small.webp" alt=""/><span><strong>BauMind</strong><small>Dein Arbeitsbereich</small></span></div>
     </aside>
     <div className="surface">
       <header className="topbar">
@@ -309,7 +347,8 @@ export function Workspace() {
         !current ? <>{error && archive && <div className="global-alert error-inline" role="alert">{error}</div>}
           <ProjectsView projects={projects} archive={archive} create={() => {setError('');setModal('new')}} submit={form => void create(form)} demo={openDemo} open={openProject} busy={busy} error={error}/></> :
         <>
-          <div className="project-head">
+          <div className="project-head bm-project-head">
+            <img className="bm-project-cloud" src="/brand/elements/cloud-small.webp" alt="" aria-hidden="true"/>
             <div className="project-title-badges"><span className="tag tag-neutral">{current.format}</span>
               <span className={'tag ' + (current.archivedAt ? 'tag-green' : 'tag-teal')}>{current.archivedAt ? 'Freigegeben' : 'In Kalkulation'}</span>
               {current.demo && <span className="tag tag-purple">Übungsdaten</span>}
@@ -339,14 +378,20 @@ export function Workspace() {
             </button>)}</nav>
           {section === 'lv' && <div className={'workspace-body ' + (selected ? 'with-inspector' : '')}>
             <div className="positions-panel">
-              <header className="toolbar">
-                <label className="search"><Search size={16}/><input value={query} placeholder="Position oder OZ suchen" aria-label="Position suchen" onChange={event => {setQuery(event.target.value);setPage(0)}}/></label>
-                <select aria-label="Abschnitt filtern" value={group} onChange={event => {setGroup(event.target.value);setPage(0)}}><option value="all">Alle Abschnitte</option>
-                  {groups.map(([key,label]) => <option key={key} value={key}>{key} {label}</option>)}</select>
-                <select aria-label="Prüfstatus filtern" value={filter} onChange={event => {setFilter(event.target.value as Filter);setPage(0)}}>
-                  <option value="all">Alle Status</option><option value="open">Offene Prüfpunkte</option><option value="suggestions">Vorschläge</option><option value="unpriced">Ohne Preis</option>
-                </select>
-                {!current.archivedAt && <button className="button add-position" onClick={()=>{setError('');setModal('add')}}><Plus size={15}/> Position</button>}
+              <header className="toolbar bm-table-toolbar">
+                <div className="bm-table-topline"><div><h2>Positionen <span>{shown.length}</span></h2><p>Position auswählen, um Menge, Preise und Quelle zu bearbeiten.</p></div>
+                  {!current.archivedAt && <button className="button add-position" onClick={()=>{setError('');setModal('add')}}><Plus size={16}/> Position hinzufügen</button>}
+                </div>
+                <div className="bm-table-controls">
+                  <label className="search"><Search size={17}/><input ref={searchRef} value={query} placeholder="OZ oder Leistung suchen  /" aria-label="Position suchen" onChange={event=>{setQuery(event.target.value);setPage(0)}}/>
+                    {query && <button className="bm-clear-query" aria-label="Suche löschen" onClick={()=>{setQuery('');setPage(0)}}><X size={15}/></button>}</label>
+                  <label className="bm-group-filter"><span className="sr-only">Abschnitt</span><select aria-label="Abschnitt filtern" value={group} onChange={event=>{setGroup(event.target.value);setPage(0)}}><option value="all">Alle Abschnitte</option>
+                    {groups.map(([key,label])=><option key={key} value={key}>{key} {label}</option>)}</select></label>
+                </div>
+                <div className="bm-filter-row" aria-label="Statusfilter">
+                  {([['all','Alle'],['open','Prüfen'],['unpriced','Ohne Preis'],['suggestions','Vorschläge']] as const).map(([value,label])=><button key={value} className={'bm-filter-chip ' + (filter===value?'active':'')} aria-pressed={filter===value} onClick={()=>{setFilter(value);setPage(0)}}>{value==='open'&&<TriangleAlert size={14}/>} {label}{value==='open'&&!!summary?.open&&<b>{summary.open}</b>}</button>)}
+                  {(query || group !== 'all' || filter !== 'all') && <button className="bm-reset-filters" onClick={()=>{setQuery('');setGroup('all');setFilter('all');setPage(0)}}><RotateCcw size={13}/> Zurücksetzen</button>}
+                </div>
               </header>
               <div className="table-scroll">
                 <table className="lv-table"><thead><tr>
@@ -356,7 +401,7 @@ export function Workspace() {
                   const needs = openIds.has(row.id)
                   const outside = !row.included
                   const high = row.marketPrice !== null && calc.unitPrice !== null && row.marketPrice > 0 && calc.unitPrice > row.marketPrice * 1.15
-                  return <tr className={(rowId === row.id ? 'selected-row ' : '') + (row.origin === 'suggested' ? 'suggested-row ' : '') + (outside ? 'outside-row' : '')} key={row.id} onClick={()=>selectRow(row.id)}>
+                  return <tr tabIndex={0} role="button" aria-label={'Position ' + row.oz + ' öffnen: ' + row.title} onKeyDown={event=>{if(event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')){event.preventDefault();selectRow(row.id)}}} className={(rowId === row.id ? 'selected-row ' : '') + (row.origin === 'suggested' ? 'suggested-row ' : '') + (outside ? 'outside-row' : '')} key={row.id} onClick={()=>selectRow(row.id)}>
                     <td><button className="oz-button" onClick={event=>{event.stopPropagation();selectRow(row.id)}} aria-label={'Position ' + row.oz}>{row.oz}</button></td>
                     <td className="title-cell"><b title={row.title}>{row.title}</b>{row.origin !== 'imported' && <span>{row.origin === 'suggested' ? 'Vorgeschlagen' : 'Ergänzt'}</span>}</td>
                     <td className="num">{calc.quantity === null ? '—' : decimal.format(calc.quantity)}</td><td className="unit">{unitOf(row) || '—'}</td>
