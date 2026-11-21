@@ -1,48 +1,48 @@
 # Bauton LV
 
-Angebotswerkstatt für Leistungsverzeichnisse. Bauton importiert ein LV pro Projekt, zeigt prüfbare Auffälligkeiten an den Originalpositionen und führt vom Lieferantenvergleich bis zum freigegebenen Angebot.
+An estimate workshop for bills of quantities. Bauton imports one BOQ per project, displays verifiable anomalies on the original items, and guides users from supplier comparison to a released quotation.
 
 ## Start
 
-Voraussetzungen sind Node.js 22.13+ und Poppler für PDFs mit Textschicht. Poppler lässt sich auf macOS mit `brew install poppler` und auf Debian/Ubuntu mit `sudo apt-get install poppler-utils` installieren.
+Prerequisites are Node.js 22.13+ and Poppler for PDFs with a text layer. On macOS, install Poppler with `brew install poppler`; on Debian/Ubuntu, use `sudo apt-get install poppler-utils`.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Unter [localhost:3000](http://127.0.0.1:3000) öffnet **Beispiel öffnen** das sofort nutzbare Beispiel. Für ein eigenes Projekt eine PDF-, GAEB- oder XLSX-Datei hochladen. SQLite speichert Projekte und Originaldateien lokal in `.data/bauton.sqlite`. Die Anwendung bindet standardmäßig an die lokale Adresse und hat keine Benutzeranmeldung.
+At [localhost:3000](http://127.0.0.1:3000), **Open Example** opens the immediately usable example. For a custom project, upload a PDF, GAEB, or XLSX file. SQLite stores projects and original files locally in `.data/bauton.sqlite`. By default, the application binds to the local address and does not require a user login.
 
-## Geteilte Testvorschau
+## Shared Test Preview
 
-Für eine Vorschau über HTTPS mit getrennten Projekten pro Browser `BAUTON_PREVIEW=1` setzen und über `BAUTON_DB` eine separate, leere SQLite-Datei verwenden. Der Modus ordnet Projekte, Originaldateien und gespeicherte Kolonnen einem Browser-Cookie zu. Er eignet sich für einen Testlink, bei dem jede Person mit einem eigenen Übungsprojekt startet.
+For an HTTPS preview with separate projects per browser, set `BAUTON_PREVIEW=1` and use `BAUTON_DB` to specify a separate, empty SQLite file. This mode assigns projects, original files, and saved crews to a browser cookie. It is suitable for a test link where each person starts with an individual practice project.
 
-## Ablauf
+## Workflow
 
-1. **Importieren.** PDF mit Textschicht, GAEB XML (.x81, .x83–.x86, .xml), GAEB 90 (.d81, .d83–.d86) oder XLSX mit Spalten für OZ, Beschreibung, Menge und Einheit. Tabelle durchsuchen oder nach Abschnitt, Prüffall, Preisstatus und Herkunft filtern. Bei PDFs bringt die Positionsansicht zur Originalseite.
-2. **Prüfen.** Regeln markieren fehlende Positionsverweise, formale Felder, Rechenabweichungen, mögliche Dubletten und widersprüchliche Einbauorte. Ein Hinweis zeigt Beleg und Rückfrage zur Klärung. Bei einer bestätigten Dublette bleibt die Originalzeile sichtbar und die ausgeschlossene Zeile wird nicht berechnet.
-3. **Kalkulieren.** Eigene Material-, Lohn- oder Kolonnenzeilen ergänzen. Vorgeschlagene Zeilen sind gekennzeichnet und werden erst nach Bestätigung berechnet. Einzelpreise stammen aus einer übernommenen Preisangabe, den eingegebenen Kosten oder einem gewählten Lieferanten. Vergleichbare Lieferangebote werden nach Nettokosten der benötigten Packungen einschließlich Versand sortiert. Unklare Packungsgrößen oder Lieferkosten brauchen eine Bestätigung.
-4. **Zuschläge vergleichen.** Der Ausgangswert ist 25 % auf erfasste direkte Kosten. Eine Position mit anwendbarer, belegter Marktreferenz kann einen höheren Zuschlag vorschlagen. Der Kalkulator entscheidet und kann jeden Vorschlag ablehnen.
-5. **Freigeben.** Offene Prüfpunkte und fehlende Preise der aktiven Positionen vor der Freigabe klären. Danach ist das Angebot im Archiv lesbar und als PDF verfügbar. Eine Kolonne, die in zwei freigegebenen Projekten verwendet wurde, wird für passende neue Projekte als Vorschlag übernommen.
+1. **Import.** Use a text-based PDF, GAEB XML (.x81, .x83–.x86, .xml), GAEB 90 (.d81, .d83–.d86), or XLSX with columns for item number, description, quantity, and unit. Search the table or filter by section, test case, price status, and source. For PDFs, the item view links back to the original page.
+2. **Review.** Rules flag missing item references, formal fields, calculation discrepancies, possible duplicates, and contradictory installation locations. An alert shows the evidence and a clarification question. When a duplicate is confirmed, the original line remains visible and the excluded line is not calculated.
+3. **Calculate.** Add custom material, labor, or crew lines. Suggested lines are marked and are not calculated until confirmed. Unit prices come from an existing quotation, entered costs, or a selected supplier. Comparable supplier offers are sorted by the net cost of the required packages, including shipping. Unclear package sizes or delivery costs require confirmation.
+4. **Compare surcharges.** The default is a 25% surcharge on recorded direct costs. An item with an applicable, documented market reference may suggest a higher surcharge. The estimator decides and may reject any suggestion.
+5. **Release.** Resolve open review points and missing prices for active items before release. The quotation is then available in the archive and as a PDF. A crew used in two released projects is suggested for suitable new projects.
 
-## Preise und KI
+## Prices and AI
 
-Der Standardmodus funktioniert ohne Schlüssel. Übungswerte sind als Übungsdaten ausgewiesen. Bei einem identifizierten Katalogartikel stehen gegebenenfalls verlinkte Preisbeispiele für eine manuelle Prüfung zur Verfügung. Der Lohnwert für Elektro-Vorschläge ist der von Destatis veröffentlichte Durchschnitt der Arbeitskosten im deutschen Baugewerbe 2025 (39,60 €/h). Stunden und konkrete Kolonnenpreise lassen sich eingeben oder korrigieren. [Destatis](https://genesis.destatis.de/datenbank/online/statistic/62431/table/62431-0001)
+The default mode works without keys. Practice values are identified as training data. For an identified catalog item, linked price examples may be available for manual review. The labor value used for electrical suggestions is the average labor cost in the German construction industry in 2025, published by Destatis (EUR 39.60/hour). Hours and specific crew prices can be entered or corrected. [Destatis](https://genesis.destatis.de/datenbank/online/statistic/62431/table/62431-0001)
 
-Für Online-Preise oder semantische Prüfung `.env.example` nach `.env.local` kopieren und die jeweiligen Optionen konfigurieren.
+For online prices or semantic review, copy `.env.example` to `.env.local` and configure the relevant options.
 
-- `SERPAPI_API_KEY` aktiviert die Google-Shopping-Suche aus der Positionsansicht. Beim Import kann die Suche für bis zu acht erkannte Artikelnummern gestartet werden. Es werden Artikelanfragen und gegebenenfalls die Postleitzahl gesendet. Suchergebnisse sind Momentaufnahmen. [Google Shopping API](https://serpapi.com/google-shopping-api)
-- `ANTHROPIC_API_KEY` und `ANTHROPIC_MODEL` aktivieren die zusätzliche semantische Prüfung. Die Importoption sendet Beschreibungen von bis zu 240 Positionen an Anthropic und verlangt zitierfähige Belege. Regelprüfungen laufen für alle importierten Positionen.
+- `SERPAPI_API_KEY` enables Google Shopping search from the item view. During import, search can be started for up to eight recognized article numbers. Article queries and, if applicable, the postal code are sent. Search results are snapshots. [Google Shopping API](https://serpapi.com/google-shopping-api)
+- `ANTHROPIC_API_KEY` and `ANTHROPIC_MODEL` enable additional semantic review. The import option sends descriptions of up to 240 items to Anthropic and requests citation-ready evidence. Rule-based checks run for all imported items.
 
-## Übergabe und Nachweis
+## Handover and Evidence
 
-Der Abgabe-LV-Export enthält Bieter- und Projektangaben, Netto/Steuer/Brutto, Kostenübersicht, die bepreisten Positionen mit OZ, ME, EP und GP sowie den Prüfvermerk. Die Struktur orientiert sich am Datensatz. Bei einer Ausschreibung mit verbindlichen VHB-Formblättern bleiben die geforderten Originalformulare und Anlagen zusätzlich auszufüllen. Scans ohne Textschicht brauchen vor dem Import OCR.
+The submission BOQ export contains bidder and project information, net/tax/gross amounts, a cost overview, priced items with item number, unit, unit price, and total price, and the review note. The structure follows the dataset. For a tender with binding VHB forms, the required original forms and appendices must also be completed. Scans without a text layer require OCR before import.
 
 ```sh
 npm test
 npm run typecheck
 npm run build
-npm run benchmark -- "/Pfad/zu/Challenge A Dataset"
+npm run benchmark -- "/Path/to/Challenge A Dataset"
 ```
 
-Der Datensatz wird für den Benchmark lokal eingelesen und ist nicht Bestandteil des Repositories. Details und Vorführablauf stehen in [DEMO.md](DEMO.md).
+For the benchmark, the dataset is read locally and is not included in the repository. Details and the presentation procedure are available in [DEMO.md](DEMO.md).
