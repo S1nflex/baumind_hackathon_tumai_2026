@@ -620,7 +620,7 @@ The system should aim to maintain:
 
 ## Getting Started
 
-This branch includes the Bauton LV prototype. See the [prototype guide](BAUTON.md) for requirements and [demo notes](DEMO.md) for the walkthrough and validation results. The PDF importer requires Poppler, and the application requires Node.js 22.13 or newer.
+This branch includes the BauMind prototype. See the [prototype guide](BAUMIND.md) for requirements and [demo notes](DEMO.md) for the walkthrough and validation results. The PDF importer requires Poppler, and the application requires Node.js 22.13 or newer.
 
 ### Prerequisites
 

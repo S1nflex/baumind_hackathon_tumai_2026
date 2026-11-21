@@ -47,7 +47,7 @@ next-env.d.ts
 .turbo
 .swc
 
-# Local Bauton project files, including uploaded documents
+# Local BauMind project files, including uploaded documents
 /.data/
 /.next-dev/
 /playwright-report/

@@ -32,7 +32,7 @@ function splitLines(text: string, font: PDFFont, size: number, maxWidth: number)
 export async function exportAbgabe(project: Project) {
   const pdf = await PDFDocument.create()
   pdf.setTitle('Abgabe LV · ' + project.name)
-  pdf.setCreator('Bauton LV')
+  pdf.setCreator('BauMind')
   pdf.setSubject(project.archivedAt ? 'Freigegebene Angebotskalkulation' : 'Entwurf zur Angebotskalkulation')
   const font = await pdf.embedFont(StandardFonts.Helvetica)
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold)
@@ -56,7 +56,7 @@ export async function exportAbgabe(project: Project) {
   }
   function newPage(title: string) {
     page = pdf.addPage([width, height])
-    txt('BAUTON / ANGEBOT', left, 795, 10, true, colors.teal)
+    txt('BAUMIND / ANGEBOT', left, 795, 10, true, colors.teal)
     align(status, right, 795, 9, true)
     rule(782)
     y = 752
@@ -188,7 +188,7 @@ export async function exportAbgabe(project: Project) {
   pages.forEach((current, index) => {
     page = current
     rule(55)
-    txt(project.demo ? 'Bauton LV • Übungsunterlagen' : 'Bauton LV • Angebotsunterlagen', left, 37, 9, false, colors.dim)
+    txt(project.demo ? 'BauMind • Übungsunterlagen' : 'BauMind • Angebotsunterlagen', left, 37, 9, false, colors.dim)
     align(String(index + 1) + ' / ' + pages.length, right, 37, 9)
   })
   return pdf.save()

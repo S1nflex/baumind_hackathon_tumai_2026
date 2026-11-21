@@ -1,7 +1,7 @@
 {
-  "name": "bauton-lv",
+  "name": "baumind",
   "version": "1.0.0",
-  "description": "Prüfen, kalkulieren und freigeben: Angebotswerkstatt für Leistungsverzeichnisse",
+  "description": "BauMind · Naturverbundene, intelligente Baukalkulation",
   "scripts": {
     "test": "tsx --test test/*.test.ts",
     "dev": "next dev --hostname 127.0.0.1",

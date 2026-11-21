@@ -1,11 +1,9 @@
 import type { Metadata } from 'next'
-import '@fontsource-variable/inter'
-import '@fontsource-variable/manrope'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Bauton LV — Ausschreibung & Kalkulation',
-  description: 'Leistungsverzeichnisse prüfen, Preise vergleichen und Angebote erstellen.',
+  title: 'BauMind — Intelligent Construction Estimation',
+  description: 'Naturally intelligent construction estimation and tender analysis.',
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

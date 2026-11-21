@@ -7,7 +7,7 @@ import type { Preference, Project, ProjectListItem } from './model'
 let connection: DatabaseSync | undefined
 function database() {
   if (connection) return connection
-  const file = process.env.BAUTON_DB || resolve('.data/bauton.sqlite')
+  const file = process.env.BAUMIND_DB || process.env.BAUTON_DB || resolve('.data/bauton.sqlite')
   // Project data is created and managed at runtime.
   const directory = dirname(/* turbopackIgnore: true */ file)
   mkdirSync(directory, { recursive: true })

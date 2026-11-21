@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 const key = '__Host-bauton-workspace'
 
 export async function workspaceId() {
-  if (process.env.BAUTON_PREVIEW !== '1') return ''
+  if ((process.env.BAUMIND_PREVIEW ?? process.env.BAUTON_PREVIEW) !== '1') return ''
 
   const cookieStore = await cookies()
   const saved = cookieStore.get(key)?.value

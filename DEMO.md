@@ -1,4 +1,4 @@
-# Bauton LV · Hackathon
+# BauMind · Hackathon
 
 ## Problem
 
@@ -8,7 +8,7 @@ Ein falscher Positionsverweis, eine doppelt kalkulierte Leistung oder ein übers
 
 **Eine prüfbare Kalkulation aus dem Original-LV.** Jede markierte Abweichung zeigt Stelle, Beleg und nächste Frage. Die Entscheidung bleibt mit der betroffenen Zeile verknüpft. Eine bestätigte Entscheidung kann die kalkulierte Menge, Lieferantenauswahl oder den Preis ändern. Das prüfbare Original, der Vorschlag und der freigegebene Stand bleiben wiederauffindbar.
 
-**Ein Satz für die Jury:** Bauton macht aus einem Leistungsverzeichnis ein überprüfbares Angebot, in dem sich jede wesentliche Änderung bis zur Quelle zurückverfolgen lässt.
+**Ein Satz für die Jury:** BauMind macht aus einem Leistungsverzeichnis ein überprüfbares Angebot, in dem sich jede wesentliche Änderung bis zur Quelle zurückverfolgen lässt.
 
 ## 90 Sekunden Demo
 

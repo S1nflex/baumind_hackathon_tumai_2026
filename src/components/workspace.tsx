@@ -40,34 +40,42 @@ function Dialog({ label, close, children, busy }: { label: string; close: () => 
   </dialog>
 }
 
-function UploadForm({ busy, submit, error }: { busy: boolean; submit: (form: FormData) => void; error: string }) {
+function UploadForm({ busy, submit, error, embedded = false }: { busy: boolean; submit: (form: FormData) => void; error: string; embedded?: boolean }) {
   const [file, setFile] = useState<File>()
   const [drag, setDrag] = useState(false)
-  const upload = useRef<HTMLInputElement>(null)
   function send(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const form = new FormData(event.currentTarget)
     if (file) form.set('file', file)
     submit(form)
   }
-  return <form className="pane-stack" onSubmit={send}>
-    <p className="muted">Importiere ein Leistungsverzeichnis als Ausgangspunkt für das Angebot.</p>
-    <label className={'upload-zone ' + (drag ? 'dragging' : '')} onDragOver={event => {event.preventDefault(); setDrag(true)}}
-      onDragLeave={() => setDrag(false)} onDrop={event => {event.preventDefault(); setDrag(false); setFile(event.dataTransfer.files[0])}}>
-      <Upload size={23}/><strong>{file ? file.name : 'Datei auswählen oder hierher ziehen'}</strong><span>PDF, GAEB oder XLSX · bis 24 MB</span>
-      <input ref={upload} type="file" name="file" accept=".pdf,.x81,.x83,.x84,.x85,.x86,.xml,.d81,.d83,.d84,.d85,.d86,.xlsx"
-        onChange={event => setFile(event.target.files?.[0])} aria-label="LV-Datei"/>
+  return <form className={embedded ? 'bm-direct-upload' : 'pane-stack'} onSubmit={send}>
+    {!embedded && <p className="muted">Leistungsverzeichnis als Ausgangspunkt für eine neue Kalkulation importieren.</p>}
+    <label className={'upload-zone bm-dropzone ' + (drag ? 'dragging' : '') + (file ? ' selected' : '')}
+      onDragOver={event => {event.preventDefault(); setDrag(true)}}
+      onDragLeave={event => {event.preventDefault(); setDrag(false)}}
+      onDrop={event => {event.preventDefault(); setDrag(false); if (event.dataTransfer.files[0]) setFile(event.dataTransfer.files[0])}}>
+      <span className="bm-drop-symbol" aria-hidden="true"><Upload size={25}/></span>
+      <strong>{file ? file.name : 'Datei hier ablegen oder auswählen'}</strong>
+      <span>{file ? 'Datei ausgewählt · Bereit zum Import' : 'PDF, GAEB oder Excel · maximal 24 MB'}</span>
+      <span className="bm-choose-file">{file ? 'Andere Datei auswählen' : 'Datei auswählen'} <ArrowRight size={15}/></span>
+      <input type="file" name="file" accept=".pdf,.x81,.x83,.x84,.x85,.x86,.xml,.d81,.d83,.d84,.d85,.d86,.xlsx"
+        onChange={event => {if(event.target.files?.[0]) setFile(event.target.files[0])}} aria-label="Leistungsverzeichnis auswählen" />
     </label>
-    <label className="field"><span>Projektname (optional)</span><input name="name" placeholder="Name des Leistungsverzeichnisses" maxLength={120}/></label>
-    <div className="field-grid">
-      <label className="field"><span>Bieter / Unternehmen</span><input name="company" maxLength={120}/></label>
-      <label className="field"><span>PLZ der Baustelle</span><input name="postcode" inputMode="numeric" pattern="[0-9]{5}" maxLength={5}/></label>
-    </div>
-    <label className="check"><input type="checkbox" name="prices" value="1" defaultChecked/> Lieferanten für erkannte Artikel suchen</label>
-    <label className="check"><input type="checkbox" name="ai" value="1"/> KI-Textprüfung ausführen, falls Anbieter konfiguriert</label>
+    <div className="bm-file-types"><span>DATEIFORMATE</span><b>PDF</b><b>GAEB</b><b>XLSX</b><span>bis 24 MB</span></div>
+    <label className="field bm-name-field"><span>Projektname <small>(optional)</small></span><input name="name" placeholder="z. B. Neubau Wohnhaus München" maxLength={120}/></label>
+    <details className="bm-advanced-import"><summary><Settings2 size={15}/> Erweiterte Importoptionen</summary>
+      <div className="field-grid">
+        <label className="field"><span>Bieter / Unternehmen</span><input name="company" maxLength={120}/></label>
+        <label className="field"><span>PLZ der Baustelle</span><input name="postcode" inputMode="numeric" pattern="[0-9]{5}" maxLength={5}/></label>
+      </div>
+      <label className="check"><input type="checkbox" name="prices" value="1" defaultChecked/> Lieferanten für erkannte Artikel suchen</label>
+      <label className="check"><input type="checkbox" name="ai" value="1"/> KI-Textprüfung ausführen, falls Anbieter konfiguriert</label>
+    </details>
     {error && <div className="error-inline" role="alert">{error}</div>}
-    <div className="dialog-actions"><button type="submit" className="button button-primary" disabled={busy || !file}>
-      {busy ? 'Datei wird geprüft …' : 'Importieren und prüfen'} <ArrowRight size={16}/></button></div>
+    <button type="submit" className="button button-primary bm-import-submit" disabled={busy || !file}>
+      {busy ? 'Datei wird verarbeitet …' : 'LV importieren & prüfen'} <ArrowRight size={17}/>
+    </button>
   </form>
 }
 
@@ -93,33 +101,49 @@ function AddForm({ project, busy, submit, error }: { project: Project; busy: boo
   </form>
 }
 
-function ProjectsView({ projects, archive, open, create, demo, busy }: {
-  projects: ProjectListItem[]; archive: boolean; open: (id: string) => void; create: () => void; demo: () => void; busy: boolean
+function ProjectsView({ projects, archive, open, create, submit, demo, busy, error }: {
+  projects: ProjectListItem[]; archive: boolean; open: (id: string) => void; create: () => void;
+  submit: (form: FormData) => void; demo: () => void; busy: boolean; error: string
 }) {
+  const [search, setSearch] = useState('')
   const visible = projects.filter(project => Boolean(project.archivedAt) === archive)
-  return <div className="projects-page">
-    <div className="projects-heading"><div><h1>{archive ? 'Archiv' : 'Projekte'}</h1>
-      <p>{archive ? 'Freigegebene Angebote und ihre Kalkulationen.' : 'Leistungsverzeichnisse prüfen und Angebote kalkulieren.'}</p></div>
-      {!archive && <button className="button button-primary" onClick={create} disabled={busy}><Plus size={17}/> Neues Projekt</button>}
+  const filtered = visible.filter(project => `${project.name} ${project.fileName} ${project.format}`.toLowerCase().includes(search.trim().toLowerCase()))
+    .sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  return <main className="projects-page bm-work-home">
+    <div className="bm-work-heading">
+      <div><h1>{archive ? 'Archiv' : 'Dateien & Kalkulation'}</h1>
+        <p>{archive ? 'Freigegebene Angebote und abgeschlossene Kalkulationen.' : 'Leistungsverzeichnisse hochladen, prüfen und Preise kalkulieren.'}</p>
+      </div>
+      {!archive && <button className="button bm-demo-shortcut" onClick={demo} disabled={busy}><Sparkles size={16}/> Beispielprojekt öffnen</button>}
     </div>
-    {!visible.length && <div className="welcome">
-      <div className="welcome-mark"><Layers3 size={33} strokeWidth={1.5}/></div>
-      <h2>{archive ? 'Noch keine freigegebenen Angebote' : 'Ein LV. Ein fertiges Angebot.'}</h2>
-      <p>{archive ? 'Abgeschlossene Angebote werden hier gespeichert.' : 'Importiere eine Datei, prüfe die Positionen und erstelle dein bepreistes Leistungsverzeichnis.'}</p>
-      {!archive && <div className="button-row"><button className="button button-primary" onClick={create} disabled={busy}><Upload size={16}/> LV importieren</button>
-        <button className="button" onClick={demo} disabled={busy}>Beispiel öffnen <ArrowUpRight size={15}/></button></div>}
-    </div>}
-    {!!visible.length && <div className="project-grid">
-      {visible.map(project => <button key={project.id} className="project-card" onClick={() => open(project.id)} disabled={busy}>
-        <div className="project-card-top"><span className="file-icon"><FileText size={20}/></span>
-          <span className={'tag ' + (project.archivedAt ? 'tag-green' : 'tag-neutral')}>{project.archivedAt ? 'Freigegeben' : project.demo ? 'Übungsdaten' : project.format}</span></div>
-        <h2>{project.name}</h2><p className="small muted">{project.fileName}</p>
-        <div className="project-card-foot"><span>{project.count} Positionen · {formatDate(project.createdAt)}</span>
-          {project.open ? <span className="text-amber">{project.open} offen</span> : <ArrowUpRight size={16}/>}</div>
-      </button>)}
-      {!archive && <button className="project-card add-card" onClick={demo} disabled={busy}><Sparkles size={21}/> Beispiel öffnen <ArrowUpRight size={15}/></button>}
-    </div>}
-  </div>
+    <div className={'bm-dashboard-grid ' + (archive ? 'is-archive' : '')}>
+      {!archive && <section className="bm-import-panel" aria-label="LV importieren">
+        <div className="bm-panel-heading">
+          <div className="bm-panel-icon"><img src="/brand/elements/icon-upload.webp" alt=""/></div>
+          <div><span className="bm-panel-kicker">01 / IMPORT</span><h2>Neues Leistungsverzeichnis</h2><p>Beginne direkt mit deiner Datei.</p></div>
+        </div>
+        <UploadForm busy={busy} submit={submit} error={error} embedded />
+      </section>}
+      <section className="bm-files-panel" aria-label={archive ? 'Archivierte Projekte' : 'Meine Projekte'}>
+        <div className="bm-files-title">
+          <div><span className="bm-panel-kicker">{archive ? 'ABLAGE' : '02 / DATEIVERWALTUNG'}</span><h2>{archive ? 'Archivierte Projekte' : 'Meine Projekte'} <span className="bm-project-count">{visible.length}</span></h2></div>
+          {!archive && <button className="bm-icon-action" onClick={create} disabled={busy} aria-label="Projekt mit Dateiupload erstellen" title="Weiteres Projekt importieren"><Plus size={18}/></button>}
+        </div>
+        <label className="bm-project-search"><Search size={17}/><input value={search} onChange={event=>setSearch(event.target.value)} placeholder="Dateien oder Projekte suchen" aria-label="Projekte durchsuchen"/></label>
+        <div className="bm-project-list">
+          {filtered.length ? filtered.map(project => <button key={project.id} className="bm-project-item" onClick={() => open(project.id)} disabled={busy}>
+            <span className="bm-project-item-icon"><FileText size={20}/></span>
+            <span className="bm-project-item-body"><strong>{project.name}</strong><small>{project.fileName}</small><span>{project.count} Positionen · {formatDate(project.createdAt)}</span></span>
+            <span className="bm-project-item-meta"><span className={'tag ' + (project.archivedAt ? 'tag-green' : 'tag-neutral')}>{project.archivedAt ? 'Freigegeben' : project.demo ? 'Beispiel' : project.format}</span><ArrowUpRight size={17}/></span>
+          </button>) : <div className="bm-no-files">
+            <FolderOpen size={27}/><strong>{search ? 'Keine Treffer' : archive ? 'Noch keine archivierten Projekte' : 'Noch keine Projekte'}</strong>
+            <span>{search ? 'Versuche einen anderen Suchbegriff.' : archive ? 'Freigegebene Angebote erscheinen hier.' : 'Importiere links eine Datei. Sie erscheint danach hier.'}</span>
+          </div>}
+        </div>
+        {!archive && <div className="bm-files-footer"><span><Check size={15}/> Deine Projekte bleiben bearbeitbar</span><button onClick={demo} disabled={busy}>Beispiel testen <ArrowRight size={15}/></button></div>}
+      </section>
+    </div>
+  </main>
 }
 
 export function Workspace() {
@@ -259,7 +283,7 @@ export function Workspace() {
 
   return <div className="app-shell">
     <aside className="sidebar">
-      <button className="brand" onClick={() => list(false)} aria-label="Bauton Projekte"><span className="brand-icon"><Layers3 size={24} strokeWidth={2.3}/></span><span>Bauton<span className="brand-dot">.</span><small>LV-Kalkulation</small></span></button>
+      <button className="brand" onClick={() => list(false)} aria-label="BauMind Projekte"><span className="brand-icon"><img src="/brand/mountain-mark.png" alt="BauMind Bergsymbol" /></span><span>BauMind<small>BAUKALKULATION & DATEIEN</small></span></button>
       <div className="side-divider"/>
       <nav aria-label="Arbeitsbereich" className="side-nav">
         <button className={!(current?.archivedAt || archive) ? 'active' : ''} onClick={() => list(false)}><LayoutGrid size={17}/> Projekte</button>
@@ -271,7 +295,7 @@ export function Workspace() {
         {groups.map(([id,label]) => <button key={id} className={group === id && section === 'lv' ? 'current' : ''}
           title={id + ' ' + label} onClick={() => {setGroup(id);setSection('lv');setPage(0)}}><span>{id}</span>{label}</button>)}
       </div>}
-      <div className="side-bottom"><span className="avatar">OZ</span><div><strong>OZ 404</strong><span>Arbeitsbereich</span></div></div>
+      <div className="side-bottom"><span className="avatar">BM</span><div><strong>BauMind Studio</strong><span>Arbeitsbereich</span></div></div>
     </aside>
     <div className="surface">
       <header className="topbar">
@@ -282,8 +306,8 @@ export function Workspace() {
         <button className="button top-create" onClick={() => {setError('');setModal('new')}} disabled={busy}><Plus size={15}/> Neues Projekt</button></div>
       </header>
       {loading ? <div className="loading-status" role="status">Arbeitsbereich wird geladen …</div> :
-        !current ? <>{error && <div className="global-alert error-inline" role="alert">{error}</div>}
-          <ProjectsView projects={projects} archive={archive} create={() => {setError('');setModal('new')}} demo={openDemo} open={openProject} busy={busy}/></> :
+        !current ? <>{error && archive && <div className="global-alert error-inline" role="alert">{error}</div>}
+          <ProjectsView projects={projects} archive={archive} create={() => {setError('');setModal('new')}} submit={form => void create(form)} demo={openDemo} open={openProject} busy={busy} error={error}/></> :
         <>
           <div className="project-head">
             <div className="project-title-badges"><span className="tag tag-neutral">{current.format}</span>
