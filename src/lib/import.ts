@@ -2,10 +2,9 @@ import { execFile } from 'node:child_process'
 import { XMLParser, XMLValidator } from 'fast-xml-parser'
 import ExcelJS from 'exceljs'
 import { numberDE } from './estimate'
-import { position, type ImportResult, type Position, type PositionType } from './model'
+import { normalizeOz, position, type ImportResult, type Position, type PositionType } from './model'
 
 const filenameTitle = (name: string) => name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ')
-const normCode = (value: string) => value.replace(/\.$/, '')
 const issueType = (text: string, amount = ''): PositionType => /Bedarfsposition ohne\s+(?:GB|Gesamtbetrag)|Nur Einh\.?-Pr|nur\s+EP/i.test(text + ' ' + amount) ? 'unit-only' :
   /Alternativposition|Wahlposition/i.test(text) ? 'alternative' :
   /Bedarfsposition|Eventualposition/i.test(text) ? 'optional' : 'normal'
@@ -26,6 +25,7 @@ function concreteRow(fields: Parameters<typeof position>[0]) {
 const numberPattern = '[+\\-−]?(?:\\d{1,3}(?:\\.\\d{3})+|\\d+)(?:,\\d+)?'
 const unitPattern = '(?:[a-zA-ZäöüÄÖÜµ%]+(?:[²³23])?(?:[a-zA-Z]{0,4})?(?:[./-][a-zA-Z0-9²³]+)?\\.?)'
 const quantityPattern = new RegExp('^(' + numberPattern + ')\\s+(' + unitPattern + ')(?=\\s|$)(.*)$')
+const quantityWithoutUnit = new RegExp('^\\s{25,}(' + numberPattern + ')\\s{2,}\\.{5,}\\s{2,}\\.{5,}\\s*$')
 const moneyPattern = new RegExp('^' + numberPattern + '(?:\\s*€)?$')
 const units = /^(?:st(?:k|d|ck|ück|mt|wo|d\/h)?|m(?:[²³23])?(?:d|mt|wo|\/h)?|cm(?:[²³23])?|km(?:[²³23])?|kg|t|to|h|d|tg|l|ls|lt|lfm|jm|mt|mo|mon|wo|jr|jahr|jahre|a|kwh|kw|psch|pschl|pausch|pau|p|ges|set|satz|stk|stk\/d|st\/[mj]|m\/d|std\/st|[hm]2\/h|%)\.?$/i
 
@@ -33,7 +33,11 @@ function quantityLine(text: string) {
   const trimmed = text.trim()
   const normalized = /\b(?:EP|GP)\s*\.{2}/.test(trimmed) ? trimmed.replace(/^(\d+(?:[.,]\d+)*)(?=[a-zA-Z])/, '$1 ') : trimmed
   const match = normalized.match(quantityPattern)
-  if (!match || !units.test(match[2])) return null
+  if (!match || !units.test(match[2])) {
+    const blankUnit = text.match(quantityWithoutUnit)
+    const qty = blankUnit ? numberDE(blankUnit[1]) : null
+    return qty === null ? null : { qty, unit: '', price: undefined, amount: undefined, raw: trimmed, strength: 1 }
+  }
   const trailing = match[3].trim()
   const cells = trailing.split(/\s{2,}/).filter(Boolean)
   const prices = cells.filter(cell => moneyPattern.test(cell))
@@ -65,7 +69,7 @@ export function parsePdfText(text: string, filename: string): ImportResult {
     if (hasLVHeader && index < firstLVPage) return
     const number = index + 1
     const lines = page.split(/\r?\n/)
-    const starts = lines.map(line => line.match(/^(\s{0,14})(\.?\d+(?:\.\d+){0,6}\.?)(?:\s{2,})(\S.*)$/))
+    const starts = lines.map(line => line.match(/^(\s{0,14})(\.?\d+(?:\.+\d+){0,6}\.?)(?:\s{2,})(\S.*)$/))
     const margin = Math.min(14, ...starts.flatMap(match => match ? [match[1].length] : []))
     lines.forEach((text, i) => {
       if (/^\s*(?:Zusammenstellung\s*$|Summe\s+(?:LV|[\d.]+|Abschnitt|Bereich)|Zusammenstellung Bereich)/i.test(text)) { complete(); return }
@@ -79,8 +83,8 @@ export function parsePdfText(text: string, filename: string): ImportResult {
         titles.set(heading[1], heading[2].trim())
         return
       }
-      if (match && match[1].length <= margin + 3 && /^(?:\d+(?:\.\d+)+\.?|\.\d+\.?|\d{1,2}\.?)$/.test(match[2])) {
-        const code = normCode(match[2])
+      if (match && match[1].length <= margin + 3 && /^(?:\d+(?:\.+\d+)+\.?|\.\d+\.?|\d{1,2}\.?)$/.test(match[2])) {
+        const code = normalizeOz(match[2])
         const amount = quantityLine(match[3])
         if (current?.code === code && current.page < number && !current.quantity) {
           if (amount) addAmount(current, amount, number)
@@ -110,7 +114,10 @@ export function parsePdfText(text: string, filename: string): ImportResult {
   for (const oz of goodCodes) depthCounts.set(oz.split('.').length, (depthCounts.get(oz.split('.').length) ?? 0) + 1)
   const positions: Position[] = []
   for (const row of candidates) {
-    if (prefixes.has(row.code) && !row.quantity) { titles.set(row.code, row.title); continue }
+    if (!row.quantity && (prefixes.has(row.code) || /^KG\s+\d{3}\b/i.test(row.title))) {
+      titles.set(row.code, row.title)
+      continue
+    }
     if (!row.quantity && (!row.code.includes('.') || !depthCounts.has(row.code.split('.').length) || !row.title ||
       /^(?:Übertrag|Gesamt|Summe|Titel|Abschnitt|Bereich)/i.test(row.title))) continue
     const parts = row.code.split('.')
@@ -128,7 +135,7 @@ export function parsePdfText(text: string, filename: string): ImportResult {
       source: { location: 'S. ' + pages.join(', '), pages, text: [body, row.quantity?.raw].filter(Boolean).join('\n') },
     }))
   }
-  const missing = positions.filter(row => row.quantity === null).length
+  const missing = positions.filter(row => row.quantity === null || !row.unit).length
   if (missing) warnings.push(missing + ' Position(en) mit unvollständiger Menge oder Einheit. Bitte anhand der Quelle prüfen.')
   if (!hasLVHeader) warnings.push('Tabellenkopf nicht erkannt. Bitte den Import anhand des Originals abgleichen.')
   return { title: filenameTitle(filename), positions, format: 'PDF', pages: raw.length, warnings }

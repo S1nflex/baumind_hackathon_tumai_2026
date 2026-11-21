@@ -2,41 +2,41 @@
 
 ## Problem
 
-An incorrect item reference, a service calculated twice, or an overlooked electrical connection can distort an entire quotation. The error is often found between an item, its description, and another section.
+Ein falscher Positionsverweis, eine doppelt kalkulierte Leistung oder ein übersehener Elektroanschluss kann ein ganzes Angebot verzerren. Der Fehler steckt häufig zwischen der Position, ihrer Leistungsbeschreibung und einem anderen Abschnitt.
 
 ## Solution · What makes it fundamentally different?
 
-**A verifiable calculation based on the original BOQ.** Every flagged discrepancy shows the location, evidence, and next question. The decision remains linked to the affected line. A confirmed decision can change the calculated quantity, supplier selection, or price. The verifiable original, proposal, and released version remain retrievable.
+**Eine prüfbare Kalkulation aus dem Original-LV.** Jede markierte Abweichung zeigt Stelle, Beleg und nächste Frage. Die Entscheidung bleibt mit der betroffenen Zeile verknüpft. Eine bestätigte Entscheidung kann die kalkulierte Menge, Lieferantenauswahl oder den Preis ändern. Das prüfbare Original, der Vorschlag und der freigegebene Stand bleiben wiederauffindbar.
 
-**One sentence for the jury:** Bauton turns a bill of quantities into a verifiable quotation in which every major change can be traced back to its source.
+**Ein Satz für die Jury:** Bauton macht aus einem Leistungsverzeichnis ein überprüfbares Angebot, in dem sich jede wesentliche Änderung bis zur Quelle zurückverfolgen lässt.
 
-## 90-Second Demo
+## 90 Sekunden Demo
 
-| Time | Action | What the jury sees |
+| Zeit | Aktion | Was die Jury sieht |
 | --- | --- | --- |
-| 0:00–0:20 | Upload `LV_12_Dachabdichtung.pdf` and open **Review**. | 33 original items. At **6.1.80**, the evidence links to the original. Item **6.2.180** also specifies an installation location that differs from the section. |
-| 0:20–0:45 | **Projects → Open Example**. Click the price for **6.2.150** and select the second supplier. | EUR 622.80 or EUR 643.50 for four units, including shipping. The quotation is recalculated immediately. Both prices are marked as practice data. |
-| 0:45–1:05 | Open the surcharge suggestion for **6.1.40**. In the **Suggestions** filter, view the electrical line. | 25% remains preset. The example reference allows comparison with 30%. The electrical connection is suggested and confirmed before calculation. |
-| 1:05–1:30 | Open the prepared, released practice project in the archive and load **Submission BOQ**. | Completed price lines, cost overview, final total, and documented review points. |
+| 0:00–0:20 | `LV_12_Dachabdichtung.pdf` hochladen und **Prüfung** öffnen. | 33 Originalpositionen. Bei **6.1.80** führt der Beleg zum Original. Außerdem nennt die Position **6.2.180** einen Einbauort, der vom Abschnitt abweicht. |
+| 0:20–0:45 | **Projekte → Beispiel öffnen**. Bei **6.2.150** auf den Preis klicken und den zweiten Lieferanten wählen. | 622,80 € bzw. 643,50 € für vier Stück inkl. Versand. Das Angebot wird sofort neu berechnet. Beide Preise sind als Übung gekennzeichnet. |
+| 0:45–1:05 | Bei **6.1.40** den Zuschlagsvorschlag öffnen. Im Filter **Vorschläge** die Elektro-Zeile ansehen. | 25 % bleiben voreingestellt. Die Beispielreferenz erlaubt den Vergleich mit 30 %. Der Elektro-Anschluss wird vorgeschlagen und vor der Berechnung bestätigt. |
+| 1:05–1:30 | Das vorbereitete freigegebene Übungsprojekt aus dem Archiv öffnen und **Abgabe LV** laden. | Ausgefüllte Preiszeilen, Kostenübersicht, Endsumme und dokumentierte Prüfpunkte. |
 
 ## Proof
 
-Measured against the provided Challenge A dataset. Four PDFs were matched against GAEB files from the same project. Item-number formatting and equivalent units were normalized before comparison.
+Gemessen auf dem übergebenen Challenge-A-Datensatz. Vier PDFs wurden anhand von GAEB-Dateien desselben Projekts abgeglichen. OZ-Formatierung und gleichbedeutende Einheiten wurden vor dem Vergleich normalisiert.
 
-| Test | Result |
+| Prüfung | Ergebnis |
 | --- | --- |
-| Item numbers, quantities, and units | 731/731 per field |
-| Unit prices and total prices in the priced PDF/GAEB pair | 274/274 items |
-| Sum of imported total prices from `Abgabe LV.pdf` | EUR 835,804.22 net, identical to the printed summary line |
-| Control cases in the real roof BOQ | Detected two references to missing item number 6.1.80 and one differing installation location |
-| Broad import run without complete reference annotations | 34/34 PDFs opened, 2,360 items extracted, and three quantities or units marked as incomplete |
+| OZ, Mengen und Einheiten | 731/731 je Feld |
+| Einheitspreise und Gesamtpreise im bepreisten PDF/GAEB-Paar | 274/274 Positionen |
+| Summe der importierten GP aus `Abgabe LV.pdf` | 835.804,22 € netto, identisch mit der gedruckten Summenzeile |
+| Kontrollfälle im realen Dach-LV | Zwei Verweise auf die fehlende OZ 6.1.80 und ein abweichender Einbauort erkannt |
+| Breiter Importlauf ohne vollständige Referenzannotation | 34/34 PDFs geöffnet, 2.411 Positionen extrahiert, neun fehlende Einheiten markiert |
 
-The comparison measures import accuracy across the four referenced pairs. Three example test cases demonstrate the traceability of the rules. Separately annotated test cases across multiple trades are required to determine the risk-review hit rate.
+Der Abgleich misst Importgenauigkeit in den vier referenzierten Paaren. Drei exemplarische Prüffälle zeigen die Nachvollziehbarkeit der Regeln. Für eine Trefferquote der Risikoprüfung braucht es separat annotierte Prüffälle über mehrere Gewerke.
 
-## Structure of the Original Files
+## Aufbau der Originaldateien
 
-**Abgabe LV.pdf** contains 91 PDF pages. Pages 1–2 contain special contractual terms. Pages 3–6 show the pricing determination in forms 221 and 222. The offer letter, suitability declaration, and subcontractor list follow on pages 7–13. The BOQ's own numbering begins on PDF page 14, with units, preliminary notes, section titles, and numbered services. PDF page 91 is the summary: EUR 835,804.22 net, EUR 158,802.80 VAT, and EUR 994,607.02 gross.
+**Abgabe LV.pdf** besteht aus 91 PDF-Seiten. Auf Seite 1–2 stehen besondere Vertragsbedingungen. Seite 3–6 zeigen die Preisermittlung in den Formblättern 221 und 222. Es folgen Angebotsschreiben, Eignungserklärung und Nachunternehmerverzeichnis auf Seite 7–13. Ab PDF-Seite 14 beginnt die eigene Nummerierung des LV mit Einheiten, Vorbemerkungen, Abschnittstiteln und nummerierten Leistungen. PDF-Seite 91 ist die Zusammenstellung mit 835.804,22 € netto, 158.802,80 € Umsatzsteuer und 994.607,02 € brutto.
 
-**LV_12_Dachabdichtung.pdf** is an unpriced BOQ with ten service pages and a summary on page 11. A section describes the building component. An item number identifies the individual service. Short and long text define execution and responsibilities. Quantity and unit are the basis for the unit price and total price. The two references to 6.1.80 appear on pages 1 and 2. The differing installation location for 6.2.180 appears on page 8.
+**LV_12_Dachabdichtung.pdf** ist ein unbepreistes LV mit zehn Leistungsseiten und einer Zusammenstellung auf Seite 11. Ein Abschnitt beschreibt den Gebäudeteil. Eine OZ identifiziert die Einzelleistung. Kurz- und Langtext bestimmen Ausführung und Zuständigkeiten. Menge und Mengeneinheit sind die Grundlage für EP und GP. Die beiden Verweise auf 6.1.80 stehen auf den Seiten 1 und 2. Der abweichende Einbauort bei 6.2.180 steht auf Seite 8.
 
-Preliminary notes and dependencies deserve particular attention during professional review. A service described as included may be calculated twice if an additional price line is added. A stated preceding or subsequent service may belong to a different trade. The original file remains attached to the project for this clarification.
+Vorbemerkungen und Abhängigkeiten verdienen bei der fachlichen Prüfung eigene Aufmerksamkeit. Eine als enthalten beschriebene Leistung kann bei einer zusätzlichen Preiszeile doppelt kalkuliert werden. Eine genannte Vor- oder Folgeleistung kann zu einem anderen Gewerk gehören. Die Originaldatei bleibt für diese Klärung am Projekt erhalten.

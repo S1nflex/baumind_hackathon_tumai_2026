@@ -107,3 +107,7 @@ export function position(fields: Pick<Position, 'id' | 'oz' | 'title'> & Partial
     ...fields,
   }
 }
+
+export function normalizeOz(value: string) {
+  return value.trim().replace(/\.{2,}/g, '.').replace(/\.$/, '')
+}

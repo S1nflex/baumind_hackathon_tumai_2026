@@ -116,7 +116,7 @@ Bring projects, tenders, documents, estimates, and related workflows together in
 
 ### 02 — Intelligent Document Processing
 
-Convert complex PDF, GAEB, and Excel documents into normalized, machine-readable construction data.
+Convert complex PDF and Excel documents into normalized, machine-readable construction data.
 
 ### 03 — Automated Quality Assurance
 
@@ -172,7 +172,7 @@ A dedicated workspace for importing, navigating, and analyzing construction BoQs
 
 Target capabilities include:
 
-- PDF, GAEB, and Excel import.
+- PDF and XLSX import.
 - Structured extraction of BoQ positions.
 - Hierarchical organization of cost groups and trades.
 - Quantity and unit management.
@@ -239,7 +239,7 @@ BauMind aims to support three primary input formats:
 | Format | Description |
 |---|---|
 | **PDF** | Extract structured information from construction tender documents. |
-| **GAEB** | Process standardized German construction exchange formats. |
+| **GAEB** | Use machine-readable LV data to validate PDF import in benchmarks. |
 | **Excel** | Import spreadsheet-based Bills of Quantities and pricing information. |
 
 The extraction process aims to identify:
@@ -369,7 +369,7 @@ The goal is to help estimators understand how different assumptions affect overa
 |---|---|---|
 | **Project Workspace** | Centralized project and tender organization. | Product Foundation |
 | **Tender Management** | Bid preparation and document workflows. | Product Foundation |
-| **BoQ Import** | PDF, GAEB, and Excel document ingestion. | Essential |
+| **BoQ Import** | PDF and XLSX document ingestion. | Essential |
 | **Structured Extraction** | Normalize positions, quantities, units, and descriptions. | Essential |
 | **Error Detection Engine** | Identify missing information, contradictions, and suspicious values. | **Highest** |
 | **Plausibility Validation** | Perform arithmetic, structural, and quantity checks. | High |
@@ -396,7 +396,7 @@ BauMind is designed around a structured processing pipeline.
                           |
               +-----------v-----------+
               |    Document Import    |
-              |    PDF / GAEB / XLSX  |
+              |        PDF / XLSX     |
               +-----------+-----------+
                           |
               +-----------v-----------+
@@ -529,7 +529,7 @@ Provides the user interface for construction projects, tenders, estimates, docum
 
 ### 2. Document Processing Layer
 
-Handles document ingestion and format-specific extraction for PDF, GAEB, and Excel files.
+Handles document ingestion and format-specific extraction for PDF and XLSX files.
 
 ### 3. Structured Data Layer
 
@@ -620,7 +620,7 @@ The system should aim to maintain:
 
 ## Getting Started
 
-This branch includes the Bauton LV prototype. See the [prototype guide](BAUTON.md) for requirements and [demo notes](DEMO.md) for the walkthrough and validation results. The PDF importer requires Poppler, and the application requires Node.js 22.13 or newer.
+This branch includes the Bauton LV prototype. See the [prototype guide](BAUTON.md) for requirements and [demo notes](DEMO.md) for the walkthrough and validation results. Uploads accept PDF and Excel (.xlsx). The PDF importer requires Poppler, and the application requires Node.js 22.13 or newer.
 
 ### Prerequisites
 

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { decimal, estimateRow, eur, quantityOf, summarize, unitEur, unitOf } from '@/lib/estimate'
 import type { Position, Project, ProjectListItem } from '@/lib/model'
+import { canUploadLv, lvUploadAccept, lvUploadFormatMessage } from '@/lib/upload'
 import { amountLabel, FindingCard, optionalNumber, PositionDetail, type DetailTab } from './position-detail'
 
 type Section = 'lv' | 'review' | 'bid'
@@ -43,7 +44,19 @@ function Dialog({ label, close, children, busy }: { label: string; close: () => 
 function UploadForm({ busy, submit, error }: { busy: boolean; submit: (form: FormData) => void; error: string }) {
   const [file, setFile] = useState<File>()
   const [drag, setDrag] = useState(false)
+  const [fileError, setFileError] = useState('')
   const upload = useRef<HTMLInputElement>(null)
+
+  function selectFile(next: File | undefined) {
+    if (next && !canUploadLv(next.name)) {
+      if (upload.current) upload.current.value = ''
+      setFile(undefined)
+      setFileError(lvUploadFormatMessage)
+      return
+    }
+    setFile(next)
+    setFileError('')
+  }
   function send(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const form = new FormData(event.currentTarget)
@@ -53,10 +66,10 @@ function UploadForm({ busy, submit, error }: { busy: boolean; submit: (form: For
   return <form className="pane-stack" onSubmit={send}>
     <p className="muted">Importiere ein Leistungsverzeichnis als Ausgangspunkt für das Angebot.</p>
     <label className={'upload-zone ' + (drag ? 'dragging' : '')} onDragOver={event => {event.preventDefault(); setDrag(true)}}
-      onDragLeave={() => setDrag(false)} onDrop={event => {event.preventDefault(); setDrag(false); setFile(event.dataTransfer.files[0])}}>
-      <Upload size={23}/><strong>{file ? file.name : 'Datei auswählen oder hierher ziehen'}</strong><span>PDF, GAEB oder XLSX · bis 24 MB</span>
-      <input ref={upload} type="file" name="file" accept=".pdf,.x81,.x83,.x84,.x85,.x86,.xml,.d81,.d83,.d84,.d85,.d86,.xlsx"
-        onChange={event => setFile(event.target.files?.[0])} aria-label="LV-Datei"/>
+      onDragLeave={() => setDrag(false)} onDrop={event => {event.preventDefault(); setDrag(false); selectFile(event.dataTransfer.files[0])}}>
+      <Upload size={23}/><strong>{file ? file.name : 'Datei auswählen oder hierher ziehen'}</strong><span>PDF oder Excel (.xlsx) · bis 24 MB</span>
+      <input ref={upload} type="file" name="file" accept={lvUploadAccept}
+        onChange={event => selectFile(event.target.files?.[0])} aria-label="LV-Datei"/>
     </label>
     <label className="field"><span>Projektname (optional)</span><input name="name" placeholder="Name des Leistungsverzeichnisses" maxLength={120}/></label>
     <div className="field-grid">
@@ -65,7 +78,7 @@ function UploadForm({ busy, submit, error }: { busy: boolean; submit: (form: For
     </div>
     <label className="check"><input type="checkbox" name="prices" value="1" defaultChecked/> Lieferanten für erkannte Artikel suchen</label>
     <label className="check"><input type="checkbox" name="ai" value="1"/> KI-Textprüfung ausführen, falls Anbieter konfiguriert</label>
-    {error && <div className="error-inline" role="alert">{error}</div>}
+    {(fileError || error) && <div className="error-inline" role="alert">{fileError || error}</div>}
     <div className="dialog-actions"><button type="submit" className="button button-primary" disabled={busy || !file}>
       {busy ? 'Datei wird geprüft …' : 'Importieren und prüfen'} <ArrowRight size={16}/></button></div>
   </form>
