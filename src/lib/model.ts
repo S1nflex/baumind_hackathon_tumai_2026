@@ -55,7 +55,7 @@ export type Position = {
 
 export type Finding = {
   id: string
-  type: 'reference' | 'duplicate' | 'data' | 'mismatch' | 'scope' | 'price'
+  type: 'reference' | 'duplicate' | 'data' | 'mismatch' | 'scope' | 'price' | 'link'
   title: string
   detail: string
   question?: string
@@ -64,7 +64,7 @@ export type Finding = {
   score: 'confirmed' | 'review'
   status: 'open' | 'resolved' | 'dismissed'
   resolution?: string
-  createdBy: 'rule' | 'AI'
+  createdBy: 'rule' | 'AI' | 'agent'
 }
 
 export type ImportResult = {
@@ -73,6 +73,13 @@ export type ImportResult = {
   positions: Position[]
   pages?: number
   warnings: string[]
+}
+
+export type ScopeAgentResult = {
+  status: 'applied' | 'unavailable'
+  candidates: number
+  searches: number
+  read: number
 }
 
 export type Project = ImportResult & {
@@ -89,7 +96,7 @@ export type Project = ImportResult & {
   postcode: string
   demo: boolean
   hasOriginal: boolean
-  analysis: { mode: 'rules' | 'AI + rules'; status?: 'disabled' | 'applied' | 'partial' | 'unavailable'; note?: string }
+  analysis: { mode: 'rules' | 'AI + rules'; status?: 'disabled' | 'applied' | 'partial' | 'unavailable'; note?: string; agent?: ScopeAgentResult }
 }
 
 export type ProjectListItem = Pick<Project, 'id' | 'name' | 'fileName' | 'format' | 'createdAt' | 'archivedAt' | 'demo'> & {

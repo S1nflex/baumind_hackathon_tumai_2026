@@ -29,15 +29,15 @@ export function FindingCard({ finding, project, busy, run, currentId, onSource }
   }
   return <article className={'finding-card ' + (finding.status === 'open' ? 'open' : 'closed')}>
     <header><span className={'tag ' + (finding.status !== 'open' ? 'tag-green' : finding.score === 'confirmed' ? 'tag-amber' : 'tag-neutral')}>
-      {finding.status === 'open' ? (finding.score === 'confirmed' ? 'Abweichung' : 'Prüfen') : finding.status === 'resolved' ? 'Geklärt' : 'Verworfen'}
-    </span><span className="small muted">{finding.createdBy === 'AI' ? 'KI-Hinweis' : 'Regelprüfung'}</span></header>
+      {finding.type === 'link' ? 'Zugeordnet' : finding.status === 'open' ? (finding.score === 'confirmed' ? 'Abweichung' : 'Prüfen') : finding.status === 'resolved' ? 'Geklärt' : 'Verworfen'}
+    </span><span className="small muted">{finding.createdBy === 'agent' ? 'Schnittstellenprüfung' : finding.createdBy === 'AI' ? 'KI-Hinweis' : 'Regelprüfung'}</span></header>
     <h3>{finding.title}</h3><p className="finding-copy">{finding.detail}</p>
     {finding.evidence.map((evidence, index) => <button key={evidence.positionId + index} className="evidence-link" onClick={() => onSource(evidence.positionId)}>
-      <FileText size={14} /><span><strong>{evidence.location}</strong><span>{evidence.quote}</span></span><ChevronRight size={14} />
+      <FileText size={14} /><span><strong>{rows.find(row => row.id === evidence.positionId)?.oz} · {evidence.location}</strong><span>{evidence.quote}</span></span><ChevronRight size={14} />
     </button>)}
     {finding.question && <p className="question">{finding.question}</p>}
     {finding.status !== 'open' && finding.resolution && <p className="resolution">{finding.resolution}</p>}
-    {!project.archivedAt && (finding.status === 'open' ? <div className="resolution-box">
+    {!project.archivedAt && finding.type !== 'link' && (finding.status === 'open' ? <div className="resolution-box">
       <label className="field"><span>Klärung dokumentieren</span><textarea placeholder="Antwort oder Kalkulationsannahme" rows={2} value={resolution} onChange={event => setResolution(event.target.value)} /></label>
       <div className="button-row">
         <button className="button small-button" disabled={busy || !resolution.trim()} onClick={() => close('dismissed')}>Verwerfen</button>

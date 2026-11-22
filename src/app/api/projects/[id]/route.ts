@@ -110,6 +110,7 @@ export async function POST(request: Request, { params }: Ctx) {
         case 'finding': {
           const item = current.findings.find(finding => finding.id === action.findingId)
           if (!item) throw new ProjectError('Prüfpunkt nicht gefunden.', 404)
+          if (item.type === 'link') throw new ProjectError('Die Zuordnung verweist auf die LV-Quelle und benötigt keine Freigabe.')
           if (action.status !== 'open' && !action.resolution) throw new ProjectError('Bitte eine kurze Begründung eintragen.')
           if (action.keepId) {
             if (item.type !== 'duplicate' || !item.positionIds.includes(action.keepId)) throw new ProjectError('Diese Position gehört nicht zur Dublette.')

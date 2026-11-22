@@ -1,8 +1,10 @@
 import Decimal from 'decimal.js'
 import { estimateRow, round } from './estimate'
 import { normalizeOz, position, type Finding, type Position, type Preference } from './model'
+import { wcHeading, wcProjection } from './catalog'
 
 function wording(text: string) { return text.trim().toLowerCase().replace(/\s+/g, ' ') }
+const sameWc = /\b(?:dasselbe[ns]?|desselben|gleich(?:e[nsrm]?))\s+(?:(?:wand|tiefspül)[- ]?)?wc\b/i
 function sourceEvidence(row: Position, quote = row.title) { return { positionId: row.id, location: row.source?.location ?? 'Kalkulation', quote } }
 
 export function reviewRules(rows: Position[]): Finding[] {
@@ -16,6 +18,25 @@ export function reviewRules(rows: Position[]): Finding[] {
 
   const byCode = new Map<string, Position[]>()
   const byText = new Map<string, Position[]>()
+  const projections = new Map<string, { value: number; quote: string }>()
+  const wcGroups = new Map<string, Position[]>()
+  const checkedPairs = new Set<string>()
+
+  function compareProjection(a: Position, b: Position, explicitlyLinked: boolean) {
+    const first = projections.get(a.id)
+    const second = projections.get(b.id)
+    if (!first || !second || a.id === b.id || first.value === second.value) return
+    const key = JSON.stringify([a.id, b.id].sort())
+    if (checkedPairs.has(key)) return
+    checkedPairs.add(key)
+    finding('mismatch', 'wc-' + a.id + '-' + b.id, 'Abweichende Ausladung beim WC',
+      'OZ ' + a.oz + ' nennt ' + first.value + ' mm, OZ ' + b.oz + ' nennt ' + second.value +
+      ' mm. Die Ausladung bestimmt, welches WC zur Einbausituation passt.',
+      [a, b], [first.quote, second.quote], explicitlyLinked ? 'confirmed' : 'review',
+      explicitlyLinked ? 'Welche Ausladung ist für dieses WC verbindlich?' :
+        'Betreffen beide Positionen dasselbe WC? Falls ja, welche Ausladung gilt?')
+  }
+
 
   for (const row of rows) {
     const code = normalizeOz(row.oz)
@@ -23,6 +44,16 @@ export function reviewRules(rows: Position[]): Finding[] {
     const description = wording(row.description)
     if (description.length > 40 && !/^(?:wie vor|wie zuvor|alternativ|\[person_\d+\])/.test(description)) {
       byText.set(description, [...(byText.get(description) ?? []), row])
+    }
+
+    if (row.type !== 'alternative' && wcHeading.test(row.title)) {
+      const dimension = wcProjection(row.description) ?? wcProjection(row.title)
+      if (dimension) {
+        projections.set(row.id, dimension)
+        const groupRows = wcGroups.get(row.group)
+        if (groupRows) groupRows.push(row)
+        else wcGroups.set(row.group, [row])
+      }
     }
 
     if (row.quantity === null || !row.unit) {
@@ -53,6 +84,8 @@ export function reviewRules(rows: Position[]): Finding[] {
     const seen = new Set<string>()
     for (const reference of referenceList) {
       const target = normalizeOz(reference[1])
+      const linked = byCode.get(target)
+      if (linked?.length === 1 && sameWc.test(row.title + ' ' + row.description)) compareProjection(row, linked[0], true)
       if (!byCode.has(target) && target !== row.oz && !seen.has(target)) {
         seen.add(target)
         finding('reference', row.id + '-' + target, 'Verweis auf fehlende OZ ' + target,
@@ -60,6 +93,16 @@ export function reviewRules(rows: Position[]): Finding[] {
           [row], [reference[0]], 'confirmed', 'Welche Position ist mit „' + reference[0] + '“ gemeint?')
       }
     }
+  }
+
+  for (const matches of wcGroups.values()) {
+    if (matches.length !== 2) continue
+    const [one, two] = matches
+    if ((!one.quantity || one.quantity !== two.quantity) ||
+      !matches.some(row => sameWc.test(row.title + ' ' + row.description))) continue
+    const installedAt = matches.map(row => row.description.match(/\beinbauort\s*:\s*([^\n]+)/i)?.[1])
+    if (installedAt[0] && installedAt[1] && wording(installedAt[0]) !== wording(installedAt[1])) continue
+    compareProjection(one, two, false)
   }
 
   for (const [code, matches] of byCode) {
@@ -80,6 +123,20 @@ export function reviewRules(rows: Position[]): Finding[] {
       matches, matches.map(row => row.title))
   }
   return findings
+}
+
+export function combineFindings(rules: Finding[], semantic: Finding[]) {
+  return [...rules, ...semantic.filter(item => !rules.some(rule =>
+    rule.type === item.type && rule.positionIds.length === item.positionIds.length &&
+    rule.positionIds.every(id => item.positionIds.includes(id) && rule.evidence.some(evidence =>
+      evidence.positionId === id && item.evidence.some(other => {
+        if (other.positionId !== id) return false
+        const first = wording(evidence.quote)
+        const second = wording(other.quote)
+        return first.includes(second) || second.includes(first)
+      }),
+    )),
+  ))]
 }
 
 export const laborBenchmark = {
