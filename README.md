@@ -1,746 +1,228 @@
 <div align="center">
 
-# BauMind — AI-Powered Construction Intelligence
+<img src="./public/brand/mountain-mark.png" alt="BauMind mountain logo" width="100" />
 
-### Intelligent Estimation, Tender Management & Risk Analysis
+# BauMind
 
-*An AI-powered construction management platform for smarter bidding, automated Bill of Quantities analysis, and intelligent project workflows.*
+### AI-Powered Construction Estimation & BoQ Analysis
 
-<p>
-  <img src="https://img.shields.io/badge/Status-In%20Development-F59E0B" alt="Development Status">
-  <img src="https://img.shields.io/badge/Next.js-App%20Router-black?logo=next.js" alt="Next.js">
-  <img src="https://img.shields.io/badge/React-Frontend-149ECA?logo=react" alt="React">
-  <img src="https://img.shields.io/badge/TypeScript-Language-3178C6?logo=typescript" alt="TypeScript">
-  <img src="https://img.shields.io/badge/AI-Powered%20Intelligence-8B5CF6" alt="AI">
-  <img src="https://img.shields.io/badge/Industry-Construction-2563EB" alt="Construction">
-</p>
+**From complex construction documents to structured estimates, explainable findings, and better-informed bids.**
 
-**Smarter Estimates. Fewer Risks. Better Bids.**
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs)](https://nextjs.org/) [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![AI](https://img.shields.io/badge/AI-OpenAI%20%2F%20Anthropic-315D47)](#ai-and-market-integrations) [![License](https://img.shields.io/badge/License-Non--Commercial%20%7C%20Permission%20Required-6B7542)](LICENSE)
 
-*Hackathon 2026 — Challenge A: AI-Powered Cost Estimation and BoQ Analysis*
+**[Live Vercel Preview](https://baumind-hackathon-tumai-2026.vercel.app/)** · **[GitHub Repository](https://github.com/S1nflex/baumind_hackathon_tumai_2026)**
+
+*Hackathon 2026 · Challenge A — AI-Powered Cost Estimation and Bill of Quantities Analysis*
 
 </div>
 
 ---
 
-## Contents
+## Overview
 
-- [About the Project](#about-the-project)
-- [Problem Statement](#problem-statement)
-- [Our Solution](#our-solution)
-- [Product Capabilities](#product-capabilities)
-- [AI-Powered BoQ Intelligence](#ai-powered-boq-intelligence)
-- [Core Features](#core-features)
-- [How It Works](#how-it-works)
-- [Target Users](#target-users)
-- [Challenge Milestones](#challenge-milestones)
-- [System Architecture](#system-architecture)
-- [Technology Stack](#technology-stack)
-- [Dataset](#dataset)
-- [Getting Started](#getting-started)
-- [Development Workflow](#development-workflow)
-- [Team](#team)
-- [License](#license)
+BauMind is a working hackathon prototype for reviewing and pricing construction **Bills of Quantities (BoQs / Leistungsverzeichnisse, LV)**. It turns supported construction documents into editable line items, checks them for inconsistencies, generates indicative unit-cost estimates, and helps an estimator examine suppliers and prepare a draft bid.
 
----
+The application combines deterministic calculations with AI-assisted analysis. **AI-generated price estimates are useful starting values, not verified market quotations.** The source document stays unchanged while work is carried out on the editable project copy.
 
-## About the Project
+## The problem
 
-**BauMind** is an AI-powered construction intelligence platform designed to simplify and optimize construction estimation, tender management, and project workflows.
+Construction tenders contain detailed quantities, technical specifications, many line items, and requirements spread across different sections. Manually extracting the data, identifying conflicting descriptions, and assigning realistic prices takes considerable time. Missing information can lead to costly bidding mistakes.
 
-Construction companies regularly process large volumes of technical documentation, Bills of Quantities (BoQs), pricing information, and project specifications.
+BauMind gives an estimator one workspace for the document, its calculation, evidence-backed review findings, and available market references.
 
-These documents often contain thousands of individual positions, multiple cost groups, complex dependencies, and potentially costly inconsistencies.
+## Implemented features
 
-Traditional estimation workflows require significant manual effort and leave limited time for systematic risk analysis.
+The features below are present in the **BauMind v6.8 source code**. External integrations and some PDF capabilities require additional software or credentials.
 
-BauMind combines **construction project management, intelligent document processing, automated validation, and AI-assisted analysis** in a unified digital workspace.
-
-The platform aims to help construction professionals:
-
-- Organize construction projects and tender documentation.
-- Import and manage complex Bills of Quantities.
-- Automate repetitive estimation workflows.
-- Detect errors and inconsistencies before bidding.
-- Identify potential financial and contractual risks.
-- Recognize change order opportunities.
-- Improve collaboration and decision-making.
-- Generate structured, actionable risk reports.
-
-The project is being developed as part of **Challenge A: AI-Powered Cost Estimation and BoQ Analysis**.
-
-> **Development Status:** BauMind is currently under development. The capabilities described in this README represent the intended product scope and planned architecture. Individual features may not yet be implemented.
-
----
-
-## Problem Statement
-
-Construction estimation is a complex, document-intensive process.
-
-A single tender can include thousands of line items distributed across multiple trades, specifications, drawings, and pricing documents.
-
-Estimators must manually analyze quantities, descriptions, dependencies, and contractual requirements before preparing competitive offers.
-
-This process introduces several challenges:
-
-| Challenge | Business Impact |
+| Area | What is implemented |
 |---|---|
-| **Large Document Volumes** | Thousands of BoQ positions require extensive manual review. |
-| **Fragmented Information** | Documents, estimates, and project information are distributed across different systems. |
-| **Calculation Errors** | Incorrect quantities, units, or calculations can distort project costs. |
-| **Ambiguous Specifications** | Unclear scope descriptions increase uncertainty and contractual risk. |
-| **Cross-Trade Dependencies** | Contradictions between different construction trades may remain unnoticed. |
-| **Missed Change Orders** | Potential additional work and cost recovery opportunities are overlooked. |
-| **Limited Historical Insights** | Knowledge from previous projects is not systematically reused. |
-| **Inefficient Collaboration** | Estimators and project teams lack a unified review environment. |
-
-### The Central Challenge
-
-**How can construction companies transform complex tender documentation into reliable estimates, actionable insights, and better bidding decisions?**
-
-BauMind addresses this challenge by connecting structured construction data with intelligent automation and AI-assisted risk detection.
-
----
-
-## Our Solution
-
-BauMind provides a centralized workspace for managing construction tenders, analyzing Bills of Quantities, and supporting estimation decisions.
-
-Rather than treating BoQs as static documents, the platform aims to transform them into structured, searchable, and analyzable project information.
-
-The system is designed around five fundamental principles.
-
-### 01 — Centralized Construction Workspace
-
-Bring projects, tenders, documents, estimates, and related workflows together in one environment.
-
-### 02 — Intelligent Document Processing
-
-Convert complex PDF, GAEB, and Excel documents into normalized, machine-readable construction data.
-
-### 03 — Automated Quality Assurance
-
-Detect missing information, calculation errors, contradictory specifications, and unusual quantities before they affect project execution.
-
-### 04 — AI-Powered Risk Intelligence
-
-Identify potentially problematic scope descriptions, financial risks, and opportunities for change orders.
-
-### 05 — Human-Centered Decision Support
-
-Provide estimators with transparent findings, evidence, severity assessments, and recommended next actions.
-
-**BauMind is designed to assist construction professionals, not replace their expertise.**
-
----
-
-## Product Capabilities
-
-BauMind is envisioned as an integrated construction management and estimation platform.
-
-Its primary capabilities are organized into interconnected workspaces.
-
-### 1. Project Management
-
-A centralized environment for organizing construction projects and their related information.
-
-Planned capabilities include:
-
-- Project overview and status tracking.
-- Project-specific documentation.
-- Centralized tender information.
-- Project organization and categorization.
-- Access to associated estimates and BoQs.
-- Collaboration across project teams.
-
-### 2. Tender Management
-
-A structured workspace for managing construction bidding processes.
-
-Planned capabilities include:
-
-- Tender creation and organization.
-- Tender document management.
-- Bid preparation workflows.
-- Deadline and status tracking.
-- Structured review of tender requirements.
-- Consolidated estimation information.
-
-### 3. Bill of Quantities Management
-
-A dedicated workspace for importing, navigating, and analyzing construction BoQs.
-
-Target capabilities include:
-
-- PDF, GAEB, and Excel import.
-- Structured extraction of BoQ positions.
-- Hierarchical organization of cost groups and trades.
-- Quantity and unit management.
-- Position-based document navigation.
-- Search, filtering, and categorization.
-- Source-document traceability.
-
-### 4. Estimation & Cost Management
-
-Tools for supporting construction cost estimation and bid preparation.
-
-Planned capabilities include:
-
-- Quantity and unit-price management.
-- Cost calculations and summaries.
-- Position-level pricing information.
-- Markup and pricing adjustments.
-- Cost-group aggregation.
-- Estimation review and validation.
-- Optional historical price comparisons.
-
-### 5. AI Risk Intelligence
-
-An intelligent analysis environment for detecting errors and identifying potential financial exposure.
-
-Core objectives include:
-
-- Automated error detection.
-- Quantity plausibility checks.
-- Semantic analysis of construction descriptions.
-- Cross-position contradiction detection.
-- Risk scoring and prioritization.
-- Change order potential identification.
-- AI-assisted explanations and recommendations.
-
-### 6. Reporting & Collaboration
-
-A unified interface for reviewing findings and supporting team decisions.
-
-Planned capabilities include:
-
-- Prioritized risk reports.
-- Position-specific findings.
-- Review status management.
-- Structured issue tracking.
-- Evidence-based recommendations.
-- Collaborative review workflows.
-- Exportable analysis summaries.
-
----
-
-## AI-Powered BoQ Intelligence
-
-The central intelligence component of BauMind focuses on automated analysis of construction Bills of Quantities.
-
-Its purpose is to identify potential errors, inconsistencies, and financial risks before an offer is submitted.
-
-### 01 — Intelligent Document Parsing
-
-Construction documents may contain extensive hierarchical structures, inconsistent formatting, complex tables, and technical descriptions.
-
-BauMind aims to support three primary input formats:
-
-| Format | Description |
-|---|---|
-| **PDF** | Extract structured information from construction tender documents. |
-| **GAEB** | Process standardized German construction exchange formats. |
-| **Excel** | Import spreadsheet-based Bills of Quantities and pricing information. |
-
-The extraction process aims to identify:
-
-- Position numbers.
-- Item descriptions.
-- Quantities.
-- Measurement units.
-- Unit prices, when available.
-- Total prices, when available.
-- Cost groups.
-- Trade classifications.
-- Document hierarchy.
-- Source references.
-
-### 02 — Automated Error Detection
-
-**Error detection is the highest-priority objective of the hackathon challenge.**
-
-BauMind aims to identify several categories of potential errors.
-
-| Error Category | Description |
-|---|---|
-| **Missing Information** | Incomplete positions, missing quantities, or unspecified requirements. |
-| **Ambiguous Descriptions** | Vague or insufficiently defined construction work. |
-| **Contradictions** | Conflicting requirements across positions or trades. |
-| **Typographical Errors** | Suspicious terminology, inconsistent wording, or potential typing mistakes. |
-| **Quantity Anomalies** | Unusual or implausible quantities requiring verification. |
-| **Calculation Errors** | Inconsistent arithmetic, prices, or totals. |
-| **Unit Inconsistencies** | Potentially incorrect or incompatible measurement units. |
-
-The system should distinguish between confirmed rule-based inconsistencies and potential issues requiring professional review.
-
-### 03 — Risk Assessment
-
-Not every detected issue represents the same level of risk.
-
-BauMind aims to evaluate findings according to their potential impact and uncertainty.
-
-Possible risk indicators include:
-
-- Incomplete scope definitions.
-- Unusual quantities.
-- Contradictory requirements.
-- Missing technical specifications.
-- Cross-trade dependencies.
-- Unclear contractual obligations.
-- Potential pricing uncertainty.
-
-Findings may be organized into severity categories:
-
-| Severity | Meaning |
-|---|---|
-| **Low** | Minor inconsistency or informational warning. |
-| **Medium** | Potential issue requiring estimator verification. |
-| **High** | Significant uncertainty or potentially costly inconsistency. |
-| **Critical** | Serious issue requiring immediate attention before bidding. |
-
-Risk assessments are intended as decision-support signals rather than definitive contractual or financial conclusions.
-
-### 04 — Change Order Intelligence
-
-Construction projects frequently encounter additional costs when the original scope of work is incomplete, ambiguous, or inconsistent.
-
-BauMind aims to identify potential **Nachtragspotenzial** during the bidding process.
-
-Analysis may consider:
-
-- Missing scope descriptions.
-- Unclear execution requirements.
-- Contradictions between BoQ positions.
-- Potentially omitted work.
-- Quantity discrepancies.
-- Dependencies across construction trades.
-
-The objective is to highlight situations that may require clarification or further contractual assessment.
-
-### 05 — AI-Assisted Findings
-
-Each detected issue should be presented as a structured, explainable finding.
-
-| Field | Description |
-|---|---|
-| **Position Reference** | Identifies the affected BoQ position. |
-| **Issue Category** | Classifies the detected problem. |
-| **Severity** | Indicates the estimated risk level. |
-| **Description** | Explains the potential inconsistency. |
-| **Source Evidence** | References the relevant document content. |
-| **Recommendation** | Suggests an appropriate follow-up action. |
-| **Review Status** | Tracks whether the issue has been reviewed. |
-
-This approach prioritizes transparency and practical usefulness over opaque AI-generated conclusions.
-
-### 06 — Historical Cost Intelligence
-
-Optional future functionality may incorporate historical construction project data.
-
-Potential applications include:
-
-- Comparing estimated and actual costs.
-- Identifying historical pricing patterns.
-- Reviewing previous change orders.
-- Suggesting unit-price benchmarks.
-- Supporting markup decisions.
-
-These capabilities depend on the availability and quality of suitable historical datasets.
-
-### 07 — What-if Analysis
-
-BauMind may support scenario-based estimation analysis.
-
-Potential scenarios include:
-
-- Changes in material prices.
-- Alternative construction methods.
-- Quantity adjustments.
-- Different markup strategies.
-- Changes in estimated project costs.
-
-The goal is to help estimators understand how different assumptions affect overall bidding decisions.
-
----
-
-## Core Features
-
-| Module | Functionality | Priority |
-|---|---|---|
-| **Project Workspace** | Centralized project and tender organization. | Product Foundation |
-| **Tender Management** | Bid preparation and document workflows. | Product Foundation |
-| **BoQ Import** | PDF, GAEB, and Excel document ingestion. | Essential |
-| **Structured Extraction** | Normalize positions, quantities, units, and descriptions. | Essential |
-| **Error Detection Engine** | Identify missing information, contradictions, and suspicious values. | **Highest** |
-| **Plausibility Validation** | Perform arithmetic, structural, and quantity checks. | High |
-| **Risk Assessment** | Classify and prioritize potential project risks. | High |
-| **Change Order Detection** | Identify possible additional-work opportunities. | High |
-| **Risk Dashboard** | Display findings, severity levels, and source references. | Essential |
-| **Review Workflow** | Support human verification and issue tracking. | High |
-| **Historical Data Analysis** | Use previous projects for estimation insights. | Optional |
-| **What-if Simulation** | Evaluate alternative pricing and cost scenarios. | Optional |
-
----
-
-## How It Works
-
-BauMind is designed around a structured processing pipeline.
+| **Document import** | PDF with a text layer, GAEB XML/GAEB 90, and XLSX import; extraction of position numbers (OZ), descriptions, quantities, units, and available prices. Optional OCR fallback for supported scans. |
+| **Project workspace** | Project list, search, open, archive, restore and delete; editable project snapshots with revision checking. |
+| **BoQ editor** | Search and filter positions, navigate imported sections, edit quantities and units, add positions, and adjust manual prices and cost components. |
+| **Source traceability** | Original document references and a PDF source viewer with page navigation and text highlighting where available. |
+| **Automated review** | Rule-based checks for missing data, possible duplicates, quantity/price inconsistencies, contradictory locations, and related scope issues. |
+| **AI-assisted review** | Optional semantic review and scope analysis with findings linked to position references and source excerpts. |
+| **Cost estimation** | EP/GP calculations, markups and VAT; AI-generated indicative **net unit-price ranges** and a provisional unit price using the lower end of the range when no stronger price source exists. |
+| **Supplier research** | Google Shopping searches through **SerpAPI** when configured, supplier cards, source links when provided, and comparisons by compatible units, package quantities and known delivery cost. |
+| **Market-price catalog** | Optional Supabase-backed price records, scraper/adapters, catalog matching, and a protected price-collection endpoint. |
+| **AI assistant** | Contextual conversation about the current project; clarification questions and suggested edits shown for approval before changes are applied. |
+| **Review & reporting** | Step-by-step finding resolution, an offer summary, and PDF export of the draft or finalized calculation. |
+| **Interface** | German, English and Russian UI localization, responsive desktop/mobile layouts and a nature-inspired BauMind visual identity. |
+
+### What a typical session looks like
+
+1. **Upload a BoQ** in PDF, GAEB, or XLSX format (up to 24 MB).
+2. **Parse and structure** the positions and run rule-based checks.
+3. Optionally run **AI review and indicative price estimation** with a configured AI provider and market source.
+4. Inspect each position, supporting document excerpt, and any available supplier offers.
+5. Edit the working estimate, resolve review findings, and inspect total costs.
+6. Export a PDF draft; final approval is restricted while required reviews or prices are still incomplete.
+
+The UI includes a **local-only import mode** for using the parser and rule-based calculation without external API credentials.
+
+## AI and market integrations
+
+BauMind supports the following server-side integrations:
+
+- **OpenAI or Anthropic:** semantic review, AI-assisted market-cost ranges, and the contextual AI assistant. `OPENAI_MODEL` defaults to `gpt-5-mini` when OpenAI is configured.
+- **SerpAPI:** live Google Shopping searches for possible supplier products and current offer pages.
+- **Supabase:** optional market-price catalog, price-source records, and scraper results. **Project documents and project state are not stored in Supabase in this version.**
+
+A complete AI-assisted import requires an AI provider and at least one configured market source. The application checks integration readiness; local-only import remains available without keys. A configured provider does **not** guarantee a matching supplier quote for every LV position.
+
+**Price provenance matters:**
+
+- An **AI estimate** is a provisional calculation reference. The lower estimate may appear in EP/GP until replaced by a more specific price; it must not be described as a verified dealer quote.
+- A **supplier result** is shown only when an actual result is returned or a source record is available. Product prices may exclude installation, shipping or other scope items.
+- **Confirmed, comparable offers** require appropriate unit and package matching plus known delivery information before they are used as confirmed supplier costs.
+
+## Architecture
 
 ```text
-                 CONSTRUCTION PROJECT
-                          |
-              +-----------v-----------+
-              |   BauMind Workspace   |
-              |   Projects & Tenders  |
-              +-----------+-----------+
-                          |
-              +-----------v-----------+
-              |    Document Import    |
-              |    PDF / GAEB / XLSX  |
-              +-----------+-----------+
-                          |
-              +-----------v-----------+
-              | Parsing & Extraction  |
-              | Positions / Quantities|
-              | Units / Descriptions  |
-              +-----------+-----------+
-                          |
-              +-----------v-----------+
-              | Data Normalization    |
-              | Structured BoQ Model  |
-              +-----------+-----------+
-                          |
-             +------------+------------+
-             |                         |
-  +----------v----------+   +----------v----------+
-  | Deterministic       |   | AI-Assisted         |
-  | Validation Engine   |   | Semantic Analysis   |
-  |                     |   |                     |
-  | Arithmetic          |   | Ambiguous Scope     |
-  | Units               |   | Contradictions      |
-  | Structural Checks   |   | Contextual Risks    |
-  +----------+----------+   +----------+----------+
-             |                         |
-             +------------+------------+
-                          |
-              +-----------v-----------+
-              | Risk Classification   |
-              | & Findings Engine     |
-              +-----------+-----------+
-                          |
-              +-----------v-----------+
-              | Estimator Dashboard   |
-              | Findings / Evidence   |
-              | Recommendations       |
-              +-----------+-----------+
-                          |
-              +-----------v-----------+
-              | Review & Risk Report  |
-              +-----------------------+
+User uploads PDF / GAEB / XLSX
+                |
+       Parsing & normalization
+                |
+      Structured BoQ project
+                |
+       +--------+---------+
+       |                  |
+  Rule-based checks   AI semantic / scope analysis (opt-in)
+       |                  |
+       +--------+---------+
+                |
+   Pricing & market enrichment
+      |          |          |
+   Manual     AI ranges   SerpAPI / Supabase offers
+      +----------+----------+
+                |
+      Review, assistant, export
+                |
+   SQLite project snapshots / source PDFs
 ```
 
-The architecture separates deterministic validation from AI-assisted semantic analysis.
+### Technology stack
 
-This is particularly important for construction estimation, where numerical correctness, source traceability, and explainability are essential.
-
----
-
-## Target Users
-
-BauMind is designed for professionals involved in construction estimation, bidding, and project management.
-
-| User | Primary Benefit |
+| Layer | Technology |
 |---|---|
-| **Construction Estimators (Kalkulatoren)** | Reduce manual BoQ review and identify estimation risks. |
-| **Bid Managers** | Coordinate tender preparation and improve offer quality. |
-| **Project Managers** | Identify scope uncertainty and potential execution disputes. |
-| **Construction Companies** | Centralize estimation workflows and project information. |
-| **Commercial Teams** | Improve visibility into project costs and financial exposure. |
-
-### Example Workflow
-
-An estimator receives a tender containing several thousand BoQ positions.
-
-Instead of manually reviewing every position from the beginning, the estimator can use BauMind to:
-
-1. Upload the tender documentation.
-2. Convert the BoQ into structured data.
-3. Run automated validation and AI-assisted analysis.
-4. Review prioritized errors and risk indicators.
-5. Inspect the original evidence for each finding.
-6. Clarify questionable positions.
-7. Prepare a more informed bid.
-
-**The intended result is a faster, more transparent, and more reliable estimation process.**
-
----
-
-## Challenge Milestones
-
-The development roadmap follows the official hackathon requirements.
-
-| Phase | Milestone | Objective |
-|---|---|---|
-| **01** | BoQ Parsing | Import and structure complex construction documents. |
-| **02** | Error Detection | Identify missing items, contradictions, typos, and unclear descriptions. |
-| **03** | Risk Intelligence | Evaluate risk levels and detect potential change orders. |
-| **04** | Historical Data | Integrate previous project information where available. |
-| **05** | What-if Analysis | Evaluate material price changes and alternative scenarios. |
-
-### Hackathon Priorities
-
-The initial prototype prioritizes:
-
-**1. Reliable Document Extraction**
-
-Ensure construction BoQs can be transformed into structured information without silently losing critical fields.
-
-**2. Meaningful Error Detection**
-
-Demonstrate the ability to identify realistic problems in actual BoQ positions.
-
-**3. Explainable Risk Analysis**
-
-Provide evidence-based findings that estimators can verify and act upon.
-
-**4. Practical User Experience**
-
-Deliver a functional web application with document upload, structured navigation, and a clear risk report.
-
-### Expected Deliverable
-
-A working prototype demonstrating:
-
-**Document Upload → Structured BoQ → Automated Analysis → Risk Report**
-
-The final presentation should explain the product from an estimator's perspective and demonstrate how BauMind improves the bidding process.
-
----
-
-## System Architecture
-
-BauMind is designed around a modular application architecture.
-
-The system separates six primary responsibilities.
-
-### 1. Application Layer
-
-Provides the user interface for construction projects, tenders, estimates, documents, and analysis results.
-
-### 2. Document Processing Layer
-
-Handles document ingestion and format-specific extraction for PDF, GAEB, and Excel files.
-
-### 3. Structured Data Layer
-
-Normalizes extracted information into a consistent internal representation of Bills of Quantities.
-
-### 4. Validation Layer
-
-Executes deterministic checks for arithmetic, structural consistency, quantities, and measurement units.
-
-### 5. AI Intelligence Layer
-
-Performs contextual analysis of construction descriptions, ambiguous requirements, contradictions, and potential project risks.
-
-### 6. Reporting Layer
-
-Transforms validation results and AI findings into structured, reviewable risk reports.
-
-### Architectural Principles
-
-| Principle | Implementation Goal |
-|---|---|
-| **Modularity** | Separate document processing, validation, AI analysis, and presentation. |
-| **Data Integrity** | Preserve original document values and source references. |
-| **Deterministic Calculations** | Use explicit algorithms for arithmetic and unit validation. |
-| **Explainable AI** | Associate findings with supporting evidence and clear explanations. |
-| **Human Oversight** | Require professional review for uncertain or consequential findings. |
-| **Scalability** | Support large BoQs containing thousands of positions. |
-| **Maintainability** | Keep processing components independently testable. |
-
----
-
-## Technology Stack
-
-The initial technology foundation includes:
-
-| Category | Technology |
-|---|---|
-| **Framework** | Next.js (App Router) |
-| **Frontend** | React |
-| **Language** | TypeScript |
-| **Styling** | To be determined |
-| **Document Processing** | To be determined |
-| **AI Integration** | To be determined |
-| **Database** | To be determined |
-| **File Storage** | To be determined |
-| **Deployment** | To be determined |
-| **Testing** | To be determined |
-
-Additional technologies and integrations will be documented as implementation decisions are finalized.
-
----
-
-## Dataset
-
-The challenge provides anonymized construction Bills of Quantities covering different trades and project sizes.
-
-### Official Challenge Dataset
-
-[Google Drive — Challenge A Dataset](https://drive.google.com/drive/folders/1wS4UMVghBL8T5opmZ2UBmBu0kr6U8zIB?usp=sharing)
-
-The challenge describes several potential data categories:
-
-- Construction Bills of Quantities.
-- GAEB files.
-- PDF and Excel documents.
-- Historical project data, if available.
-- Examples of faulty BoQ positions.
-- Unit-price catalogs or benchmarks, if available.
-
-The availability and exact structure of individual files must be verified during development.
-
-### Data Quality
-
-Reliable BoQ analysis depends on preserving the relationship between extracted information and its original source.
-
-The system should aim to maintain:
-
-- Document identifiers.
-- Original position numbers.
-- Hierarchical BoQ structure.
-- Quantities and measurement units.
-- Original item descriptions.
-- Pricing information, where available.
-- References to source files.
-- Traceability of detected findings.
-
----
-
-## Getting Started
-
-This branch includes the BauMind prototype. See the [prototype guide](BAUMIND.md) for requirements and [demo notes](DEMO.md) for the walkthrough and validation results. The PDF importer requires Poppler, and the application requires Node.js 22.13 or newer.
-
-### Prerequisites
-
-- Node.js
-- npm
-- Git
-
-### 1. Clone the Repository
+| Application | Next.js 16 App Router, React 19, TypeScript |
+| UI | CSS, Lucide icons, locally packaged brand assets, Manrope / Inter |
+| Calculations | Decimal.js |
+| Import | Poppler `pdftotext`, `exceljs`, `fast-xml-parser`; optional Tesseract OCR |
+| PDF output | `pdf-lib` |
+| AI | Vercel AI SDK, OpenAI and Anthropic providers |
+| Price discovery | SerpAPI, custom scraper adapters and product matching |
+| Market data | Supabase PostgreSQL (catalog only) |
+| Projects / original files | Local SQLite (`node:sqlite`) |
+| Testing | Node test runner, TypeScript type checking, integration and regression tests |
+
+## Getting started locally
+
+### Requirements
+
+- **Node.js 22.13+** and npm.
+- **Poppler** for extracting text from PDF files (`pdftotext`; `pdfinfo` is also useful).
+- **Tesseract OCR**, optionally, for the supported OCR fallback on scanned PDFs.
 
 ```bash
-git clone <repository-url>
-cd <repository-directory>
-```
+# Clone the project
+git clone https://github.com/S1nflex/baumind_hackathon_tumai_2026.git
+cd baumind_hackathon_tumai_2026
 
-### 2. Install Dependencies
-
-```bash
+# Install dependencies
 npm ci
-```
 
-### 3. Configure Environment Variables
-
-Create a local environment file when required by the implementation:
-
-```bash
+# Set server-side keys, only if using AI or live market sources
 cp .env.example .env.local
-```
 
-Configure the necessary values according to the project's environment template.
-
-Never commit credentials or private API keys to the repository.
-
-### 4. Start the Development Server
-
-```bash
+# Launch locally
 npm run dev
 ```
 
-Open:
+Open **http://127.0.0.1:3000**. On Debian/Ubuntu, `npm run setup:pdf` can install the PDF tools; `npm run setup:ocr` provides the optional OCR setup. See the shell scripts before running them on your own system.
 
-**http://localhost:3000**
+### Environment variables
 
-The development server uses this address by default unless a different port is configured.
+Set only the integrations you need in `.env.local` or your deployment provider's **server-side** environment settings:
 
----
+```dotenv
+# Choose a provider (Anthropic requires ANTHROPIC_MODEL as well)
+BAUMIND_AI_PROVIDER=openai
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_MODEL=gpt-5-mini
+# ANTHROPIC_API_KEY=
+# ANTHROPIC_MODEL=
 
-## Development Workflow
+# Live retailer search
+SERPAPI_API_KEY=your_serpapi_api_key
 
-BauMind follows a feature-branch development workflow to support parallel implementation.
+# Optional existing market catalog
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SECRET_KEY=your_server_side_secret
 
-### Create a Feature Branch
-
-```bash
-git checkout -b feature/your-feature
+# Optional protected scheduled scraping
+# CRON_SECRET=your_random_secret
 ```
 
-### Commit Changes
+Never commit `.env.local` or expose secret keys using `NEXT_PUBLIC_`. The Supabase catalog requires the matching SQL migrations in `supabase/migrations/`; an empty database does not provide real supplier offers. A PostgreSQL database password is **not** required by the current Supabase REST catalog integration.
+
+For local integration diagnostics, use **Integrationen** in the application and `npm run doctor`. On supported private local deployments, `npm run setup:integrations` configures the protected local settings flow.
+
+### Test and verify
 
 ```bash
-git add .
-git commit -m "feat: describe your changes"
+npm run doctor
+npm run typecheck
+npm test
+npm run build
+# Or run all checks in sequence:
+npm run verify
 ```
 
-### Push the Branch
+Tests cover parsing, BoQ calculations, rule findings, supplier comparison, scraper adapters, integration readiness, and responsive-layout rules. Successful unit tests do not guarantee that paid third-party APIs are reachable or that a production deployment supports all local system dependencies.
 
-```bash
-git push -u origin feature/your-feature
-```
+## Live preview and deployment
 
-### Pull Request Workflow
+**Live preview:** **https://baumind-hackathon-tumai-2026.vercel.app/**
 
-Contributors should:
+The public Vercel address is provided for demonstration. **This does not mean the complete local workflow is production-ready on Vercel.** The current implementation uses a writable **local SQLite database** for projects and originals, and the PDF importer invokes a system-installed Poppler binary.
 
-1. Implement features in dedicated branches.
-2. Keep commits focused and descriptive.
-3. Test changes before submission.
-4. Open a pull request targeting `main`.
-5. Review changes before merging.
+Important deployment constraints:
 
-### Commit Naming
+- Vercel functions do **not** provide a persistent shared filesystem suitable for this SQLite project store. An ephemeral `/tmp` database can lose projects between invocations.
+- The current preview option (`BAUMIND_PREVIEW=1`) uses a browser cookie to separate temporary workspaces; **it is not a full authentication and authorization system**.
+- Production is deliberately locked by default unless the configured access mode allows it. `BAUMIND_SINGLE_USER=1` is **not appropriate for a publicly accessible shared site**.
+- Poppler/Tesseract availability and long-running AI import limits must be addressed separately for a robust serverless deployment.
 
-Recommended commit prefixes:
+For durable, multi-user production use, the project store and source-file storage would need a persistent backend and appropriate authentication. These are **not implemented** as part of v6.8.
 
-| Prefix | Purpose |
-|---|---|
-| `feat:` | New functionality |
-| `fix:` | Bug fixes |
-| `refactor:` | Code restructuring |
-| `docs:` | Documentation updates |
-| `test:` | Tests |
-| `chore:` | Maintenance and configuration |
+## Known limitations
 
----
+- PDF extraction depends on document structure; some layouts, scans, and unusual tables may fail or require OCR.
+- Supplier searches may return zero relevant results, and no minimum number of vendors is guaranteed.
+- AI-generated prices are estimates based on supplied scope, **not validated quotations**; some positions may be omitted or have uncertain units and scope.
+- Integrations can fail due to API credentials, permissions, credits, response format or rate limits.
+- Project data currently uses local SQLite; there is no finished team-account, role-based-access, or durable multi-tenant hosting system.
+- The software is a hackathon prototype, not a replacement for contractual, engineering, or professional estimation review.
 
-## Team
+## Challenge and team
 
-BauMind is developed by a collaborative hackathon team.
+Developed for **Hackathon 2026 — Challenge A: AI-Powered Cost Estimation and BoQ Analysis**.
 
-Team members, responsibilities, and individual contributions will be documented as development progresses.
+BauMind was built collaboratively. Individual technical contributions and their authorship can be inspected in the [repository's Git history](https://github.com/S1nflex/baumind_hackathon_tumai_2026/commits). No individual author's rights are transferred by this README.
 
----
+The challenge's dataset may be available separately from the organizers: [Challenge A dataset](https://drive.google.com/drive/folders/1wS4UMVghBL8T5opmZ2UBmBu0kr6U8zIB?usp=sharing). Dataset content is **not** included in this repository by default and remains subject to its own terms.
 
-## License
+## License and commercial use
 
-See the [LICENSE](LICENSE) file for the applicable licensing terms.
+**BauMind is source-available for non-commercial purposes; it is not released under an OSI-approved open-source license.** Commercial use requires **prior express written permission from the applicable copyright holder(s)**. See **[LICENSE](LICENSE)** for the complete conditions and the permission process.
 
-All third-party libraries, frameworks, and external resources remain subject to their respective licenses.
+This project contains third-party libraries, fonts and potentially third-party visual materials governed by their respective licenses. The BauMind license does not override those rights. Before applying the license to team-owned work, all relevant contributors should agree to its terms.
 
 ---
 
 <div align="center">
 
-# BauMind
-
-### Smarter Estimates. Fewer Risks. Better Bids.
-
-**AI-Powered Construction Intelligence**
-
-*Transforming construction complexity into actionable intelligence.*
-
-**Hackathon 2026**
+**BauMind — Smarter Estimates. Fewer Risks. Better Bids.**
 
 </div>
