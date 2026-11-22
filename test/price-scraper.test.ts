@@ -114,6 +114,7 @@ test('maps stored prices only to matching units and only treats exact SKU matche
   assert.equal(comparable({ ...offers[0], confirmed: true, delivery: null }, row), false)
 })
 
+
 test('executes mocked adapters and isolates an individual source failure', async () => {
   const sources: PriceSourceRecord[] = [
     { id: '550e8400-e29b-41d4-a716-446655440001', name: 'Good', base_url: 'https://good.example', adapter_type: 'mock', enabled: true },
