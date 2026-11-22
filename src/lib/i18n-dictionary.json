@@ -1,0 +1,1666 @@
+{
+  "Leistungsverzeichnis": {
+    "en": "Bill of quantities",
+    "ru": "Ведомость объёмов работ"
+  },
+  "Prüfung": {
+    "en": "Review",
+    "ru": "Проверка"
+  },
+  "Angebot": {
+    "en": "Quote",
+    "ru": "Предложение"
+  },
+  "Die Anfrage konnte nicht bearbeitet werden.": {
+    "en": "The request could not be completed.",
+    "ru": "Не удалось выполнить запрос."
+  },
+  "Dialog schließen": {
+    "en": "Close dialog",
+    "ru": "Закрыть окно"
+  },
+  "Datei zu groß: maximal 24 MB.": {
+    "en": "File too large: maximum 24 MB.",
+    "ru": "Файл слишком большой: максимум 24 МБ."
+  },
+  "Unterstützt werden PDF, GAEB und XLSX.": {
+    "en": "Supported formats: PDF, GAEB and XLSX.",
+    "ru": "Поддерживаются PDF, GAEB и XLSX."
+  },
+  "Datei hochladen": {
+    "en": "Upload file",
+    "ru": "Загрузить файл"
+  },
+  "Leistungsverzeichnis ablegen": {
+    "en": "Drop a bill of quantities here",
+    "ru": "Перетащите сюда смету"
+  },
+  "PDF, GAEB oder XLSX hierher ziehen": {
+    "en": "Drag a PDF, GAEB or XLSX file here",
+    "ru": "Перетащите сюда PDF, GAEB или XLSX"
+  },
+  "Datei wechseln": {
+    "en": "Change file",
+    "ru": "Заменить файл"
+  },
+  "Datei auswählen": {
+    "en": "Choose file",
+    "ru": "Выбрать файл"
+  },
+  "Max. 24 MB": {
+    "en": "Max. 24 MB",
+    "ru": "Макс. 24 МБ"
+  },
+  "Projektname": {
+    "en": "Project name",
+    "ru": "Название проекта"
+  },
+  "optional": {
+    "en": "optional",
+    "ru": "необязательно"
+  },
+  "Weitere Importoptionen": {
+    "en": "More import options",
+    "ru": "Дополнительные настройки импорта"
+  },
+  "Unternehmen": {
+    "en": "Company",
+    "ru": "Компания"
+  },
+  "PLZ der Baustelle": {
+    "en": "Site postcode",
+    "ru": "Почтовый индекс объекта"
+  },
+  "Lieferantenpreise suchen": {
+    "en": "Search supplier prices",
+    "ru": "Искать цены поставщиков"
+  },
+  "KI-Textprüfung (mit API-Schlüssel)": {
+    "en": "AI text review (requires API key)",
+    "ru": "AI-проверка текста (нужен API-ключ)"
+  },
+  "Datei wird verarbeitet …": {
+    "en": "Processing file …",
+    "ru": "Обработка файла…"
+  },
+  "Importieren und prüfen": {
+    "en": "Import and review",
+    "ru": "Импортировать и проверить"
+  },
+  "Bezeichnung": {
+    "en": "Description",
+    "ru": "Наименование"
+  },
+  "Typ": {
+    "en": "Type",
+    "ru": "Тип"
+  },
+  "Material": {
+    "en": "Material",
+    "ru": "Материал"
+  },
+  "Kolonne / Firma": {
+    "en": "Crew / Contractor",
+    "ru": "Бригада / Подрядчик"
+  },
+  "Arbeitszeit": {
+    "en": "Labor time",
+    "ru": "Рабочее время"
+  },
+  "Leistung": {
+    "en": "Work item",
+    "ru": "Работа"
+  },
+  "Gerät": {
+    "en": "Equipment",
+    "ru": "Оборудование"
+  },
+  "Sonstiges": {
+    "en": "Other",
+    "ru": "Прочее"
+  },
+  "Abschnitt": {
+    "en": "Section",
+    "ru": "Раздел"
+  },
+  "Ergänzungen": {
+    "en": "Additions",
+    "ru": "Дополнения"
+  },
+  "Menge": {
+    "en": "Quantity",
+    "ru": "Количество"
+  },
+  "Kosten je Einheit (€)": {
+    "en": "Cost per unit (€)",
+    "ru": "Стоимость за единицу (€)"
+  },
+  "Gewerk": {
+    "en": "Trade",
+    "ru": "Вид работ"
+  },
+  "Beschreibung / Preisgrundlage": {
+    "en": "Description / pricing basis",
+    "ru": "Описание / Основание цены"
+  },
+  "Position hinzufügen": {
+    "en": "Add line item",
+    "ru": "Добавить позицию"
+  },
+  "BAUMIND WORKSPACE": {
+    "en": "BAUMIND WORKSPACE",
+    "ru": "РАБОЧЕЕ ПРОСТРАНСТВО BAUMIND"
+  },
+  "Archiv": {
+    "en": "Archive",
+    "ru": "Архив"
+  },
+  "Dateien & Kalkulation": {
+    "en": "Files & Estimation",
+    "ru": "Файлы и расчёты"
+  },
+  "Abgeschlossene Kalkulationen und freigegebene Angebote.": {
+    "en": "Completed estimates and approved quotes.",
+    "ru": "Завершённые расчёты и утверждённые предложения."
+  },
+  "Datei importieren, Positionen prüfen und das Angebot kalkulieren.": {
+    "en": "Import files, review items and calculate your quote.",
+    "ru": "Импортируйте файлы, проверяйте позиции и рассчитывайте предложение."
+  },
+  "Demo öffnen": {
+    "en": "Open demo",
+    "ru": "Открыть демо"
+  },
+  "LV importieren": {
+    "en": "Import BoQ",
+    "ru": "Импортировать смету"
+  },
+  "Starte mit einer vorhandenen Datei.": {
+    "en": "Start with an existing file.",
+    "ru": "Начните с готового файла."
+  },
+  "Leistungsverzeichnis importieren": {
+    "en": "Import bill of quantities",
+    "ru": "Импортировать смету"
+  },
+  "Archivierte Projekte": {
+    "en": "Archived projects",
+    "ru": "Архив проектов"
+  },
+  "Projekte und Dateien": {
+    "en": "Projects and files",
+    "ru": "Проекты и файлы"
+  },
+  "Meine Projekte": {
+    "en": "My projects",
+    "ru": "Мои проекты"
+  },
+  "Deine Dateien und Kalkulationen an einem Ort.": {
+    "en": "Your files and estimates in one place.",
+    "ru": "Все файлы и расчёты в одном месте."
+  },
+  "Projekt hinzufügen": {
+    "en": "Add project",
+    "ru": "Добавить проект"
+  },
+  "Projekt oder Datei suchen": {
+    "en": "Search projects or files",
+    "ru": "Найти проект или файл"
+  },
+  "Projekte durchsuchen": {
+    "en": "Search projects",
+    "ru": "Поиск проектов"
+  },
+  "Suche löschen": {
+    "en": "Clear search",
+    "ru": "Очистить поиск"
+  },
+  "Projekte sortieren": {
+    "en": "Sort projects",
+    "ru": "Сортировать проекты"
+  },
+  "Neueste": {
+    "en": "Newest",
+    "ru": "Новые"
+  },
+  "Freigegeben": {
+    "en": "Approved",
+    "ru": "Утверждено"
+  },
+  "Demo": {
+    "en": "Demo",
+    "ru": "Демо"
+  },
+  "Nichts gefunden": {
+    "en": "No results",
+    "ru": "Ничего не найдено"
+  },
+  "Noch nichts archiviert": {
+    "en": "Nothing archived yet",
+    "ru": "Архив пока пуст"
+  },
+  "Hier erscheinen deine Projekte": {
+    "en": "Your projects will appear here",
+    "ru": "Здесь появятся ваши проекты"
+  },
+  "Suche ändern oder zurücksetzen.": {
+    "en": "Change or clear your search.",
+    "ru": "Измените запрос или сбросьте поиск."
+  },
+  "Freigegebene Angebote werden hier gespeichert.": {
+    "en": "Approved quotes are saved here.",
+    "ru": "Здесь сохраняются утверждённые предложения."
+  },
+  "Importiere links ein LV oder öffne die Demo.": {
+    "en": "Import a BoQ on the left or open the demo.",
+    "ru": "Импортируйте смету слева или откройте демо."
+  },
+  "Änderungen werden im Projekt gespeichert": {
+    "en": "Changes are saved in the project",
+    "ru": "Изменения сохраняются в проекте"
+  },
+  "Demo testen": {
+    "en": "Try demo",
+    "ru": "Попробовать демо"
+  },
+  "Dateien importieren": {
+    "en": "Import files",
+    "ru": "Импорт файлов"
+  },
+  "Positionen prüfen": {
+    "en": "Review items",
+    "ru": "Проверка позиций"
+  },
+  "Risiken und Unklarheiten": {
+    "en": "Risks and ambiguities",
+    "ru": "Риски и неоднозначности"
+  },
+  "Kosten kalkulieren": {
+    "en": "Estimate costs",
+    "ru": "Расчёт стоимости"
+  },
+  "Preise und Angebote": {
+    "en": "Prices and quotes",
+    "ru": "Цены и предложения"
+  },
+  "Sprache": {
+    "en": "Language",
+    "ru": "Язык"
+  },
+  "Sprache auswählen": {
+    "en": "Select language",
+    "ru": "Выбор языка"
+  },
+  "BAUKALKULATION & DATEIEN": {
+    "en": "CONSTRUCTION ESTIMATION & FILES",
+    "ru": "СТРОИТЕЛЬНЫЕ СМЕТЫ И ФАЙЛЫ"
+  },
+  "BauMind Projekte": {
+    "en": "BauMind projects",
+    "ru": "Проекты BauMind"
+  },
+  "BauMind Bergsymbol": {
+    "en": "BauMind mountain logo",
+    "ru": "Горный логотип BauMind"
+  },
+  "Projekte": {
+    "en": "Projects",
+    "ru": "Проекты"
+  },
+  "Gewerke / Abschnitte": {
+    "en": "Trades / Sections",
+    "ru": "Виды работ / Разделы"
+  },
+  "Alle Positionen": {
+    "en": "All line items",
+    "ru": "Все позиции"
+  },
+  "Dein Arbeitsbereich": {
+    "en": "Your workspace",
+    "ru": "Ваше пространство"
+  },
+  "Neues Projekt": {
+    "en": "New project",
+    "ru": "Новый проект"
+  },
+  "Arbeitsbereich wird geladen …": {
+    "en": "Loading workspace …",
+    "ru": "Загрузка рабочего пространства…"
+  },
+  "Übungsdaten": {
+    "en": "Sample data",
+    "ru": "Учебные данные"
+  },
+  "In Kalkulation": {
+    "en": "In estimation",
+    "ru": "В расчёте"
+  },
+  "Abgabe LV": {
+    "en": "Final BoQ",
+    "ru": "Итоговая смета"
+  },
+  "PDF-Entwurf": {
+    "en": "Draft PDF",
+    "ru": "Черновик PDF"
+  },
+  "Freigeben": {
+    "en": "Approve",
+    "ru": "Утвердить"
+  },
+  "Importhinweis(e)": {
+    "en": "Import notice(s)",
+    "ru": "Замечания импорта"
+  },
+  "Originalpositionen": {
+    "en": "Imported items",
+    "ru": "Исходные позиции"
+  },
+  "Abschnitte": {
+    "en": "Sections",
+    "ru": "Разделы"
+  },
+  "Offene Prüfpunkte": {
+    "en": "Open review issues",
+    "ru": "Нерешённые замечания"
+  },
+  "Ohne vollständigen Preis": {
+    "en": "Missing complete price",
+    "ru": "Без полной цены"
+  },
+  "Noch nicht freigabefähig": {
+    "en": "Not ready for approval",
+    "ru": "Не готово к утверждению"
+  },
+  "Alles vollständig kalkuliert": {
+    "en": "All items priced",
+    "ru": "Все позиции рассчитаны"
+  },
+  "Angebot netto": {
+    "en": "Net quote",
+    "ru": "Сумма без НДС"
+  },
+  "Aktueller Entwurf": {
+    "en": "Current draft",
+    "ru": "Текущий черновик"
+  },
+  "Projektansichten": {
+    "en": "Project views",
+    "ru": "Разделы проекта"
+  },
+  "Position auswählen, um Menge, Preise und Quelle zu bearbeiten.": {
+    "en": "Select an item to edit quantity, prices and source.",
+    "ru": "Выберите позицию для изменения количества, цен и источника."
+  },
+  "Positionen": {
+    "en": "Line items",
+    "ru": "Позиции"
+  },
+  "Alle Abschnitte": {
+    "en": "All sections",
+    "ru": "Все разделы"
+  },
+  "Zurücksetzen": {
+    "en": "Reset",
+    "ru": "Сбросить"
+  },
+  "ME": {
+    "en": "Unit",
+    "ru": "Ед."
+  },
+  "Status": {
+    "en": "Status",
+    "ru": "Статус"
+  },
+  "Problem prüfen": {
+    "en": "Review issue",
+    "ru": "Проверить проблему"
+  },
+  "Über Referenz": {
+    "en": "Above reference",
+    "ru": "Выше ориентира"
+  },
+  "Vorschlag": {
+    "en": "Suggestion",
+    "ru": "Предложение AI"
+  },
+  "Nur EP": {
+    "en": "Unit price only",
+    "ru": "Только цена/ед."
+  },
+  "Offen": {
+    "en": "Open",
+    "ru": "Открыто"
+  },
+  "Kalkuliert": {
+    "en": "Priced",
+    "ru": "Рассчитано"
+  },
+  "Keine Positionen für diese Auswahl.": {
+    "en": "No matching line items.",
+    "ru": "По этим условиям позиций нет."
+  },
+  "Filter zurücksetzen": {
+    "en": "Clear filters",
+    "ru": "Сбросить фильтры"
+  },
+  "Seite": {
+    "en": "Page",
+    "ru": "Страница"
+  },
+  "Vorherige Seite": {
+    "en": "Previous page",
+    "ru": "Предыдущая страница"
+  },
+  "Nächste Seite": {
+    "en": "Next page",
+    "ru": "Следующая страница"
+  },
+  "Fokusansicht verlassen": {
+    "en": "Exit focus view",
+    "ru": "Выйти из полного экрана"
+  },
+  "Zur kompakten Ansicht": {
+    "en": "Return to compact view",
+    "ru": "Вернуться к компактному виду"
+  },
+  "Prüfprotokoll": {
+    "en": "Review report",
+    "ru": "Протокол проверки"
+  },
+  "Fundstellen und Entscheidungen zum Leistungsverzeichnis.": {
+    "en": "Findings and decisions for this bill of quantities.",
+    "ru": "Замечания и решения по смете."
+  },
+  "Offene Positionen": {
+    "en": "Items requiring review",
+    "ru": "Позиции с проблемами"
+  },
+  "Keine Prüfpunkte gefunden": {
+    "en": "No review issues found",
+    "ru": "Замечаний не найдено"
+  },
+  "Die geprüften Positionen bleiben im Original einsehbar.": {
+    "en": "Reviewed items remain available in their original form.",
+    "ru": "Исходные позиции остаются доступными."
+  },
+  "Zusammenstellung und Angaben für die Abgabe.": {
+    "en": "Totals and details for submission.",
+    "ru": "Итоги и данные для подачи."
+  },
+  "Zusammenstellung": {
+    "en": "Summary",
+    "ru": "Итоги"
+  },
+  "Netto": {
+    "en": "Net",
+    "ru": "Без НДС"
+  },
+  "Umsatzsteuer (": {
+    "en": "VAT (",
+    "ru": "НДС ("
+  },
+  "Brutto": {
+    "en": "Gross",
+    "ru": "С НДС"
+  },
+  "Angebotsdaten": {
+    "en": "Quote details",
+    "ru": "Данные предложения"
+  },
+  "Bieter / Unternehmen": {
+    "en": "Bidder / Company",
+    "ru": "Исполнитель / Компания"
+  },
+  "PLZ": {
+    "en": "Postcode",
+    "ru": "Индекс"
+  },
+  "Standardzuschlag (%)": {
+    "en": "Default markup (%)",
+    "ru": "Стандартная наценка (%)"
+  },
+  "Umsatzsteuer (%)": {
+    "en": "VAT (%)",
+    "ru": "НДС (%)"
+  },
+  "Angaben speichern": {
+    "en": "Save details",
+    "ru": "Сохранить данные"
+  },
+  "Position ergänzen": {
+    "en": "Add line item",
+    "ru": "Добавить позицию"
+  },
+  "Angebot freigeben": {
+    "en": "Approve quote",
+    "ru": "Утвердить предложение"
+  },
+  "Die geprüfte Kalkulation wird als Abgabe-LV gespeichert und im Archiv abgelegt.": {
+    "en": "The reviewed estimate will be archived as the final bill of quantities.",
+    "ru": "Проверенная смета будет сохранена как итоговая и перенесена в архив."
+  },
+  "Freigabe blockiert": {
+    "en": "Approval blocked",
+    "ru": "Утверждение заблокировано"
+  },
+  "Behebe zuerst alle offenen Prüfpunkte und fehlenden Preise. Erst dann kann das Angebot sauber abgegeben werden.": {
+    "en": "Resolve all open review issues and missing prices before submission.",
+    "ru": "Перед подачей устраните замечания и заполните отсутствующие цены."
+  },
+  "Freigabe ist möglich": {
+    "en": "Ready for approval",
+    "ru": "Можно утверждать"
+  },
+  "Alle Prüfpunkte sind geklärt und alle aktiven Positionen sind kalkuliert.": {
+    "en": "All review issues are resolved and active items have prices.",
+    "ru": "Все замечания устранены, все активные позиции рассчитаны."
+  },
+  "Unvollständig kalkuliert": {
+    "en": "Incomplete estimates",
+    "ru": "Неполные расчёты"
+  },
+  "Muss vor der Abgabe geklärt werden": {
+    "en": "Must be resolved before submission",
+    "ru": "Нужно устранить перед подачей"
+  },
+  "Keine offenen Prüfprobleme": {
+    "en": "No open review issues",
+    "ru": "Нет открытых замечаний"
+  },
+  "Aktive Positionen ohne vollständigen Preis": {
+    "en": "Active items missing a full price",
+    "ru": "Активные позиции без полной цены"
+  },
+  "Alle aktiven Positionen haben einen Preis": {
+    "en": "All active items are priced",
+    "ru": "Все активные позиции имеют цену"
+  },
+  "Wird als Abgabe-LV archiviert": {
+    "en": "Will be archived as final BoQ",
+    "ru": "Будет сохранено как итоговая смета"
+  },
+  "Zurück": {
+    "en": "Back",
+    "ru": "Назад"
+  },
+  "Freigeben und archivieren": {
+    "en": "Approve and archive",
+    "ru": "Утвердить и архивировать"
+  },
+  "Hinweis: Die Freigabe bleibt gesperrt, bis alle Probleme gelöst sind.": {
+    "en": "Approval stays blocked until all issues are resolved.",
+    "ru": "Утверждение недоступно до устранения всех проблем."
+  },
+  "z. B. Neubau Wohnhaus München": {
+    "en": "e.g. New apartment building Munich",
+    "ru": "например, жилой дом в Мюнхене"
+  },
+  "z. B. Elektro-Montageteam": {
+    "en": "e.g. Electrical installation team",
+    "ru": "например, бригада электриков"
+  },
+  "z. B. Elektro": {
+    "en": "e.g. Electrical",
+    "ru": "например, электрика"
+  },
+  "OZ oder Leistung suchen  /": {
+    "en": "Search item number or description  /",
+    "ru": "Номер или название позиции  /"
+  },
+  "Position suchen": {
+    "en": "Search line item",
+    "ru": "Поиск позиции"
+  },
+  "Abschnitt filtern": {
+    "en": "Filter by section",
+    "ru": "Фильтр по разделу"
+  },
+  "Statusfilter": {
+    "en": "Status filter",
+    "ru": "Фильтр по статусу"
+  },
+  "Alle": {
+    "en": "All",
+    "ru": "Все"
+  },
+  "Prüfen": {
+    "en": "Review",
+    "ru": "Проверить"
+  },
+  "Ohne Preis": {
+    "en": "Unpriced",
+    "ru": "Без цены"
+  },
+  "Vorschläge": {
+    "en": "Suggestions",
+    "ru": "Предложения"
+  },
+  "Vorgeschlagen": {
+    "en": "Suggested",
+    "ru": "Предложено"
+  },
+  "Ergänzt": {
+    "en": "Added",
+    "ru": "Добавлено"
+  },
+  "Vorherige Position": {
+    "en": "Previous item",
+    "ru": "Предыдущая позиция"
+  },
+  "Nächste Position": {
+    "en": "Next item",
+    "ru": "Следующая позиция"
+  },
+  "Hinweis schließen": {
+    "en": "Dismiss notice",
+    "ru": "Закрыть уведомление"
+  },
+  "Regelprüfung": {
+    "en": "Rules-based review",
+    "ru": "Проверка правилами"
+  },
+  "Regeln und KI": {
+    "en": "Rules and AI",
+    "ru": "Правила и AI"
+  },
+  "Angebot freigegeben und archiviert.": {
+    "en": "Quote approved and archived.",
+    "ru": "Предложение утверждено и архивировано."
+  },
+  "Gespeichert.": {
+    "en": "Saved.",
+    "ru": "Сохранено."
+  },
+  " Positionen importiert.": {
+    "en": " line items imported.",
+    "ru": " позиций импортировано."
+  },
+  "Abschnittsfilter": {
+    "en": "Section filter",
+    "ru": "Фильтр разделов"
+  },
+  "Positionsbereich in der Breite ändern": {
+    "en": "Resize item panel",
+    "ru": "Изменить ширину панели позиции"
+  },
+  "Breite der Positionsansicht": {
+    "en": "Item panel width",
+    "ru": "Ширина панели позиции"
+  },
+  "Ziehen oder Pfeiltasten benutzen": {
+    "en": "Drag or use arrow keys",
+    "ru": "Перетащите или используйте стрелки"
+  },
+  "Einheit": {
+    "en": "Unit",
+    "ru": "Единица"
+  },
+  "Mengeneinheit auswählen": {
+    "en": "Select unit of measure",
+    "ru": "Выбрать единицу измерения"
+  },
+  "Häufige Einheiten": {
+    "en": "Common units",
+    "ru": "Частые единицы"
+  },
+  "Weitere Einheiten": {
+    "en": "Other units",
+    "ru": "Другие единицы"
+  },
+  "Eigene Einheit …": {
+    "en": "Custom unit …",
+    "ru": "Своя единица…"
+  },
+  "Eigene Mengeneinheit": {
+    "en": "Custom unit of measure",
+    "ru": "Своя единица измерения"
+  },
+  "z. B. Rolle": {
+    "en": "e.g. roll",
+    "ru": "например, рулон"
+  },
+  "m² · Quadratmeter": {
+    "en": "m² · Square metre",
+    "ru": "м² · квадратный метр"
+  },
+  "m³ · Kubikmeter": {
+    "en": "m³ · Cubic metre",
+    "ru": "м³ · кубический метр"
+  },
+  "m · Meter": {
+    "en": "m · Metre",
+    "ru": "м · метр"
+  },
+  "lfm · Laufmeter": {
+    "en": "lm · Linear metre",
+    "ru": "пог. м · погонный метр"
+  },
+  "St · Stück": {
+    "en": "pcs · Piece",
+    "ru": "шт · штука"
+  },
+  "Stk · Stück": {
+    "en": "pcs · Piece",
+    "ru": "шт · штука"
+  },
+  "psch · Pauschal": {
+    "en": "lump sum · Fixed price",
+    "ru": "компл. · фиксированная сумма"
+  },
+  "h · Stunde": {
+    "en": "h · Hour",
+    "ru": "ч · час"
+  },
+  "Std · Stunden": {
+    "en": "h · Hours",
+    "ru": "ч · часы"
+  },
+  "kg · Kilogramm": {
+    "en": "kg · Kilogram",
+    "ru": "кг · килограмм"
+  },
+  "t · Tonne": {
+    "en": "t · Tonne",
+    "ru": "т · тонна"
+  },
+  "l · Liter": {
+    "en": "l · Litre",
+    "ru": "л · литр"
+  },
+  "Paar": {
+    "en": "Pair",
+    "ru": "Пара"
+  },
+  "Set": {
+    "en": "Set",
+    "ru": "Комплект"
+  },
+  "Tag": {
+    "en": "Day",
+    "ru": "День"
+  },
+  "Wo · Woche": {
+    "en": "wk · Week",
+    "ru": "нед · неделя"
+  },
+  "Monat": {
+    "en": "Month",
+    "ru": "Месяц"
+  },
+  "km · Kilometer": {
+    "en": "km · Kilometre",
+    "ru": "км · километр"
+  },
+  "m2 · Quadratmeter": {
+    "en": "m2 · Square metre",
+    "ru": "м2 · квадратный метр"
+  },
+  "m3 · Kubikmeter": {
+    "en": "m3 · Cubic metre",
+    "ru": "м3 · кубический метр"
+  },
+  "Abweichung": {
+    "en": "Discrepancy",
+    "ru": "Несоответствие"
+  },
+  "Geklärt": {
+    "en": "Resolved",
+    "ru": "Устранено"
+  },
+  "Verworfen": {
+    "en": "Dismissed",
+    "ru": "Отклонено"
+  },
+  "KI-Hinweis": {
+    "en": "AI finding",
+    "ru": "Замечание AI"
+  },
+  "Klärung dokumentieren": {
+    "en": "Document resolution",
+    "ru": "Записать решение"
+  },
+  "Antwort oder Kalkulationsannahme": {
+    "en": "Answer or pricing assumption",
+    "ru": "Ответ или допущение при расчёте"
+  },
+  "Verwerfen": {
+    "en": "Dismiss",
+    "ru": "Отклонить"
+  },
+  "Klären": {
+    "en": "Resolve",
+    "ru": "Устранить"
+  },
+  "behalten, übrige ausschließen": {
+    "en": "keep, exclude remaining",
+    "ru": "оставить, остальные исключить"
+  },
+  "Erneut öffnen": {
+    "en": "Reopen",
+    "ru": "Открыть снова"
+  },
+  "Lieferantenangebote": {
+    "en": "Supplier offers",
+    "ru": "Предложения поставщиков"
+  },
+  "Vergleich nach Nettokosten für die LV-Menge, inklusive bekannter Lieferung.": {
+    "en": "Compare net costs for the BoQ quantity, including known delivery costs.",
+    "ru": "Сравнение стоимости без НДС с учётом объёма и известной доставки."
+  },
+  "Artikel oder Suchbegriff": {
+    "en": "Item or search term",
+    "ru": "Товар или поисковый запрос"
+  },
+  "Preise suchen": {
+    "en": "Search prices",
+    "ru": "Найти цены"
+  },
+  "Betriebe in der Nähe suchen": {
+    "en": "Find nearby contractors",
+    "ru": "Найти подрядчиков поблизости"
+  },
+  "Keine Angebote hinterlegt": {
+    "en": "No supplier offers",
+    "ru": "Нет предложений поставщиков"
+  },
+  "Suche nach Artikelnummer oder ergänze ein Lieferantenangebot.": {
+    "en": "Search by item number or add a supplier quote.",
+    "ru": "Найдите товар по артикулу или добавьте предложение поставщика."
+  },
+  "Gewählt": {
+    "en": "Selected",
+    "ru": "Выбрано"
+  },
+  "Günstigstes": {
+    "en": "Lowest price",
+    "ru": "Самая низкая цена"
+  },
+  "je Packung · Versand offen": {
+    "en": "per pack · shipping unknown",
+    "ru": "за упаковку · доставка не указана"
+  },
+  "gesamt netto": {
+    "en": "total net",
+    "ru": "итого без НДС"
+  },
+  "Beispiel": {
+    "en": "Sample",
+    "ru": "Пример"
+  },
+  "Google Shopping · Richtwert": {
+    "en": "Google Shopping · Estimate",
+    "ru": "Google Shopping · Ориентир"
+  },
+  "Hinterlegte Quelle": {
+    "en": "Saved source",
+    "ru": "Сохранённый источник"
+  },
+  "je Packung · ab": {
+    "en": "per pack · from",
+    "ru": "за упаковку · от"
+  },
+  "Packung(en)": {
+    "en": "pack(s)",
+    "ru": "упаковок"
+  },
+  "Spezifikation offen": {
+    "en": "Specification unverified",
+    "ru": "Характеристики не проверены"
+  },
+  "Quelle": {
+    "en": "Source",
+    "ru": "Источник"
+  },
+  "Auswählen": {
+    "en": "Select",
+    "ru": "Выбрать"
+  },
+  "Prüfen und auswählen": {
+    "en": "Review and select",
+    "ru": "Проверить и выбрать"
+  },
+  "Daten für „": {
+    "en": "Confirm details for “",
+    "ru": "Подтвердить данные для «"
+  },
+  "“ bestätigen": {
+    "en": "”",
+    "ru": "»"
+  },
+  "Packungsgröße in": {
+    "en": "Pack size in",
+    "ru": "Размер упаковки в"
+  },
+  "und Nettoversand für die bestellte Menge eingeben. Eignung und Lieferbarkeit bitte anhand des Angebots prüfen.": {
+    "en": "and net delivery costs for this quantity. Check suitability and availability with the supplier.",
+    "ru": "и стоимость доставки без НДС. Проверьте соответствие и наличие у поставщика."
+  },
+  "Versand netto (€)": {
+    "en": "Net shipping (€)",
+    "ru": "Доставка без НДС (€)"
+  },
+  " je Packung": {
+    "en": " per pack",
+    "ru": " в упаковке"
+  },
+  "Mindestpackungen": {
+    "en": "Minimum packs",
+    "ru": "Мин. упаковок"
+  },
+  "Bestätigen und auswählen": {
+    "en": "Confirm and select",
+    "ru": "Подтвердить и выбрать"
+  },
+  "Eingabe schließen": {
+    "en": "Close form",
+    "ru": "Закрыть форму"
+  },
+  "+ Eigenes Angebot": {
+    "en": "+ Add own offer",
+    "ru": "+ Своё предложение"
+  },
+  "Auswahl lösen": {
+    "en": "Clear selection",
+    "ru": "Снять выбор"
+  },
+  "Lieferant oder Betrieb": {
+    "en": "Supplier or contractor",
+    "ru": "Поставщик или подрядчик"
+  },
+  "Netto je Packung (€)": {
+    "en": "Net per pack (€)",
+    "ru": "Без НДС за упаковку (€)"
+  },
+  "Lieferzeit": {
+    "en": "Delivery time",
+    "ru": "Срок поставки"
+  },
+  "Link zum Angebot (optional)": {
+    "en": "Offer link (optional)",
+    "ru": "Ссылка на предложение (необязательно)"
+  },
+  "Angebot speichern": {
+    "en": "Save offer",
+    "ru": "Сохранить предложение"
+  },
+  "Details": {
+    "en": "Details",
+    "ru": "Детали"
+  },
+  "Preise": {
+    "en": "Prices",
+    "ru": "Цены"
+  },
+  "Positionsdetails": {
+    "en": "Item details",
+    "ru": "Детали позиции"
+  },
+  "Größe der Positionsansicht": {
+    "en": "Item panel size",
+    "ru": "Размер панели позиции"
+  },
+  "Zur Seitenansicht": {
+    "en": "Return to side panel",
+    "ru": "Вернуться к боковой панели"
+  },
+  "Vollbild öffnen": {
+    "en": "Open fullscreen",
+    "ru": "На весь экран"
+  },
+  "Vollbild schließen": {
+    "en": "Exit fullscreen",
+    "ru": "Выйти из полного экрана"
+  },
+  "Verkleinern": {
+    "en": "Minimize",
+    "ru": "Свернуть"
+  },
+  "Vollbild": {
+    "en": "Fullscreen",
+    "ru": "Во весь экран"
+  },
+  "Position schließen": {
+    "en": "Close item",
+    "ru": "Закрыть позицию"
+  },
+  "Positionsdetails schließen": {
+    "en": "Close item details",
+    "ru": "Закрыть детали позиции"
+  },
+  "Original": {
+    "en": "Original",
+    "ru": "Исходная"
+  },
+  "Originalbeleg": {
+    "en": "Original document",
+    "ru": "Исходный документ"
+  },
+  "PDF ausblenden": {
+    "en": "Hide PDF",
+    "ru": "Скрыть PDF"
+  },
+  "PDF anzeigen": {
+    "en": "Show PDF",
+    "ru": "Показать PDF"
+  },
+  "Separat öffnen": {
+    "en": "Open separately",
+    "ru": "Открыть отдельно"
+  },
+  "Original-PDF": {
+    "en": "Original PDF",
+    "ru": "Исходный PDF"
+  },
+  "Diese Position wurde im Projekt ergänzt.": {
+    "en": "This item was added to the project.",
+    "ru": "Эта позиция добавлена в проект."
+  },
+  "Menge, Einheitspreis und Gesamtpreis": {
+    "en": "Quantity, unit price and total",
+    "ru": "Количество, цена за единицу и итог"
+  },
+  "EP netto": {
+    "en": "Unit price (net)",
+    "ru": "Цена за ед. без НДС"
+  },
+  "GP netto": {
+    "en": "Total (net)",
+    "ru": "Итого без НДС"
+  },
+  "Lohnorientierung:": {
+    "en": "Labor benchmark:",
+    "ru": "Ориентир оплаты труда:"
+  },
+  "Aus Angebot herausnehmen": {
+    "en": "Remove from quote",
+    "ru": "Убрать из предложения"
+  },
+  "Vorschlag übernehmen": {
+    "en": "Accept suggestion",
+    "ru": "Принять предложение"
+  },
+  "Zuschlagsszenario": {
+    "en": "Markup scenario",
+    "ru": "Сценарий наценки"
+  },
+  "liegt innerhalb der hinterlegten Referenz von": {
+    "en": "is within the reference value of",
+    "ru": "находится в пределах ориентира"
+  },
+  "Quelle:": {
+    "en": "Source:",
+    "ru": "Источник:"
+  },
+  ". Die Annahme durch den Kunden bleibt offen.": {
+    "en": ". Customer approval is still pending.",
+    "ru": ". Требуется подтверждение заказчика."
+  },
+  "Szenario übernehmen": {
+    "en": "Apply scenario",
+    "ru": "Применить сценарий"
+  },
+  "Kalkulation bearbeiten": {
+    "en": "Edit estimate",
+    "ru": "Редактировать расчёт"
+  },
+  "Kosten pro Mengeneinheit. Ein manuell gesetzter EP hat Vorrang.": {
+    "en": "Costs per unit. A manually entered unit price takes priority.",
+    "ru": "Затраты за единицу. Указанная вручную цена имеет приоритет."
+  },
+  "Menge & Einheit": {
+    "en": "Quantity & Unit",
+    "ru": "Количество и единица"
+  },
+  "Kostenbestandteile": {
+    "en": "Cost components",
+    "ru": "Состав затрат"
+  },
+  "je Mengeneinheit": {
+    "en": "per unit",
+    "ru": "на единицу"
+  },
+  "Material (€)": {
+    "en": "Materials (€)",
+    "ru": "Материалы (€)"
+  },
+  "Lieferant gewählt": {
+    "en": "Supplier selected",
+    "ru": "Поставщик выбран"
+  },
+  "Arbeitsstunden": {
+    "en": "Labor hours",
+    "ru": "Рабочие часы"
+  },
+  "Lohnsatz (€/h)": {
+    "en": "Hourly rate (€/h)",
+    "ru": "Ставка (€/ч)"
+  },
+  "Geräte (€)": {
+    "en": "Equipment (€)",
+    "ru": "Техника (€)"
+  },
+  "Sonstiges (€)": {
+    "en": "Other (€)",
+    "ru": "Прочее (€)"
+  },
+  "Für Lohnkosten Stunden und Satz ergänzen.": {
+    "en": "Add hours and hourly rate to calculate labor costs.",
+    "ru": "Для расчёта труда укажите часы и ставку."
+  },
+  "Preis & Zuschlag": {
+    "en": "Price & Markup",
+    "ru": "Цена и наценка"
+  },
+  "Zuschlag (%)": {
+    "en": "Markup (%)",
+    "ru": "Наценка (%)"
+  },
+  "EP netto festlegen (€)": {
+    "en": "Set unit price (net, €)",
+    "ru": "Установить цену за ед. без НДС (€)"
+  },
+  "Berechnet": {
+    "en": "Calculated",
+    "ru": "Рассчитано"
+  },
+  "Preisreferenz": {
+    "en": "Price reference",
+    "ru": "Ценовой ориентир"
+  },
+  "Marktreferenz (€/ME)": {
+    "en": "Market reference (€/unit)",
+    "ru": "Рыночная цена (€/ед.)"
+  },
+  "Referenzquelle": {
+    "en": "Reference source",
+    "ru": "Источник ориентира"
+  },
+  "In Angebotssumme aufnehmen": {
+    "en": "Include in quote total",
+    "ru": "Включить в итог предложения"
+  },
+  "Kalkulation speichern": {
+    "en": "Save estimate",
+    "ru": "Сохранить расчёт"
+  },
+  "Erweiterte Importoptionen": {
+    "en": "Advanced import options",
+    "ru": "Расширенные настройки импорта"
+  },
+  "Position": {
+    "en": "Item",
+    "ru": "Позиция"
+  },
+  "öffnen:": {
+    "en": "open:",
+    "ru": "открыть:"
+  },
+  "Preise für": {
+    "en": "Prices for",
+    "ru": "Цены для"
+  },
+  "von": {
+    "en": "of",
+    "ru": "из"
+  },
+  "Bereit zum Import": {
+    "en": "Ready to import",
+    "ru": "Готово к импорту"
+  },
+  "bereit zum Import": {
+    "en": "ready to import",
+    "ru": "готово к импорту"
+  },
+  "Bitte die Eingaben prüfen.": {
+    "en": "Please check your input.",
+    "ru": "Проверьте введённые данные."
+  },
+  "Position nicht gefunden.": {
+    "en": "Item not found.",
+    "ru": "Позиция не найдена."
+  },
+  "Der Projektstand hat sich geändert.": {
+    "en": "The project has been updated. Reload it and retry.",
+    "ru": "Проект был изменён. Обновите и повторите."
+  },
+  "Preis-Suchdienst nicht erreichbar. Bitte später erneut versuchen.": {
+    "en": "Price search is unavailable. Try again later.",
+    "ru": "Поиск цен недоступен. Попробуйте позже."
+  },
+  "Bitte eine Quelle für den Marktpreis angeben.": {
+    "en": "Please provide a source for the market price.",
+    "ru": "Укажите источник рыночной цены."
+  },
+  "Diese Position ist kein Vorschlag.": {
+    "en": "This item is not a suggestion.",
+    "ru": "Эта позиция не является предложением."
+  },
+  "Prüfpunkt nicht gefunden.": {
+    "en": "Review issue not found.",
+    "ru": "Замечание не найдено."
+  },
+  "Bitte eine kurze Begründung eintragen.": {
+    "en": "Please enter a brief explanation.",
+    "ru": "Укажите краткое обоснование."
+  },
+  "Diese Position gehört nicht zur Dublette.": {
+    "en": "This item is not part of the duplicate.",
+    "ru": "Эта позиция не относится к дубликату."
+  },
+  "Lieferantenangebot nicht gefunden.": {
+    "en": "Supplier offer not found.",
+    "ru": "Предложение поставщика не найдено."
+  },
+  "Bitte Einheit, Packungsgröße und Lieferkosten bestätigen.": {
+    "en": "Confirm unit, pack size and delivery costs.",
+    "ru": "Подтвердите единицу, размер упаковки и доставку."
+  },
+  "Diese Position enthält bereits 100 Angebote.": {
+    "en": "This item already has 100 supplier offers.",
+    "ru": "У этой позиции уже 100 предложений."
+  },
+  "Bitte eine Datei bis 24 MB auswählen.": {
+    "en": "Choose a file up to 24 MB.",
+    "ru": "Выберите файл размером до 24 МБ."
+  },
+  "Die Datei ist kein lesbares PDF.": {
+    "en": "The file is not a readable PDF.",
+    "ru": "Файл не является читаемым PDF."
+  },
+  "Datei konnte nicht importiert werden.": {
+    "en": "Could not import the file.",
+    "ru": "Не удалось импортировать файл."
+  },
+  "Angebot archiviert.": {
+    "en": "Quote archived.",
+    "ru": "Предложение отправлено в архив."
+  },
+  "Fertig": {
+    "en": "Done",
+    "ru": "Готово"
+  },
+  "Positionsansicht": {
+    "en": "Item view",
+    "ru": "Просмотр позиции"
+  },
+  "POSITION": {
+    "en": "ITEM",
+    "ru": "ПОЗИЦИЯ"
+  },
+  "Start": {
+    "en": "Start",
+    "ru": "Начало"
+  },
+  "Neues Projekt starten": {
+    "en": "Start a new project",
+    "ru": "Начать новый проект"
+  },
+  "Leistungsverzeichnis hochladen": {
+    "en": "Upload a bill of quantities",
+    "ru": "Загрузить смету"
+  },
+  "Datei auswählen, Positionen prüfen und direkt kalkulieren.": {
+    "en": "Select a file, review line items and calculate costs.",
+    "ru": "Выберите файл, проверьте позиции и рассчитайте стоимость."
+  },
+  "Datei importieren": {
+    "en": "Import file",
+    "ru": "Импортировать файл"
+  },
+  "Beginne mit einer vorhandenen PDF-, GAEB- oder Excel-Datei.": {
+    "en": "Start with an existing PDF, GAEB or Excel file.",
+    "ru": "Начните с файла PDF, GAEB или Excel."
+  },
+  "Zuerst ausprobieren?": {
+    "en": "Want to try it first?",
+    "ru": "Хотите сначала попробовать?"
+  },
+  "Öffne ein Beispielprojekt und erkunde die Kalkulation ohne eigene Datei.": {
+    "en": "Open a sample project and explore the calculator without uploading a file.",
+    "ru": "Откройте пример и изучите калькулятор без загрузки файла."
+  },
+  "Bitte warten …": {
+    "en": "Please wait…",
+    "ru": "Подождите…"
+  },
+  "Beispielprojekt öffnen": {
+    "en": "Open sample project",
+    "ru": "Открыть пример проекта"
+  },
+  "Bereits ein Projekt vorhanden?": {
+    "en": "Already have a project?",
+    "ru": "Уже есть проект?"
+  },
+  "Gespeicherte Projekte öffnen und weiterarbeiten.": {
+    "en": "Open saved projects and continue working.",
+    "ru": "Откройте сохранённые проекты и продолжите работу."
+  },
+  "Projekte anzeigen": {
+    "en": "View projects",
+    "ru": "Перейти к проектам"
+  },
+  "Alle importierten Leistungsverzeichnisse und Kalkulationen.": {
+    "en": "All imported bills of quantities and estimates.",
+    "ru": "Все загруженные сметы и расчёты."
+  },
+  "Projektübersicht": {
+    "en": "Project overview",
+    "ru": "Обзор проектов"
+  },
+  "Noch keine Projekte": {
+    "en": "No projects yet",
+    "ru": "Проектов пока нет"
+  },
+  "Importiere dein erstes Leistungsverzeichnis.": {
+    "en": "Import your first bill of quantities.",
+    "ru": "Импортируйте первую смету."
+  },
+  "Original im PDF": {
+    "en": "Original in PDF",
+    "ru": "Оригинал в PDF"
+  },
+  "Schließen": {
+    "en": "Close",
+    "ru": "Закрыть"
+  },
+  "Text im PDF suchen": {
+    "en": "Search within PDF",
+    "ru": "Поиск в PDF"
+  },
+  "Vergrößern": {
+    "en": "Zoom in",
+    "ru": "Увеличить"
+  },
+  "Original öffnen": {
+    "en": "Open original",
+    "ru": "Открыть оригинал"
+  },
+  "PDF konnte nicht geladen werden": {
+    "en": "Could not load PDF",
+    "ru": "Не удалось загрузить PDF"
+  },
+  "Seite wird geladen …": {
+    "en": "Loading page…",
+    "ru": "Загружается страница…"
+  },
+  "PDF wird geladen …": {
+    "en": "Loading PDF…",
+    "ru": "Загружается PDF…"
+  },
+  "PDF-Seite": {
+    "en": "PDF page",
+    "ru": "Страница PDF"
+  },
+  "Positionstext markiert": {
+    "en": "Position text highlighted",
+    "ru": "Текст позиции выделен"
+  },
+  "OZ im Original markiert": {
+    "en": "Position number highlighted in original",
+    "ru": "Номер позиции выделен в оригинале"
+  },
+  "Kein exakter Texttreffer auf dieser Seite. Bitte Seite und Quelle prüfen.": {
+    "en": "No exact text match on this page. Check the page and source.",
+    "ru": "На этой странице нет точного совпадения. Проверьте страницу и источник."
+  },
+  "Gelbe Markierung zeigt den gefundenen Text. Bei Abweichungen bitte den Originalbeleg prüfen.": {
+    "en": "Yellow highlight shows the matched text. Verify against the original if needed.",
+    "ru": "Жёлтым выделен найденный текст. При расхождениях проверьте оригинал."
+  },
+  "Im PDF anzeigen und markieren": {
+    "en": "Show and highlight in PDF",
+    "ru": "Показать и выделить в PDF"
+  },
+  "Datei hier ablegen": {
+    "en": "Drop your file here",
+    "ru": "Перетащите файл сюда"
+  },
+  "Abschnitt suchen": {
+    "en": "Search sections",
+    "ru": "Поиск разделов"
+  },
+  "Beispielprojekt": {
+    "en": "Demo project",
+    "ru": "Демонстрационный проект"
+  },
+  "Archivieren": {
+    "en": "Archive",
+    "ru": "В архив"
+  },
+  "Wiederherstellen": {
+    "en": "Restore",
+    "ru": "Восстановить"
+  },
+  "Löschen": {
+    "en": "Delete",
+    "ru": "Удалить"
+  },
+  "Endgültig löschen": {
+    "en": "Delete permanently",
+    "ru": "Удалить навсегда"
+  },
+  "Abbrechen": {
+    "en": "Cancel",
+    "ru": "Отмена"
+  },
+  "Öffnen": {
+    "en": "Open",
+    "ru": "Открыть"
+  },
+  "Projekt": {
+    "en": "Project",
+    "ru": "Проект"
+  },
+  "Archiviert": {
+    "en": "Archived",
+    "ru": "В архиве"
+  },
+  "Archivierte Entwürfe und freigegebene Angebote.": {
+    "en": "Archived drafts and approved quotations.",
+    "ru": "Черновики в архиве и утверждённые предложения."
+  },
+  "Projekt löschen?": {
+    "en": "Delete project?",
+    "ru": "Удалить проект?"
+  },
+  "Projekt archivieren?": {
+    "en": "Archive project?",
+    "ru": "Перенести проект в архив?"
+  },
+  "Projekt wiederherstellen?": {
+    "en": "Restore project?",
+    "ru": "Восстановить проект?"
+  },
+  "Dieses Projekt und die hochgeladene Originaldatei werden dauerhaft gelöscht. Dieser Vorgang kann nicht rückgängig gemacht werden.": {
+    "en": "This project and its uploaded source file will be permanently deleted. This cannot be undone.",
+    "ru": "Проект и исходный загруженный файл будут удалены навсегда. Это действие необратимо."
+  },
+  "Das Projekt wird ins Archiv verschoben. Es wird nicht als Angebot freigegeben. Du kannst es später wiederherstellen.": {
+    "en": "The project will be moved to Archive without approving the quotation. You can restore it later.",
+    "ru": "Проект переместится в архив без утверждения предложения. Позже его можно восстановить."
+  },
+  "Das Projekt wird zurück in Meine Projekte verschoben.": {
+    "en": "The project will return to My projects.",
+    "ru": "Проект вернётся в раздел «Мои проекты»."
+  },
+  "Endgültiges Löschen — auch die Quelldatei wird entfernt.": {
+    "en": "Permanent deletion — the original document will also be removed.",
+    "ru": "Безвозвратное удаление — исходный документ тоже будет удалён."
+  },
+  "Keine LV-Positionen erkannt: Der Text ist vorhanden, aber die Tabellenstruktur wurde nicht erkannt. Bitte GAEB/XLSX verwenden oder die PDF zur Prüfung bereitstellen. Ein OCR-Scan kann mit npm run setup:ocr aktiviert werden.": {
+    "en": "No LV items detected. Text exists, but the PDF table layout is unsupported. Try GAEB/XLSX or provide the PDF for troubleshooting; OCR can be installed with npm run setup:ocr.",
+    "ru": "Позиции сметы не обнаружены: текст есть, но структура таблицы не распознана. Попробуйте GAEB/XLSX или предоставьте PDF для проверки. OCR можно установить командой npm run setup:ocr."
+  },
+  "Prüfung der Positionen": {
+    "en": "Position review",
+    "ru": "Проверка позиций"
+  },
+  "Offene Fragen klären": {
+    "en": "Resolve open issues",
+    "ru": "Разобрать замечания"
+  },
+  "Alle Prüfpunkte erledigt": {
+    "en": "All review issues addressed",
+    "ru": "Все замечания обработаны"
+  },
+  "Entscheide einen Punkt nach dem anderen. Du kannst jederzeit später fortfahren.": {
+    "en": "Review one issue at a time. You can continue later.",
+    "ru": "Разбирай замечания по одному. К проверке можно вернуться позже."
+  },
+  "Alle Hinweise wurden bearbeitet. Du kannst Entscheidungen erneut öffnen.": {
+    "en": "Every issue has been addressed. You can reopen decisions.",
+    "ru": "Все замечания обработаны. Решения можно пересмотреть."
+  },
+  "Erledigt": {
+    "en": "Completed",
+    "ru": "Готово"
+  },
+  "Prüffortschritt": {
+    "en": "Review progress",
+    "ru": "Прогресс проверки"
+  },
+  "Prüfpunkt": {
+    "en": "Issue",
+    "ru": "Замечание"
+  },
+  "offen": {
+    "en": "open",
+    "ru": "открытых"
+  },
+  "Vorheriger Prüfpunkt": {
+    "en": "Previous issue",
+    "ru": "Предыдущее замечание"
+  },
+  "Nächster Prüfpunkt": {
+    "en": "Next issue",
+    "ru": "Следующее замечание"
+  },
+  "Abweichung prüfen": {
+    "en": "Discrepancy to review",
+    "ru": "Проверить расхождение"
+  },
+  "Hinweis prüfen": {
+    "en": "Review note",
+    "ru": "Проверить замечание"
+  },
+  "Fundstelle im Dokument": {
+    "en": "Source in document",
+    "ru": "Место в документе"
+  },
+  "Was muss geklärt werden?": {
+    "en": "What needs clarification?",
+    "ru": "Что нужно уточнить?"
+  },
+  "Was ist deine Entscheidung?": {
+    "en": "What is your decision?",
+    "ru": "Какое решение принято?"
+  },
+  "Kurze Begründung eingeben …": {
+    "en": "Enter a short explanation…",
+    "ru": "Кратко опиши решение…"
+  },
+  "Deine Begründung wird gespeichert. Die LV-Position wird nicht automatisch geändert.": {
+    "en": "Your explanation is saved. The LV item is not changed automatically.",
+    "ru": "Обоснование сохранится, но сама позиция LV не изменится автоматически."
+  },
+  "Später bearbeiten": {
+    "en": "Review later",
+    "ru": "Пропустить пока"
+  },
+  "Nicht relevant": {
+    "en": "Not relevant",
+    "ru": "Не относится"
+  },
+  "Als geklärt speichern": {
+    "en": "Mark as clarified",
+    "ru": "Сохранить как решённое"
+  },
+  "Positionen ansehen": {
+    "en": "View positions",
+    "ru": "К позициям"
+  },
+  "Prüfung abgeschlossen": {
+    "en": "Review completed",
+    "ru": "Проверка завершена"
+  },
+  "Alle Hinweise sind dokumentiert. Prüfe fehlende Preise, bevor du das Angebot freigibst.": {
+    "en": "All notes are documented. Check missing prices before approving the bid.",
+    "ru": "Все решения записаны. Перед утверждением предложения проверь недостающие цены."
+  },
+  "Zur Kalkulation": {
+    "en": "Back to estimate",
+    "ru": "К калькуляции"
+  },
+  "Bearbeitete Prüfpunkte": {
+    "en": "Reviewed issues",
+    "ru": "Обработанные замечания"
+  },
+  "Erneut bearbeiten": {
+    "en": "Review again",
+    "ru": "Изменить решение"
+  },
+  "Antwortvorschläge": {
+    "en": "Suggested answers",
+    "ru": "Варианты ответа"
+  },
+  "Nach Prüfung auswählen:": {
+    "en": "Choose after checking the documents:",
+    "ru": "Выбери после проверки документов:"
+  },
+  "LV-Abschnitt geprüft und bestätigt:": {
+    "en": "LV section checked and confirmed:",
+    "ru": "Раздел LV проверен и подтверждён:"
+  },
+  "Einbauort aus Langtext geprüft und bestätigt:": {
+    "en": "Installation location checked and confirmed:",
+    "ru": "Место выполнения из описания проверено и подтверждено:"
+  },
+  "LV-Abschnitt bestätigt": {
+    "en": "Confirm LV section",
+    "ru": "Подтвердить раздел LV"
+  },
+  "Einbauort bestätigt": {
+    "en": "Confirm installation location",
+    "ru": "Подтвердить место выполнения"
+  },
+  "Mehrfachpositionen im Angebot": {
+    "en": "Duplicate items in the estimate",
+    "ru": "Повторяющиеся позиции в смете"
+  },
+  "Keine Position automatisch ausschließen": {
+    "en": "Do not automatically exclude any item",
+    "ru": "Не исключать позиции автоматически"
+  },
+  "Nur behalten:": {
+    "en": "Keep only:",
+    "ru": "Оставить только:"
+  },
+  "Andere betroffene Positionen werden bei der Kalkulation ausgeschlossen.": {
+    "en": "Other affected items will be excluded from the estimate.",
+    "ru": "Другие затронутые позиции будут исключены из расчёта."
+  },
+  "AI-Chat": {
+    "en": "AI Chat",
+    "ru": "AI-чат"
+  },
+  "Einheit, Umfang und Quelle als vergleichbar bestätigt": {
+    "en": "Unit, scope and source confirmed as comparable",
+    "ru": "Единица, объём и источник подтверждены как сопоставимые"
+  },
+  "Gespeicherte Preisreferenz": {
+    "en": "Stored price reference",
+    "ru": "Сохранённый ценовой ориентир"
+  },
+  "Geprüft am": {
+    "en": "Checked on",
+    "ru": "Проверено"
+  },
+  "Vom Benutzer bestätigt": {
+    "en": "Confirmed by user",
+    "ru": "Подтверждено пользователем"
+  },
+  "Noch nicht für die Kalkulation bestätigt": {
+    "en": "Not yet confirmed for calculation",
+    "ru": "Ещё не подтверждено для расчёта"
+  }
+}
