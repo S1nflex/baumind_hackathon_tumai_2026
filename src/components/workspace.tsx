@@ -77,7 +77,7 @@ function UploadForm({ busy, submit, error }: { busy: boolean; submit: (form: For
       <label className="field"><span>PLZ der Baustelle</span><input name="postcode" inputMode="numeric" pattern="[0-9]{5}" maxLength={5}/></label>
     </div>
     <label className="check"><input type="checkbox" name="prices" value="1" defaultChecked/> Lieferanten für erkannte Artikel suchen</label>
-    <p className="small muted">Bei aktiver KI-Prüfung werden Auszüge aus dem LV an Claude übermittelt.</p>
+    <p className="small muted">Bei aktiver KI-Prüfung werden Auszüge aus dem LV zur Text- und Schnittstellenprüfung an OpenAI übermittelt.</p>
     {(fileError || error) && <div className="error-inline" role="alert">{fileError || error}</div>}
     <div className="dialog-actions"><button type="submit" className="button button-primary" disabled={busy || !file}>
       {busy ? 'Datei wird geprüft …' : 'Importieren und prüfen'} <ArrowRight size={16}/></button></div>
@@ -375,6 +375,11 @@ export function Workspace() {
             <div className="view-title"><div><h2>Prüfprotokoll</h2><p className="muted">Fundstellen und Entscheidungen zum Leistungsverzeichnis.</p></div>
               <button className="button" onClick={()=>{setFilter('open');setGroup('all');setPage(0);setQuery('');setSection('lv')}}>Offene Positionen <ArrowRight size={15}/></button></div>
             {current.analysis.note && <p className="small muted">{current.analysis.note}</p>}
+            {current.analysis.agent && <p className="small muted">
+              {current.analysis.agent.status === 'applied'
+                ? <>Abschnittsübergreifende Prüfung · {current.analysis.agent.candidates} Ausgangsposition(en), {current.analysis.agent.searches} Suche(n) im ganzen LV, {current.analysis.agent.read} Langtext(e) geöffnet.</>
+                : 'Die abschnittsübergreifende Prüfung konnte nicht abgeschlossen werden.'}
+            </p>}
             {!current.findings.length ? <div className="welcome compact"><ClipboardCheck size={25}/><h3>Keine Prüfpunkte gefunden</h3><p>Die geprüften Positionen bleiben im Original einsehbar.</p></div> :
               <div className="finding-grid">{[...current.findings].sort((a,b)=>Number(b.status === 'open')-Number(a.status === 'open')).map(finding=>
                 <FindingCard key={finding.id + finding.status} project={current} finding={finding} busy={busy} run={run} onSource={id=>selectRow(id,'source',true)}/>)}</div>}

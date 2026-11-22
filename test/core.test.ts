@@ -5,12 +5,14 @@ import ExcelJS from 'exceljs'
 import { bestOffer, estimateRow, markupSuggestion, numberDE, offerAmount, summarize } from '../src/lib/estimate'
 import { position, type Offer, type Project } from '../src/lib/model'
 import { importLv, parseGaebXml, parsePdfText } from '../src/lib/import'
-import { laborSuggestions, reviewRules } from '../src/lib/review'
+import { combineFindings, laborSuggestions, reviewRules } from '../src/lib/review'
 import { parseShoppingResults } from '../src/lib/suppliers'
 import { demoImport } from '../src/lib/demo'
 import { exportAbgabe } from '../src/lib/report'
 import { canUploadLv } from '../src/lib/upload'
 import { catalogLookup } from '../src/lib/catalog'
+import { scopeCandidates, searchScopePositions } from '../src/lib/scope-search'
+import { validateScopeChecks } from '../src/lib/scope-agent'
 
 test('German decimal, thousand separators and invalid unit text', () => {
   assert.equal(numberDE('1.300'), 1300)
@@ -82,6 +84,29 @@ test('checks cover duplicate grouping and references without suppressing genuine
   assert.equal(other.included,true)
 })
 
+test('conflicting WC installation dimensions are found with exact evidence without GPT', () => {
+  const supply = position({ id: 'a', oz: '8.1', group: '8', title: 'Wand-WC in barrierefreier Kabine', quantity: 1, unit: 'St',
+    description: 'Für dasselbe Wand-WC ist eine Ausladung von 700 mm gefordert.' })
+  const install = position({ id: 'b', oz: '8.2', group: '8', title: 'Montage des gleichen Wand-WC', quantity: 1, unit: 'St',
+    description: 'Für dieses Wand-WC ist eine Ausladung von 540 mm verbindlich.' })
+  const checks = (rows: typeof supply[]) => reviewRules(rows).filter(finding => finding.title === 'Abweichende Ausladung beim WC')
+  const [issue] = checks([supply, install])
+  assert.deepEqual(issue.evidence.map(item => item.quote), ['Ausladung von 700 mm', 'Ausladung von 540 mm'])
+  assert.equal(issue.createdBy, 'rule')
+  assert.equal(issue.score, 'review')
+  const repeated = { ...issue, id: 'ai-1', createdBy: 'AI' as const, evidence: issue.evidence.map(evidence =>
+    ({ ...evidence, quote: 'Text mit ' + evidence.quote })) }
+  const different = { ...repeated, id: 'ai-2', evidence: repeated.evidence.map(evidence =>
+    ({ ...evidence, quote: 'Anschluss am Bauwerk' })) }
+  assert.deepEqual(combineFindings([issue], [repeated, different]).map(finding => finding.id), [issue.id, 'ai-2'])
+  const extended = { ...issue, evidence: [...issue.evidence, { positionId: supply.id, location: 'S. 1', quote: supply.title }] }
+  assert.deepEqual(combineFindings([extended], [repeated]).map(finding => finding.id), [issue.id])
+  assert.equal(checks([supply, { ...install, group: '9' }]).length, 0)
+  assert.equal(checks([supply, { ...install, description: '70 cm Ausladung für das Wand-WC.' }]).length, 0)
+  assert.equal(checks([supply, { ...install, description: 'Mindestens 54 cm Ausladung.' }]).length, 0)
+  assert.equal(checks([supply, { ...install, description: install.description + ' Montage des gleichen Wand-WC aus Pos. 8.1.', group: '9' }])[0].score, 'confirmed')
+})
+
 test('supplier selection uses delivered pack cost, exact model and shipping', () => {
   const source: Offer = {id:'a',title:'Dachablauf',merchant:'A',net:100,delivery:5,pack:1,minPacks:1,source:'demo',exact:true,checkedAt:'2026-11-21'}
   const row = position({id:'a',oz:'1.1.1',title:'Dachablauf',quantity:4,unit:'St'})
@@ -135,4 +160,43 @@ test('all three LV formats are accepted and catalog matches come from dimensions
   assert.match(lookup?.product?.url ?? '', /^https:\/\/catalog\.geberit\.de\//)
   assert.equal(catalogLookup({ title: 'WC-Sitz', description: 'für Wand-WC' }), null)
   assert.equal(catalogLookup({ title: 'Tiefspül-WC', description: '45 cm Ausladung, barrierefrei' })?.product, undefined)
+})
+
+test('scope agent searches distant sections and verifies read evidence before linking them', () => {
+  const roof = position({ id: 'roof', oz: '1.1', group: 'Dach', groupLabel: 'Dach',
+    title: 'RWA-Lichtkuppel Treppenhaus Nord', description: 'Der Elektroanschluss des RWA-Antriebs ist bauseits.' })
+  const electric = position({ id: 'electric', oz: '9.5', group: 'ELT', groupLabel: 'Elektro',
+    title: 'Elektroanschluss RWA Treppenhaus Nord', description: 'Wir stellen den Elektroanschluss der RWA-Lichtkuppel im Treppenhaus Nord her.' })
+  const ignore = Array.from({length: 60}, (_, i) => position({
+    id: 'fill' + i, oz: '2.' + i, group: 'Ausbau', title: 'Sockelleisten im Flur',
+  }))
+  const positions = [roof, ...ignore, electric]
+  assert.deepEqual(scopeCandidates(positions).map(row => row.id), ['roof', 'electric'])
+  assert.equal(searchScopePositions(positions, roof, ['RWA', 'Elektroanschluss'])[0].id, 'electric')
+  const sources = new Map([['Z1', { row: roof, quote: roof.description }], ['Z2', { row: electric, quote: electric.description }]])
+  const linked = { kind: 'linked' as const, title: 'Elektroanschluss zugeordnet',
+    detail: 'Der Elektroanschluss der RWA-Lichtkuppel ist in der Elektroposition enthalten.', question: null, evidence: ['Z1', 'Z2'] }
+  const searches = new Map([['roof', new Set(['electric'])]])
+  assert.equal(validateScopeChecks([linked], sources, searches, new Set()).length, 0)
+  assert.equal(validateScopeChecks([linked], sources, new Map(), new Set(['electric'])).length, 0)
+  const [finding] = validateScopeChecks([linked], sources, searches, new Set(['electric']))
+  assert.equal(finding.type, 'link')
+  assert.equal(finding.status, 'resolved')
+  assert.equal(finding.createdBy, 'agent')
+  assert.equal(finding.evidence[1].quote, electric.description)
+  const conflictSources = new Map([
+    ['Z1', { row: roof, quote: 'Der RWA-Elektroanschluss ist in der Dachdeckerposition nicht enthalten.' }],
+    ['Z2', { row: electric, quote: 'Der RWA-Elektroanschluss ist nicht Teil der Elektroinstallation und muss in der Dachdeckerposition enthalten sein.' }],
+  ])
+  const [conflict] = validateScopeChecks([linked], conflictSources, searches, new Set(['electric']))
+  assert.equal(conflict.type, 'mismatch')
+  assert.equal(conflict.status, 'open')
+  const openText = 'Die Zuständigkeit für Anschluss und Inbetriebnahme ist zu klären.'
+  const [question] = validateScopeChecks([], new Map([['Z3', { row: roof, quote: openText }]]),
+    new Map([['roof', new Set()]]), new Set())
+  assert.equal(question.type, 'scope')
+  assert.equal(question.evidence[0].quote, openText)
+
+  assert.equal(validateScopeChecks([{ ...linked, evidence: ['Z1', 'Z9'] }], sources, searches, new Set(['electric'])).length, 0)
+
 })

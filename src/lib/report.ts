@@ -140,7 +140,7 @@ export async function exportAbgabe(project: Project, kind: ReportKind = 'short')
         if (y < 140) newPage('Prüfprotokoll · Fortsetzung')
         const label = finding.positionIds.map(id => codes.get(id)).filter(Boolean).join(', ')
         wrapped((label ? label + '  ' : '') + finding.title, 10, bold)
-        for (const part of splitLines(finding.detail + '\n' + (finding.resolution || finding.question || 'Offen'), regular, 10, right - left)) {
+        for (const part of splitLines(finding.detail + '\n' + (finding.resolution || finding.question || (finding.type === 'link' ? 'Zugeordnet' : 'Offen')), regular, 10, right - left)) {
           if (y < bottom + 12) newPage('Prüfprotokoll · Fortsetzung')
           draw(part, left, y)
           y -= 14

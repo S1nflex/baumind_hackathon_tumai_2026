@@ -4,15 +4,36 @@ function mm(value: string, unit: string) {
   return Math.round(Number(value.replace(',', '.')) * (unit.toLowerCase() === 'cm' ? 10 : 1))
 }
 
+export const wcHeading = /\b(?:tiefspül[- ]?wc|flachspül[- ]?wc|wand[- ]?wc|stand[- ]?wc|wc[- ]becken)\b/i
+const projectionPatterns = [
+  /\bausladung\s*:?(?:\s+von)?\s*(\d{1,4}(?:[.,]\d+)?)\s*(mm|cm)\b/gi,
+  /\b(\d{1,4}(?:[.,]\d+)?)\s*(mm|cm)\s+ausladung\b/gi,
+]
+
+export function wcProjection(text: string) {
+  const readings = new Map<number, string>()
+  for (const pattern of projectionPatterns) {
+    for (const match of text.matchAll(pattern)) {
+      const before = text.slice(Math.max(0, match.index - 30), match.index)
+      const after = text.slice(match.index + match[0].length, match.index + match[0].length + 12)
+      if (/(?:ca\.|mind(?:estens|\.)|max(?:imal|\.)|min\.|bis|[<>≤≥±]|\d\s*[-–])\s*$/i.test(before) ||
+        /^\s*(?:bis\b|[-–±]\s*\d)/i.test(after)) continue
+      readings.set(mm(match[1], match[2]), match[0])
+    }
+  }
+  if (readings.size !== 1) return null
+  const [value, quote] = readings.entries().next().value!
+  return { value, quote }
+}
+
 export function catalogLookup(row: Pick<Position, 'title' | 'description'>) {
-  if (!/\b(?:tiefspül[- ]?wc|flachspül[- ]?wc|wand[- ]?wc|stand[- ]?wc|wc[- ]becken)\b/i.test(row.title)) return null
+  if (!wcHeading.test(row.title)) return null
   const text = row.title + '\n' + row.description
   const dimension = (pattern: RegExp) => {
     const match = text.match(pattern)
     return match ? mm(match[1], match[2]) : undefined
   }
-  const depth = dimension(/\b(?:ausladung|tiefe)\s*:?\s*(\d{1,4}(?:[.,]\d+)?)\s*(mm|cm)\b/i) ??
-    dimension(/\b(\d{1,4}(?:[.,]\d+)?)\s*(mm|cm)\s+ausladung\b/i)
+  const depth = wcProjection(text)?.value ?? dimension(/\btiefe\s*:?\s*(\d{1,4}(?:[.,]\d+)?)\s*(mm|cm)\b/i)
   const width = dimension(/\bbreite\s*:?\s*(\d{1,4}(?:[.,]\d+)?)\s*(mm|cm)\b/i)
   const height = dimension(/(?:^|[,;]\s*|\bgröße:\s*)höhe\s*:?\s*(\d{1,4}(?:[.,]\d+)?)\s*(mm|cm)\b/im)
   const model = [...text.matchAll(/\bmodell\s*-?\s*nr\.?\s*:?\s*(\d{6,9})\b/gi)].at(-1)?.[1]
