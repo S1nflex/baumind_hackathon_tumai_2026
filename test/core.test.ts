@@ -9,6 +9,8 @@ import { laborSuggestions, reviewRules } from '../src/lib/review'
 import { parseShoppingResults } from '../src/lib/suppliers'
 import { demoImport } from '../src/lib/demo'
 import { exportAbgabe } from '../src/lib/report'
+import { canUploadLv } from '../src/lib/upload'
+import { catalogLookup } from '../src/lib/catalog'
 
 test('German decimal, thousand separators and invalid unit text', () => {
   assert.equal(numberDE('1.300'), 1300)
@@ -62,6 +64,13 @@ test('Excel imports text OZ, numeric quantity and cached formula results', async
   assert.equal(data.positions[0].oz,'01.01.0010')
   assert.equal(data.positions[0].quantity,1234.25)
   assert.equal(data.positions[0].sourceTotal,26536.375)
+  const second = workbook.addWorksheet('Sanitär')
+  second.addRow(['Positionsnummer', 'Kurztext', 'Langtext', 'Menge Soll', 'Einheit (ME)', 'Einheitspreis netto (€)'])
+  second.addRow([34, 'Dachablauf', 'Montage in Abschnitt B', 2, 'St', 60]).getCell(1).numFmt = '0000'
+  const multi = await importLv(Buffer.from(await workbook.xlsx.writeBuffer()), 'Mehrere Blätter.xlsx')
+  assert.equal(multi.positions.length, 2)
+  assert.deepEqual(multi.positions.slice(1).map(row => [row.oz, row.quantity, row.sourcePrice, row.description]),
+    [['0034', 2, 60, 'Dachablauf\nMontage in Abschnitt B']])
 })
 
 test('checks cover duplicate grouping and references without suppressing genuine alternatives', () => {
@@ -102,12 +111,28 @@ test('markups require a sourced benchmark and project rounds net and VAT', async
   const row = position({id:'p',oz:'1.1.1',title:'Dacharbeiten',quantity:2,unit:'St',costs:{material:100,hours:null,rate:null,equipment:null,other:null}, marketPrice:130})
   assert.equal(markupSuggestion(row,25),null)
   row.marketSource = 'Testangebot für denselben Umfang'
-  assert.deepEqual(markupSuggestion(row,25), {proposed:30,unitPrice:130})
+  assert.equal(markupSuggestion(row,25),null)
+  row.marketComparable = true
+  assert.deepEqual(markupSuggestion(row,25), {proposed:30,unitPrice:130,revenueGain:10})
+  assert.equal(markupSuggestion({ ...row, marketPrice:160, markup:30 },25),null)
+  assert.equal(estimateRow({ ...row, markup:30 },25).cost, estimateRow(row,25).cost)
   const demo = demoImport()
   const project: Project = { ...demo, id:'demo', name:demo.title, positions:[row], findings:[], createdAt:'2026-11-21', revision:1, archivedAt:null,
     baseMarkup:25, vat:19, fileName:'Test.pdf', postcode:'', company:'OZ 404', demo:true, hasOriginal:false, analysis:{mode:'rules'} }
   assert.equal(summarize(project).gross,297.5)
   const report = await PDFDocument.load(await exportAbgabe(project))
-  assert.equal(report.getPageCount(),3)
+  assert.equal(report.getPageCount(),1)
+  assert.equal((await PDFDocument.load(await exportAbgabe(project, 'internal'))).getPageCount(), 1)
   assert.match(report.getTitle() || '', /Abgabe LV/)
+})
+
+test('all three LV formats are accepted and catalog matches come from dimensions and model references', () => {
+  for (const file of ['LV.PDF', 'LV.XLSX', 'LV.X83', 'LV.d86', 'LV.XML']) assert.ok(canUploadLv(file))
+  assert.equal(canUploadLv('LV.xlsx.zip'), false)
+  const lookup = catalogLookup({ title: 'Tiefspül-WC', description: 'Mit 70 cm Ausladung, Breite: 355 mm, wandhängend, barrierefrei, KeraTect.' })
+  assert.equal(lookup?.product?.sku, '208520600')
+  assert.match(lookup?.specs ?? '', /Ausladung 700 mm.*Breite 355 mm/)
+  assert.match(lookup?.product?.url ?? '', /^https:\/\/catalog\.geberit\.de\//)
+  assert.equal(catalogLookup({ title: 'WC-Sitz', description: 'für Wand-WC' }), null)
+  assert.equal(catalogLookup({ title: 'Tiefspül-WC', description: '45 cm Ausladung, barrierefrei' })?.product, undefined)
 })

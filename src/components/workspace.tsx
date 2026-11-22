@@ -67,7 +67,7 @@ function UploadForm({ busy, submit, error }: { busy: boolean; submit: (form: For
     <p className="muted">Importiere ein Leistungsverzeichnis als Ausgangspunkt für das Angebot.</p>
     <label className={'upload-zone ' + (drag ? 'dragging' : '')} onDragOver={event => {event.preventDefault(); setDrag(true)}}
       onDragLeave={() => setDrag(false)} onDrop={event => {event.preventDefault(); setDrag(false); selectFile(event.dataTransfer.files[0])}}>
-      <Upload size={23}/><strong>{file ? file.name : 'Datei auswählen oder hierher ziehen'}</strong><span>PDF oder Excel (.xlsx) · bis 24 MB</span>
+      <Upload size={23}/><strong>{file ? file.name : 'Datei auswählen oder hierher ziehen'}</strong><span>PDF, Excel (.xlsx) oder GAEB · bis 24 MB</span>
       <input ref={upload} type="file" name="file" accept={lvUploadAccept}
         onChange={event => selectFile(event.target.files?.[0])} aria-label="LV-Datei"/>
     </label>
@@ -77,7 +77,7 @@ function UploadForm({ busy, submit, error }: { busy: boolean; submit: (form: For
       <label className="field"><span>PLZ der Baustelle</span><input name="postcode" inputMode="numeric" pattern="[0-9]{5}" maxLength={5}/></label>
     </div>
     <label className="check"><input type="checkbox" name="prices" value="1" defaultChecked/> Lieferanten für erkannte Artikel suchen</label>
-    <label className="check"><input type="checkbox" name="ai" value="1"/> KI-Textprüfung ausführen, falls Anbieter konfiguriert</label>
+    <p className="small muted">Bei aktiver KI-Prüfung werden Auszüge aus dem LV an Claude übermittelt.</p>
     {(fileError || error) && <div className="error-inline" role="alert">{fileError || error}</div>}
     <div className="dialog-actions"><button type="submit" className="button button-primary" disabled={busy || !file}>
       {busy ? 'Datei wird geprüft …' : 'Importieren und prüfen'} <ArrowRight size={16}/></button></div>
@@ -318,7 +318,7 @@ export function Workspace() {
             <ul>{current.warnings.map((warning,i) => <li key={i}>{warning}</li>)}</ul></details>}
           <div className="stats">
             <div className="stat"><span><Layers3 size={15}/> Originalpositionen</span><strong>{current.positions.filter(row=>row.origin === 'imported').length}</strong><small>{groups.length} Abschnitte</small></div>
-            <button className="stat" onClick={() => {setSection('review');setRowId(null)}}><span><ClipboardCheck size={15}/> Offene Prüfpunkte</span><strong>{summary?.open}</strong><small>{current.analysis.mode === 'rules' ? 'Regelprüfung' : 'Regeln und KI'}</small></button>
+            <button className="stat" onClick={() => {setSection('review');setRowId(null)}}><span><ClipboardCheck size={15}/> Offene Prüfpunkte</span><strong>{summary?.open}</strong><small>{current.analysis.status === 'unavailable' ? 'Regeln · KI nicht erreichbar' : current.analysis.status === 'partial' ? 'Regeln · KI teilweise geprüft' : current.analysis.status === 'disabled' ? 'Regeln · KI inaktiv' : current.analysis.mode === 'rules' ? 'Regelprüfung' : 'Regeln und KI'}</small></button>
             <div className="stat"><span><CircleHelp size={15}/> Ohne vollständigen Preis</span><strong>{summary?.withoutPrice}</strong><small>Aktive Positionen</small></div>
             <div className="stat total-stat"><span><Calculator size={15}/> Angebot netto</span><strong>{amountLabel(summary?.net)}</strong><small>{current.archivedAt ? 'Freigegeben' : 'Aktueller Entwurf'}</small></div>
           </div>
@@ -344,7 +344,7 @@ export function Workspace() {
                 </tr></thead><tbody>{activeRows.map(({row,calc}) => {
                   const needs = openIds.has(row.id)
                   const outside = !row.included
-                  const high = row.marketPrice !== null && calc.unitPrice !== null && row.marketPrice > 0 && calc.unitPrice > row.marketPrice * 1.15
+                  const high = row.marketComparable && row.marketPrice !== null && calc.unitPrice !== null && row.marketPrice > 0 && calc.unitPrice > row.marketPrice * 1.15
                   return <tr className={(rowId === row.id ? 'selected-row ' : '') + (row.origin === 'suggested' ? 'suggested-row ' : '') + (outside ? 'outside-row' : '')} key={row.id} onClick={()=>selectRow(row.id)}>
                     <td><button className="oz-button" onClick={event=>{event.stopPropagation();selectRow(row.id)}} aria-label={'Position ' + row.oz}>{row.oz}</button></td>
                     <td className="title-cell"><b title={row.title}>{row.title}</b>{row.origin !== 'imported' && <span>{row.origin === 'suggested' ? 'Vorgeschlagen' : 'Ergänzt'}</span>}</td>
@@ -380,7 +380,12 @@ export function Workspace() {
                 <FindingCard key={finding.id + finding.status} project={current} finding={finding} busy={busy} run={run} onSource={id=>selectRow(id,'source',true)}/>)}</div>}
           </div>}
           {section === 'bid' && <div className="view-body bid-body">
-            <div className="view-title"><div><h2>Angebot</h2><p className="muted">Zusammenstellung und Angaben für die Abgabe.</p></div></div>
+            <div className="view-title"><div><h2>Angebot</h2><p className="muted">Zusammenstellung und Angaben für die Abgabe.</p></div>
+              <div className="button-row">
+                <a className="button" href={'/api/projects/' + current.id + '/report?layout=long'}><Download size={15}/> LV-Langfassung</a>
+                <a className="button" href={'/api/projects/' + current.id + '/report?layout=internal'}><Download size={15}/> Interne Kalkulation</a>
+              </div>
+            </div>
             <div className="bid-columns"><section className="sheet"><header><h3>Zusammenstellung</h3></header>
               {[...(summary?.byGroup || [])].map(([key,total]) => <div className="bid-line" key={key}><span>{groups.find(([id])=>key===id)?.[1] ?? key}</span><b>{eur.format(total)}</b></div>)}
               <div className="bid-line"><strong>Netto</strong><b>{amountLabel(summary?.net)}</b></div>

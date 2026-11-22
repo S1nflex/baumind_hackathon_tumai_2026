@@ -48,6 +48,7 @@ export type Position = {
   markup: number | null
   marketPrice: number | null
   marketSource?: string
+  marketComparable?: boolean
   selectedOfferId: string | null
   offers: Offer[]
 }
@@ -88,7 +89,7 @@ export type Project = ImportResult & {
   postcode: string
   demo: boolean
   hasOriginal: boolean
-  analysis: { mode: 'rules' | 'AI + rules'; note?: string }
+  analysis: { mode: 'rules' | 'AI + rules'; status?: 'disabled' | 'applied' | 'partial' | 'unavailable'; note?: string }
 }
 
 export type ProjectListItem = Pick<Project, 'id' | 'name' | 'fileName' | 'format' | 'createdAt' | 'archivedAt' | 'demo'> & {

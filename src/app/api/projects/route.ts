@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { importLv } from '@/lib/import'
 import { demoImport } from '@/lib/demo'
+import { catalogLookup } from '@/lib/catalog'
 import { reviewRules, laborSuggestions } from '@/lib/review'
 import { semanticReview } from '@/lib/ai-review'
 import { bestOffer } from '@/lib/estimate'
@@ -36,18 +37,22 @@ export async function POST(request: Request) {
       throw new ProjectError(error instanceof Error ? error.message : 'Datei konnte nicht importiert werden.')
     })
     const findings = reviewRules(parsed.positions)
-    const semantic = !demo && form.get('ai') === '1' ? await semanticReview(parsed.positions) : undefined
+    const semantic = demo ? undefined : await semanticReview(parsed.positions)
     const availability = !demo && shopConfigured()
     if (!demo) {
       for (const row of parsed.positions) row.offers = referenceOffers(row)
       if (availability && form.get('prices') === '1') {
-        const selected = parsed.positions.filter(row => row.supplierQuery && /^(st|stk|stück)$/i.test(row.unit)).slice(0, 8)
-        const results = await Promise.allSettled(selected.map(row => findSuppliers(row.supplierQuery!, row, postcode)))
+        const selected = parsed.positions.flatMap(row => {
+          if (!/^(st|stk|stück)\.?$/i.test(row.unit)) return []
+          const query = row.supplierQuery ?? catalogLookup(row)?.query
+          return query ? [{ row, query }] : []
+        }).slice(0, 8)
+        const results = await Promise.allSettled(selected.map(({ row, query }) => findSuppliers(query, row, postcode)))
         let incompletes = 0
         results.forEach((result, index) => {
           if (result.status === 'rejected' || result.value.note) incompletes++
           if (result.status === 'rejected') return
-          const row = selected[index]
+          const { row } = selected[index]
           row.offers = result.value.offers
           row.selectedOfferId = bestOffer(row.offers, row)?.id ?? null
         })
@@ -60,7 +65,8 @@ export async function POST(request: Request) {
       positions: [...parsed.positions, ...suggestions], findings: [...findings, ...(semantic?.findings ?? [])],
       company: String(form.get('company') || '').trim().slice(0, 120), postcode,
       baseMarkup: 25, vat: 19, demo, hasOriginal: Boolean(bytes && parsed.format === 'PDF'),
-      analysis: { mode: semantic?.usedAI ? 'AI + rules' : 'rules', note: semantic?.note },
+      analysis: { mode: semantic?.status === 'applied' || semantic?.status === 'partial' ? 'AI + rules' : 'rules',
+        status: semantic?.status, note: semantic?.note },
     }
     return Response.json({ project: createProject(workspace, project, bytes) }, { status: 201 })
   } catch (error) { return errorResponse(error) }
