@@ -1,0 +1,89 @@
+BauMind Non-Commercial License — Version 1.0
+Copyright (c) 2026 the respective BauMind copyright holders and contributors.
+All rights reserved except for the permissions expressly granted below.
+
+IMPORTANT: This is a custom source-available, non-commercial license.
+It is NOT an OSI-approved open-source license.
+
+1. DEFINITIONS
+
+"Software" means the original BauMind source code, documentation, and
+original project assets included with this repository, solely to the
+extent that the applicable BauMind copyright holder(s) have the legal
+right to license those materials. The term excludes third-party software,
+fonts, photographs, datasets, trademarks, and other materials governed
+by separate rights or licenses.
+
+"Non-Commercial Use" means use solely for personal study, academic or
+non-commercial research, teaching, and non-commercial evaluation or
+hackathon demonstration, without direct or indirect commercial advantage.
+
+"Commercial Use" includes use, distribution, licensing, hosting, or
+integration of any part of the Software for or within a profit-making
+business, in paid services, for customer work, to generate commercial
+bids, in commercially operated products, or otherwise for financial or
+commercial advantage, whether or not users are charged to access it.
+
+2. LIMITED NON-COMMERCIAL PERMISSION
+
+Subject to compliance with this license, the applicable copyright
+holder(s) grant you a non-exclusive, worldwide, royalty-free permission
+to access, run, study, copy, and modify the Software for Non-Commercial
+Use only. You may share non-commercial copies or modifications provided
+that you (a) retain all copyright and attribution notices, (b) include
+this LICENSE in every copy, (c) clearly identify modifications, and
+(d) do not impose additional rights over portions you do not own.
+
+This permission does not grant ownership of the Software.
+
+3. COMMERCIAL USE REQUIRES PRIOR WRITTEN AUTHORIZATION
+
+NO COMMERCIAL USE IS AUTHORIZED UNDER THIS LICENSE.
+
+Before any Commercial Use, you must obtain express written permission
+from all copyright holder(s) whose rights are required for the intended
+use, or from their duly authorized licensing representative. Permission
+must identify the permitted activity and relevant conditions. A public
+repository, a download, silence, a discussion, or an unanswered request
+does NOT constitute permission.
+
+To initiate a commercial licensing request, contact the project team
+through the GitHub repository's Issues or other officially provided
+project contact channel. A request alone does not grant permission.
+
+4. THIRD-PARTY RIGHTS
+
+Third-party dependencies and assets are licensed under their own terms.
+Nothing in this license relicenses or supersedes those terms. You must
+obtain any required third-party permissions separately. A copyright
+holder may license only material for which they possess the necessary
+rights.
+
+5. BRANDING AND TRADEMARKS
+
+No trademark, service mark, trade name, or logo endorsement rights are
+granted. Use of the BauMind name or original branding in a manner that
+implies official sponsorship or endorsement requires separate permission
+except for accurate attribution to the original project.
+
+6. NO WARRANTY OR LIABILITY
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE SOFTWARE IS
+PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING FITNESS FOR A PARTICULAR PURPOSE, MERCHANTABILITY, OR
+NON-INFRINGEMENT. TO THE MAXIMUM EXTENT PERMITTED BY LAW, THE COPYRIGHT
+HOLDERS AND CONTRIBUTORS SHALL NOT BE LIABLE FOR DAMAGES ARISING FROM
+USE OF THE SOFTWARE. NOTHING HERE EXCLUDES LIABILITY THAT CANNOT
+LAWFULLY BE EXCLUDED.
+
+7. TERMINATION
+
+The permissions granted by this license terminate automatically if you
+breach its terms. Upon termination, you must stop exercising rights
+under this license and cease distribution and use unless separately
+permitted by law or in writing by the applicable copyright holder(s).
+
+8. NO IMPLIED ADDITIONAL RIGHTS
+
+All rights not expressly granted are reserved. Any separate commercial
+license must be agreed in writing by the applicable rights holder(s).
