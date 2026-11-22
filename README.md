@@ -51,6 +51,8 @@ The features below are present in the **BauMind v6.8 source code**. External int
 
 ### What a typical session looks like
 
+See the [demo walkthrough](DEMO.md) for a quick tour of the prototype.
+
 1. **Upload a BoQ** in PDF, GAEB, or XLSX format (up to 24 MB).
 2. **Parse and structure** the positions and run rule-based checks.
 3. Optionally run **AI review and indicative price estimation** with a configured AI provider and market source.
