@@ -18,7 +18,7 @@ const rowValues = z.object({
   quantity: z.number().min(-100000000).max(100000000).nullable().optional(), unit: z.string().trim().max(12).optional(),
   costs: costs.optional(), markup: z.number().min(0).max(300).nullable().optional(),
   overridePrice: z.number().min(-100000000).max(100000000).nullable().optional(),
-  marketPrice: cost.optional(), marketSource: z.string().trim().max(230).optional(),
+  marketPrice: cost.optional(), marketSource: z.string().trim().max(230).optional(), marketComparable: z.boolean().optional(),
   included: z.boolean().optional(),
 })
 const actionSchema = z.discriminatedUnion('action', [
@@ -73,7 +73,11 @@ export async function POST(request: Request, { params }: Ctx) {
           const { quantity, unit, ...update } = action.values
           if (quantity !== undefined || unit !== undefined) row.adjustment = { quantity: quantity === undefined ? quantityOf(row) : quantity,
             unit: unit ?? row.adjustment?.unit ?? row.unit }
-          if (update.marketPrice && !(update.marketSource ?? row.marketSource)) throw new ProjectError('Bitte eine Quelle für den Marktpreis angeben.')
+          const benchmarkPrice = update.marketPrice === undefined ? row.marketPrice : update.marketPrice
+          const benchmarkSource = update.marketSource ?? row.marketSource
+          if (benchmarkPrice && !benchmarkSource) throw new ProjectError('Bitte eine Quelle für den Referenzpreis angeben.')
+          if (update.marketComparable && (!benchmarkPrice || !benchmarkSource)) throw new ProjectError('Bitte Preis und Quelle der vergleichbaren Leistung eintragen.')
+          if (update.marketComparable === undefined && ('marketPrice' in update || 'marketSource' in update)) update.marketComparable = false
           if (row.type === 'unit-only') delete update.included
           Object.assign(row, update)
           break
@@ -139,7 +143,6 @@ export async function POST(request: Request, { params }: Ctx) {
           }
           if (!comparable(offer, row)) throw new ProjectError('Bitte Einheit, Packungsgröße und Lieferkosten bestätigen.')
           row.selectedOfferId = offer.id
-          row.overridePrice = null
           break
         }
         case 'manualOffer': {

@@ -5,6 +5,7 @@ import type { FormEvent, ReactNode } from 'react'
 import { useState } from 'react'
 import { bestOffer, comparable, decimal, estimateRow, eur, markupSuggestion, offerAmount, quantityOf, unitEur, unitOf } from '@/lib/estimate'
 import type { Finding, Offer, Position, Project } from '@/lib/model'
+import { catalogLookup } from '@/lib/catalog'
 
 export type RunAction = (action: Record<string, unknown>) => Promise<boolean>
 export type DetailTab = 'detail' | 'offers' | 'source'
@@ -51,7 +52,8 @@ export function FindingCard({ finding, project, busy, run, currentId, onSource }
 }
 
 function OffersPanel({ row, busy, run, project }: { row: Position; busy: boolean; run: RunAction; project: Project }) {
-  const [query, setQuery] = useState(row.supplierQuery || row.title)
+  const catalog = catalogLookup(row)
+  const [query, setQuery] = useState(row.supplierQuery || catalog?.query || row.title.slice(0, 130))
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [own, setOwn] = useState(false)
   const best = bestOffer(row.offers, row)
@@ -78,6 +80,15 @@ function OffersPanel({ row, busy, run, project }: { row: Position; busy: boolean
   }
   return <div className="pane-stack">
     <div><h3>Lieferantenangebote</h3><p className="muted small">Vergleich nach Nettokosten für die LV-Menge, inklusive bekannter Lieferung.</p></div>
+    {catalog && <div className="inset">
+      <h3>Katalogabgleich</h3>
+      {catalog.specs && <p className="small"><b>Aus dem LV</b><br/>{catalog.specs}</p>}
+      {catalog.product && <><p><a href={catalog.product.url} target="_blank" rel="noreferrer">{catalog.product.name} <ExternalLink size={12}/></a></p>
+        <p className="small">{catalog.product.match}. {catalog.product.check}</p>
+        {!project.archivedAt && <button type="button" className="button small-button" onClick={() => setQuery('Geberit ' + catalog.product?.sku)}>Artikel für Preissuche übernehmen</button>}</>}
+      <p className="small"><a href={catalog.searchUrl} target="_blank" rel="noreferrer">Weitere Herstellerdatenblätter suchen <ExternalLink size={12}/></a></p>
+      <p className="small muted">Produkt, Ausstattung und Lieferumfang vor der Preisübernahme bestätigen.</p>
+    </div>}
     {!project.archivedAt && <form className="offer-search" onSubmit={event => {event.preventDefault(); void run({ action:'search', rowId:row.id, query })}}>
       <input value={query} onChange={event => setQuery(event.target.value)} aria-label="Artikel oder Suchbegriff" maxLength={130} />
       <button className="button button-primary" type="submit" disabled={busy || query.trim().length < 2} aria-label="Preise suchen"><Search size={16}/></button>
@@ -151,6 +162,7 @@ export function PositionDetail({ project, row, tab, setTab, close, run, busy, on
     void run({ action:'row', rowId:row.id, values:{
       quantity:optionalNumber(form,'quantity'), unit: form.get('unit'), overridePrice:optionalNumber(form,'override'),
       markup:optionalNumber(form,'markup'), marketPrice:optionalNumber(form,'market'), marketSource:form.get('marketSource'),
+      marketComparable: form.get('marketComparable') === 'on',
       included: form.get('included') === 'on',
       costs:{ material:optionalNumber(form,'material'), hours:optionalNumber(form,'hours'), rate:optionalNumber(form,'rate'),
         equipment:optionalNumber(form,'equipment'), other:optionalNumber(form,'other') } }})
@@ -193,11 +205,12 @@ export function PositionDetail({ project, row, tab, setTab, close, run, busy, on
             {row.accepted ? 'Aus Angebot herausnehmen' : 'Vorschlag übernehmen'}
           </button>}</div>}
         {findings.map(finding => <FindingCard key={finding.id + finding.status} finding={finding} project={project} busy={busy} run={run} currentId={row.id} onSource={onSource}/>)}
-        {proposal && <div className="inset suggested"><span className="tag tag-purple"><Sparkles size={12}/> Zuschlagsszenario</span>
-          <h3>{decimal.format(calc.markup)} % → {proposal.proposed} %</h3>
-          <p>EP {unitEur.format(proposal.unitPrice)} liegt innerhalb der hinterlegten Referenz von {amountLabel(row.marketPrice)}.</p>
-          <p className="small muted">Quelle: {row.marketSource}. Die Annahme durch den Kunden bleibt offen.</p>
-          {!project.archivedAt && <button className="button small-button" disabled={busy} onClick={() => run({action:'row', rowId:row.id, values:{markup:proposal.proposed}})}>Szenario übernehmen</button>}
+        {proposal && calc.cost !== null && calc.unitPrice !== null && <div className="inset suggested">
+          <h3>Verkaufspreis vergleichen</h3>
+          <p>Eigene Kosten je Einheit: <b>{unitEur.format(calc.cost)}</b>. Angebot an den Kunden: <b>{unitEur.format(calc.unitPrice)} → {unitEur.format(proposal.unitPrice)}</b> netto je Einheit.</p>
+          <p><b>{eur.format(proposal.revenueGain)} mehr Nettoerlös</b> für diese Position, wenn der Kunde das Angebot annimmt. Einkauf und Arbeitskosten bleiben gleich.</p>
+          <p className="small muted">Vergleich für dieselbe Leistung: {amountLabel(row.marketPrice)} je Einheit. Quelle: {row.marketSource}.</p>
+          {!project.archivedAt && <button className="button small-button" disabled={busy} onClick={() => run({action:'row', rowId:row.id, values:{markup:proposal.proposed}})}>Verkaufspreis übernehmen</button>}
         </div>}
         {!project.archivedAt && <form className="pane-stack cost-form" key={project.revision + row.id} onSubmit={saveRow}>
           <h3>Kalkulation bearbeiten</h3>
@@ -215,9 +228,10 @@ export function PositionDetail({ project, row, tab, setTab, close, run, busy, on
           {calc.laborIncomplete && <p className="inline-warning"><TriangleAlert size={14}/> Für Lohnkosten Stunden und Satz ergänzen.</p>}
           <label className="field"><span>EP netto festlegen (€)</span><input name="override" type="number" step="any" defaultValue={row.overridePrice ?? ''} placeholder={row.sourcePrice === undefined ? 'Berechnet' : String(row.sourcePrice)} /></label>
           <div className="field-grid">
-            <Num name="market" label="Marktreferenz (€/ME)" value={row.marketPrice}/>
+            <Num name="market" label="Vergleichsangebot netto (€/ME)" value={row.marketPrice}/>
             <label className="field"><span>Referenzquelle</span><input name="marketSource" maxLength={230} defaultValue={row.marketSource || ''} /></label>
           </div>
+          <label className="check"><input name="marketComparable" type="checkbox" defaultChecked={Boolean(row.marketComparable)} /> Quelle bezieht sich auf die gleiche Leistung und Einheit.</label>
           {row.type !== 'unit-only' && row.accepted && <label className="check"><input name="included" type="checkbox" defaultChecked={row.included} /> In Angebotssumme aufnehmen</label>}
           <button className="button button-primary" disabled={busy}>Kalkulation speichern</button>
         </form>}

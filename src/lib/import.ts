@@ -3,6 +3,7 @@ import { XMLParser, XMLValidator } from 'fast-xml-parser'
 import ExcelJS from 'exceljs'
 import { numberDE } from './estimate'
 import { normalizeOz, position, type ImportResult, type Position, type PositionType } from './model'
+import { stripPdfPageFurniture } from './pdf-text'
 
 const filenameTitle = (name: string) => name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ')
 const issueType = (text: string, amount = ''): PositionType => /Bedarfsposition ohne\s+(?:GB|Gesamtbetrag)|Nur Einh\.?-Pr|nur\s+EP/i.test(text + ' ' + amount) ? 'unit-only' :
@@ -68,7 +69,7 @@ export function parsePdfText(text: string, filename: string): ImportResult {
   raw.forEach((page, index) => {
     if (hasLVHeader && index < firstLVPage) return
     const number = index + 1
-    const lines = page.split(/\r?\n/)
+    const lines = page.split(/\r?\n/).map((line, i) => i < 16 ? stripPdfPageFurniture(line) : line)
     const starts = lines.map(line => line.match(/^(\s{0,14})(\.?\d+(?:\.+\d+){0,6}\.?)(?:\s{2,})(\S.*)$/))
     const margin = Math.min(14, ...starts.flatMap(match => match ? [match[1].length] : []))
     lines.forEach((text, i) => {
@@ -283,10 +284,10 @@ const columnNames = {
   oz: /^(oz|positionsnr|posnr|positionsnummer|ordnungszahl|position|itemno)$/,
   title: /^(kurztext|bezeichnung|beschreibung|leistungsbeschreibung|description|title|leistung)$/,
   description: /^(langtext|details|detailbeschreibung|fulltext)$/,
-  quantity: /^(menge|anzahl|quantity|qty)$/,
-  unit: /^(me|einheit|mengeneinheit|unit|einh)$/,
-  price: /^(ep|einheitspreis(?:eur)?|einzelpreis|unitprice|preis)$/,
-  total: /^(gp|gesamt(?:betrag|preis)(?:eur)?|summe|total)$/,
+  quantity: /^(menge|mengesoll|sollmenge|anzahl|quantity|qty)$/,
+  unit: /^(me|einheit|einheitme|mengeneinheit|mengeneinheitme|unit|einh)$/,
+  price: /^(ep|einheitspreis|einzelpreis|unitprice|preis)(?:netto)?(?:eur)?$/,
+  total: /^(gp|gesamt(?:betrag|preis)|summe|total)(?:netto)?(?:eur)?$/,
 }
 
 const cellNum = (cell: ExcelJS.Cell) => typeof cell.value === 'number' ? cell.value :
@@ -304,8 +305,12 @@ async function parseExcel(bytes: Buffer, filename: string): Promise<ImportResult
     for (let i = 1; i <= Math.min(sheet.rowCount, 40); i++) {
       const trial: typeof map = {}
       sheet.getRow(i).eachCell((cell, col) => {
-        const label = cell.text.toLowerCase().replace(/[^a-z]/g, '')
-        for (const [key, pattern] of Object.entries(columnNames)) if (pattern.test(label)) trial[key as keyof typeof columnNames] = col
+        const label = cell.text.toLowerCase().replaceAll('€', 'eur').replace(/[^a-z]/g, '')
+        for (const [key, pattern] of Object.entries(columnNames)) {
+          if (!pattern.test(label)) continue
+          const field = key as keyof typeof columnNames
+          if (!trial[field] || label === 'kurztext') trial[field] = col
+        }
       })
       if (trial.oz && trial.title && trial.quantity && trial.unit) { map = trial; header = i; break }
     }
@@ -313,9 +318,15 @@ async function parseExcel(bytes: Buffer, filename: string): Promise<ImportResult
     const read = (row: ExcelJS.Row, key: keyof typeof columnNames) => map[key] ? row.getCell(map[key]!).text.trim() : ''
     const num = (row: ExcelJS.Row, key: keyof typeof columnNames) => map[key] ? cellNum(row.getCell(map[key]!)) : null
     for (let i = header + 1; i <= sheet.rowCount; i++) {
-      const row = sheet.getRow(i), oz = read(row, 'oz'), title = read(row, 'title')
-      if (!oz || !title || /^(?:summe|total|gesamt)/i.test(oz)) continue
-      const description = read(row, 'description') || title
+      const row = sheet.getRow(i)
+      const code = row.getCell(map.oz!)
+      const oz = typeof code.value === 'number' && Number.isInteger(code.value) && /^0{2,}$/.test(code.numFmt)
+        ? String(code.value).padStart(code.numFmt.length, '0') : code.text.trim()
+      const shortText = read(row, 'title')
+      const longText = read(row, 'description')
+      if (!oz || (!shortText && !longText) || /^(?:summe|total|gesamt)/i.test(oz)) continue
+      const title = (shortText || longText).split(/\r?\n/).find(line => line.trim())!.trim()
+      const description = [...new Set([shortText, longText].filter(Boolean))].join('\n')
       const group = oz.split('.').slice(0, -1).join('.') || sheet.name
       positions.push(concreteRow({ id: 'p' + (positions.length + 1), oz, title, description,
         group, groupLabel: sheet.name, unit: read(row, 'unit'), quantity: num(row, 'quantity'),

@@ -69,11 +69,16 @@ export function summarize(project: Project) {
 
 export function markupSuggestion(row: Position, baseMarkup: number) {
   const estimate = estimateRow(row, baseMarkup)
-  if (!row.marketPrice || !row.marketSource || !estimate.cost || estimate.cost <= 0 || row.overridePrice !== null) return null
-  const supported = Math.floor((row.marketPrice / estimate.cost - 1) * 100)
-  const proposed = Math.min(supported, estimate.markup + 5, 100)
+  if (!row.marketPrice || !row.marketComparable || !row.marketSource || !estimate.cost || estimate.cost <= 0 ||
+    row.overridePrice !== null || !row.included || !row.accepted || !estimate.quantity || estimate.quantity <= 0 ||
+    estimate.unitPrice === null || estimate.total === null) return null
+  const supported = d(row.marketPrice).div(estimate.cost).minus(1).times(100).floor().toNumber()
+  const proposed = Math.min(supported, baseMarkup + 5, 100)
   if (proposed <= estimate.markup) return null
-  return { proposed, unitPrice: round(d(estimate.cost).times(d(proposed).div(100).plus(1)), 3) }
+  const unitPrice = round(d(estimate.cost).times(d(proposed).div(100).plus(1)), 3)
+  const revenueGain = round(d(round(d(estimate.quantity).times(unitPrice))).minus(estimate.total))
+  if (revenueGain <= 0 || unitPrice > row.marketPrice) return null
+  return { proposed, unitPrice, revenueGain }
 }
 
 export const eur = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' })

@@ -28,7 +28,7 @@ export function demoImport(): ImportResult {
     return position({ id:'p' + (i + 1), oz: item.oz, group: item.group, groupLabel: item.label,
       title: item.title, description: body, quantity: item.quantity, unit: item.unit,
       costs: { ...defaults, material: item.material }, marketPrice: item.market ?? null,
-      marketSource: item.market ? 'Beispiel-Referenz für das Demo-Szenario' : undefined,
+      marketSource: item.market ? 'Beispielangebot für dieselbe Leistung je m²' : undefined, marketComparable: Boolean(item.market),
       source: { location: 'Übungs-LV · S. ' + item.page, text: body } })
   })
   const outlet = positions.find(row => row.oz === '6.2.150')!
