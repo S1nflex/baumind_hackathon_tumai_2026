@@ -19,7 +19,7 @@ export function referenceOffers(row: Position): Offer[] {
     checkedAt: '2026-11-20', pack: 1, minPacks: 1, exact: true }))
 }
 
-type ShoppingItem = { title?: string; source?: string; price?: string; extracted_price?: number;
+export type ShoppingItem = { title?: string; source?: string; price?: string; extracted_price?: number;
   delivery?: string; installment?: unknown; product_link?: string; link?: string; second_hand_condition?: string }
 
 function shippingCost(delivery: string | undefined, taxDivider: Decimal) {
