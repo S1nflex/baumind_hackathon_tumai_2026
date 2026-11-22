@@ -5,7 +5,7 @@ import { bestOffer, comparable, quantityOf } from '@/lib/estimate'
 import { findSuppliers } from '@/lib/suppliers'
 import { errorResponse } from '@/lib/http'
 import { workspaceId } from '@/lib/workspace'
-import { finalizeProject, ProjectError, requireProject, updateProject } from '@/lib/store'
+import { finalizeProject, ProjectError, requireProject, updateProject, moveProjectToArchive, deleteProject } from '@/lib/store'
 
 export const runtime = 'nodejs'
 type Ctx = { params: Promise<{ id: string }> }
@@ -23,6 +23,7 @@ const rowValues = z.object({
 })
 const actionSchema = z.discriminatedUnion('action', [
   z.object({ action: z.literal('row'), rowId: id, values: rowValues }),
+  z.object({ action: z.literal('editText'), rowId: id, field: z.enum(['title','description']), value: z.string().trim().min(2).max(5000) }),
   z.object({ action: z.literal('add'), title: z.string().trim().min(2).max(140), category: z.enum(['work','material','labor','crew','equipment','other']),
     group: z.string().trim().max(60), quantity: money, unit: z.string().trim().min(1).max(12),
     price: cost, trade: z.string().trim().max(40), note: z.string().trim().max(1600) }),
@@ -76,6 +77,12 @@ export async function POST(request: Request, { params }: Ctx) {
           if (update.marketPrice && !(update.marketSource ?? row.marketSource)) throw new ProjectError('Bitte eine Quelle für den Marktpreis angeben.')
           if (row.type === 'unit-only') delete update.included
           Object.assign(row, update)
+          break
+        }
+        case 'editText': {
+          const row = requiredRow(current.positions, action.rowId)
+          if (action.field === 'title' && action.value.length > 140) throw new ProjectError('Titel darf maximal 140 Zeichen enthalten.')
+          row[action.field] = action.value
           break
         }
         case 'add': {
@@ -164,4 +171,22 @@ export async function POST(request: Request, { params }: Ctx) {
     })
     return Response.json({ project, note: search?.note })
   } catch (error) { return errorResponse(error) }
+}
+
+
+// Archive drafts without marking them as approved or changing any calculation.
+export async function PATCH(request: Request, {params}: Ctx) {
+  try {
+    const workspace = await workspaceId()
+    const id = (await params).id
+    const body = z.object({ action: z.enum(['archive','restore']) }).parse(await request.json())
+    return Response.json({project: moveProjectToArchive(workspace,id,body.action === 'archive')})
+  } catch(error) { return errorResponse(error) }
+}
+
+export async function DELETE(_request: Request, {params}: Ctx) {
+  try {
+    deleteProject(await workspaceId(),(await params).id)
+    return new Response(null,{status:204})
+  } catch(error) {return errorResponse(error)}
 }

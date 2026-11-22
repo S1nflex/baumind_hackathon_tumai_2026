@@ -1,4 +1,8 @@
 import { execFile } from 'node:child_process'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { promisify } from 'node:util'
 import { XMLParser, XMLValidator } from 'fast-xml-parser'
 import ExcelJS from 'exceljs'
 import { numberDE } from './estimate'
@@ -132,6 +136,93 @@ export function parsePdfText(text: string, filename: string): ImportResult {
   if (missing) warnings.push(missing + ' Position(en) mit unvollständiger Menge oder Einheit. Bitte anhand der Quelle prüfen.')
   if (!hasLVHeader) warnings.push('Tabellenkopf nicht erkannt. Bitte den Import anhand des Originals abgleichen.')
   return { title: filenameTitle(filename), positions, format: 'PDF', pages: raw.length, warnings }
+}
+
+
+// Fallback for simple position tables that do not preserve column alignment
+// in pdftotext -layout. Conservative: require numbered positions and valid
+// quantity/unit cells, never invent missing prices.
+export function parsePdfFlexible(text: string, filename: string): ImportResult {
+  const positions: Position[] = []
+  const warnings: string[] = []
+  const sectionLabels = new Map<string,string>()
+  let active: {oz:string;title:string;page:number;lines:string[];qty?:NonNullable<ReturnType<typeof quantityLine>>;qtyPage?:number}|null = null
+  const number = String.raw`(?:\d{1,3}(?:\.\d{3})+|\d+)(?:,\d+)?`
+  const unit = '(?:m²|m³|m2|m3|m|lfm|Stk?|psch|kg|h|Std|t|l|Paar|Set)'
+  const inline = new RegExp('^(.*?)\\s{2,}(' + number + ')\\s+(' + unit + ')(?:\\s+(.+))?$', 'i')
+  const priced = new RegExp('^(.*?)\\s+(' + number + ')\\s+(' + unit + ')\\s+(' + number + ')(?:\\s+(' + number + '))?\\s*(?:€|EUR)?$', 'i')
+  function finish() {
+    if (!active) return
+    if (active.qty && active.title && /[a-zäöüß]/i.test(active.title)) {
+      const group = active.oz.split('.').slice(0,-1).join('.') || 'LV'
+      const description = [active.title,...active.lines].join('\n')
+      positions.push(concreteRow({id:'p'+(positions.length+1),oz:active.oz,group,groupLabel:sectionLabels.get(group) ?? 'Abschnitt '+group,
+        title:active.title,description,quantity:active.qty.qty,unit:active.qty.unit,
+        sourcePrice:active.qty.price,sourceTotal:active.qty.amount,
+        source:{location:'S. '+active.page,pages:[...new Set([active.page,active.qtyPage ?? active.page])],text:description+'\n'+active.qty.raw}}))
+    }
+    active=null
+  }
+  text.split('\f').forEach((page,pageIndex)=>{
+    for(const rawLine of page.split(/\r?\n/)) {
+      const line=rawLine.trim()
+      if (!line || skipLine.test(line) || /^\s*(?:Summe|Zwischensumme|Gesamtbetrag)\b/i.test(line)) continue
+      const namedSection = line.match(/^(?:Titel|Bereich|Abschnitt|Los)\s+(\d+(?:\.\d+)*)\s*[:–—.-]?\s+(.+)$/i)
+      const reversedSection = line.match(/^(\d+(?:\.\d+)*)\s+(?:Titel|Bereich|Abschnitt|Los)\s+(.+)$/i)
+      if (namedSection || reversedSection) {const found=(namedSection??reversedSection)!; sectionLabels.set(found[1], found[2].trim()); continue}
+      const heading = line.match(/^(\d{1,3}(?:\.\d{1,5}){1,6})\.?\s+(.+)$/)
+      if (heading && /[a-zäöüß]/i.test(heading[2]) && !/^(?:Summe|Gesamt|Übertrag|Zwischensumme)/i.test(heading[2])) {
+        finish()
+        const rawTitle = heading[2]
+        const cols = rawTitle.match(priced) ?? rawTitle.match(inline)
+        active={oz:heading[1],title:(cols ? cols[1] : rawTitle).trim(),page:pageIndex+1,lines:[]}
+        if (cols) {
+          const q = quantityLine([cols[2],cols[3],cols[4]??'',cols[5]??''].filter(Boolean).join('  '))
+          if (q) {active.qty=q;active.qtyPage=pageIndex+1}
+        }
+        continue
+      }
+      if (!active) continue
+      const q = quantityLine(line)
+      if (q && !active.qty) {active.qty=q;active.qtyPage=pageIndex+1}
+      else if (active.lines.length<20 && !columnHeader.test(line)) active.lines.push(line)
+    }
+  })
+  finish()
+  if(positions.length) warnings.push('Tabellenstruktur mit erweitertem PDF-Parser erkannt. Mengen, Einheiten und Preise mit dem Original abgleichen.')
+  return {title:filenameTitle(filename),format:'PDF',positions,warnings,pages:text.split('\f').filter(Boolean).length}
+}
+
+const execFileAsync = promisify(execFile)
+async function ocrPdf(bytes:Buffer, filename:string):Promise<ImportResult> {
+  const dir = await mkdtemp(join(tmpdir(),'baumind-ocr-'))
+  const input = join(dir,'source.pdf')
+  try {
+    await writeFile(input,bytes)
+    let total=1
+    try {
+      const info = await execFileAsync('pdfinfo',[input],{timeout:8000})
+      total=Number(info.stdout.match(/^Pages:\s*(\d+)/m)?.[1]??'1')
+    } catch {/* pdfinfo is optional */}
+    if(total>12) throw new Error('Dieses Scan-PDF hat mehr als 12 Seiten. Bitte vorher Texterkennung (OCR) auf die gesamte PDF anwenden oder die GAEB-Datei verwenden. Es werden keine unvollständigen Teilergebnisse importiert.')
+    let languages='eng'
+    try {
+      const result = await execFileAsync('tesseract',['--list-langs'],{timeout:8000})
+      if(/\bdeu\b/.test(result.stdout+' '+result.stderr)) languages='deu+eng'
+    } catch { throw new Error('Scan ohne Textschicht erkannt. Für automatische Texterkennung bitte „npm run setup:ocr“ im Codespace ausführen oder ein durchsuchbares PDF hochladen.') }
+    const pages:string[]=[]
+    for(let i=1;i<=total;i++) {
+      const out = join(dir,'page'+i)
+      await execFileAsync('pdftoppm',['-f',String(i),'-l',String(i),'-singlefile','-r','150','-gray','-png',input,out],{timeout:45000,maxBuffer:1024*1024})
+      const response=await execFileAsync('tesseract',[out+'.png','stdout','-l',languages,'--psm','6'],{timeout:45000,maxBuffer:12*1024*1024})
+      pages.push(response.stdout)
+    }
+    const ocrText=pages.join('\f')
+    const standard = parsePdfText(ocrText,filename)
+    const result = standard.positions.length ? standard : parsePdfFlexible(ocrText,filename)
+    if(result.positions.length) result.warnings.push('OCR-Texterkennung verwendet. Bitte alle Positionen, Mengen und Preise mit der Original-PDF vergleichen.')
+    return result
+  } finally {await rm(dir,{recursive:true,force:true})}
 }
 
 async function extractPdf(bytes: Buffer) {
@@ -303,15 +394,19 @@ async function parseExcel(bytes: Buffer, filename: string): Promise<ImportResult
       if (trial.oz && trial.title && trial.quantity && trial.unit) { map = trial; header = i; break }
     }
     if (!header) { warnings.push(sheet.name + ': Keine Spalten für OZ, Beschreibung, Menge und Einheit erkannt.'); continue }
+    const sectionLabels = new Map<string,string>()
     const read = (row: ExcelJS.Row, key: keyof typeof columnNames) => map[key] ? row.getCell(map[key]!).text.trim() : ''
     const num = (row: ExcelJS.Row, key: keyof typeof columnNames) => map[key] ? cellNum(row.getCell(map[key]!)) : null
     for (let i = header + 1; i <= sheet.rowCount; i++) {
       const row = sheet.getRow(i), oz = read(row, 'oz'), title = read(row, 'title')
       if (!oz || !title || /^(?:summe|total|gesamt)/i.test(oz)) continue
+      if (num(row, 'quantity') === null && !read(row, 'unit')) {
+        sectionLabels.set(oz.replace(/\.$/,''),title); continue
+      }
       const description = read(row, 'description') || title
       const group = oz.split('.').slice(0, -1).join('.') || sheet.name
       positions.push(concreteRow({ id: 'p' + (positions.length + 1), oz, title, description,
-        group, groupLabel: sheet.name, unit: read(row, 'unit'), quantity: num(row, 'quantity'),
+        group, groupLabel: sectionLabels.get(group) ?? (group === sheet.name ? sheet.name : 'Abschnitt ' + group), unit: read(row, 'unit'), quantity: num(row, 'quantity'),
         sourcePrice: num(row, 'price') ?? undefined, sourceTotal: num(row, 'total') ?? undefined,
         source: { location: sheet.name + ' · Zeile ' + i, text: description } }))
     }
@@ -319,15 +414,64 @@ async function parseExcel(bytes: Buffer, filename: string): Promise<ImportResult
   return { title: filenameTitle(filename), format: 'Excel', positions, warnings }
 }
 
+// Preserve source headings and group positions by actual OZ prefixes when available.
+// Never infer a construction trade from the position text.
+export function organizeImportedSections(result: ImportResult): ImportResult {
+  const rows = result.positions.filter(row => row.origin === 'imported')
+  if (!rows.length) return result
+  const normalized = rows.map(row => {
+    const oz = row.oz.replace(/\.$/, '').trim()
+    const parts = oz.split('.').filter(Boolean)
+    const numeric = parts.length > 1 && parts.every(part => /^\d+$/.test(part))
+    const prefix = numeric ? parts.slice(0, -1).join('.') : null
+    return {row, prefix}
+  })
+  const prefixes = new Set(normalized.map(({prefix}) => prefix).filter((x): x is string => Boolean(x)))
+  for (const {row,prefix} of normalized) {
+    if (!prefix) continue
+    const old = row.group?.trim() ?? ''
+    if (!old || old === 'LV' || old.toLowerCase() === 'allgemein' || old === row.oz) row.group = prefix
+    if (!row.groupLabel || row.groupLabel === 'Leistungsverzeichnis' || row.groupLabel === 'LV' ||
+        /^Abschnitt\s+\d+(?:\.\d+)*$/i.test(row.groupLabel)) row.groupLabel = 'Abschnitt ' + row.group
+  }
+  // When one worksheet contains several OZ subgroups, distinguish them without guessing a trade name.
+  const groupNames = new Map<string,Set<string>>()
+  for (const row of rows) {
+    const names=groupNames.get(row.groupLabel) ?? new Set<string>()
+    names.add(row.group);groupNames.set(row.groupLabel,names)
+  }
+  if (result.format === 'Excel') for (const row of rows) {
+    if ((groupNames.get(row.groupLabel)?.size??0)>1 && !/^Abschnitt\s+\d/.test(row.groupLabel)) row.groupLabel = row.groupLabel+' · '+row.group
+  }
+  if (prefixes.size > 1 && rows.some(row => /^Abschnitt\s+\d/.test(row.groupLabel))) {
+    result.warnings.push('Abschnitte wurden anhand der OZ-Nummern geordnet. Abschnittsnamen bitte im Original prüfen.')
+  }
+  return result
+}
+
 export async function importLv(bytes: Buffer, filename: string): Promise<ImportResult> {
   const extension = filename.split('.').at(-1)?.toLowerCase() ?? ''
   let result: ImportResult
-  if (extension === 'pdf') result = parsePdfText(await extractPdf(bytes), filename)
+  if (extension === 'pdf') {
+    const layoutText=await extractPdf(bytes)
+    result=parsePdfText(layoutText,filename)
+    if(!result.positions.length) result=parsePdfFlexible(layoutText,filename)
+    if(!result.positions.length && layoutText.replace(/\s|\f/g,'').length >= 100) {
+      // Alternative pdftotext mode: layout extraction loses some PDF columns.
+      const rawText=await new Promise<string>((resolve,reject)=>{
+        const child=execFile('pdftotext',['-raw','-enc','UTF-8','-','-'],{maxBuffer:40*1024*1024,timeout:50000},(e,out)=>e?reject(e):resolve(out))
+        child.stdin?.on('error',()=>{});child.stdin?.end(bytes)
+      })
+      result=parsePdfText(rawText,filename)
+      if(!result.positions.length) result=parsePdfFlexible(rawText,filename)
+    }
+    if(!result.positions.length && layoutText.replace(/\s|\f/g,'').length < 100) result=await ocrPdf(bytes,filename)
+  }
   else if (/^(x8[13456]|xml)$/.test(extension)) result = parseGaebXml(bytes.toString('utf8'), filename)
   else if (/^d8[13456]$/.test(extension)) result = parseLegacy(bytes, filename)
   else if (extension === 'xlsx') result = await parseExcel(bytes, filename)
   else throw new Error('Bitte eine PDF-, GAEB- oder XLSX-Datei auswählen.')
-  if (!result.positions.length) throw new Error('Keine LV-Positionen erkannt. Bei reinen Scans bitte ein PDF mit Textschicht oder die GAEB-Datei verwenden.')
+  if (!result.positions.length) throw new Error('Keine LV-Positionen erkannt: Der Text ist vorhanden, aber die Tabellenstruktur wurde nicht erkannt. Bitte GAEB/XLSX verwenden oder die PDF zur Prüfung bereitstellen. Ein OCR-Scan kann mit npm run setup:ocr aktiviert werden.')
   if (result.positions.length > 20000) throw new Error('Diese Datei enthält mehr als 20.000 Positionen. Bitte nach Losen trennen.')
-  return result
+  return organizeImportedSections(result)
 }

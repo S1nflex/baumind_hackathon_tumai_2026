@@ -80,6 +80,7 @@ export type Project = ImportResult & {
   fileName: string
   createdAt: string
   archivedAt: string | null
+  shelvedAt?: string | null
   revision: number
   findings: Finding[]
   baseMarkup: number
@@ -91,7 +92,7 @@ export type Project = ImportResult & {
   analysis: { mode: 'rules' | 'AI + rules'; note?: string }
 }
 
-export type ProjectListItem = Pick<Project, 'id' | 'name' | 'fileName' | 'format' | 'createdAt' | 'archivedAt' | 'demo'> & {
+export type ProjectListItem = Pick<Project, 'id' | 'name' | 'fileName' | 'format' | 'createdAt' | 'archivedAt' | 'shelvedAt' | 'demo'> & {
   count: number
   open: number
 }

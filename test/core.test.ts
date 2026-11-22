@@ -4,7 +4,7 @@ import { PDFDocument } from 'pdf-lib'
 import ExcelJS from 'exceljs'
 import { bestOffer, estimateRow, markupSuggestion, numberDE, offerAmount, summarize } from '../src/lib/estimate'
 import { position, type Offer, type Project } from '../src/lib/model'
-import { importLv, parseGaebXml, parsePdfText } from '../src/lib/import'
+import { importLv, parseGaebXml, parsePdfText, parsePdfFlexible } from '../src/lib/import'
 import { laborSuggestions, reviewRules } from '../src/lib/review'
 import { parseShoppingResults } from '../src/lib/suppliers'
 import { demoImport } from '../src/lib/demo'
@@ -25,6 +25,15 @@ test('PDF preserves same-line, next-page and unit-only quantities', () => {
   assert.deepEqual(parsed.positions.map(p=>[p.oz,p.quantity,p.sourcePrice,p.type]), [
     ['1.1.10',1300,undefined,'unit-only'],['1.1.20',2,3.5,'normal']])
   assert.deepEqual(parsed.positions[0].source?.pages,[1,2])
+})
+
+test('fallback PDF parser recognizes common one-line position layout', () => {
+  const parsed = parsePdfFlexible('6.1.10 Windsog- und Windlastnachweis  1 psch 475,00 475,00\n' +
+    '6.1.30 Voranstrich und Dampfsperre  275 m² 14,375 3.953,13\n', 'Leistungsverzeichnis.pdf')
+  assert.equal(parsed.positions.length,2)
+  assert.deepEqual(parsed.positions.map(p=>[p.oz,p.quantity,p.unit]),[
+    ['6.1.10',1,'psch'],['6.1.30',275,'m²']])
+  assert.ok(parsed.warnings.some(w=>w.includes('erweitertem')))
 })
 
 test('GAEB preserves hierarchy, decimal quantity and rejects external declarations', () => {

@@ -56,7 +56,7 @@ export function listProjects(workspace: string): ProjectListItem[] {
   return database().prepare('SELECT snapshot FROM projects WHERE workspace = ? ORDER BY rowid DESC').all(workspace)
     .map(({ snapshot }) => JSON.parse(snapshot as string) as Project)
     .map(p => ({ id: p.id, name: p.name, fileName: p.fileName, format: p.format, createdAt: p.createdAt,
-      archivedAt: p.archivedAt, demo: p.demo, count: p.positions.filter(row => row.origin === 'imported').length,
+      archivedAt: p.archivedAt, shelvedAt: p.shelvedAt ?? null, demo: p.demo, count: p.positions.filter(row => row.origin === 'imported').length,
       open: p.findings.filter(finding => finding.status === 'open').length }))
 }
 
@@ -82,7 +82,7 @@ export function updateProject(workspace: string, id: string, revision: number, e
   try {
     const current = requireProject(workspace, id)
     if (current.revision !== revision) throw new ProjectError('Das Projekt wurde inzwischen geändert. Die aktuelle Fassung wurde geladen.', 409)
-    if (current.archivedAt) throw new ProjectError('Dieses Angebot wurde bereits abgeschlossen.', 409)
+    if (current.archivedAt || current.shelvedAt) throw new ProjectError('Dieses Projekt ist archiviert. Bitte zuerst wiederherstellen.', 409)
     edit(current)
     current.revision++
     db.prepare('UPDATE projects SET snapshot = ?, revision = ? WHERE workspace = ? AND id = ?')
@@ -113,4 +113,28 @@ export function finalizeProject(workspace: string, project: Project) {
     database().prepare('INSERT INTO workspace_preferences (workspace, trade, title, rate, uses) VALUES (?, ?, ?, ?, 1) ON CONFLICT(workspace, trade, title) DO UPDATE SET uses = uses + 1, rate = COALESCE(excluded.rate, rate)')
       .run(workspace, trade, item.title, hourly ? item.costs.rate : null)
   }
+}
+
+
+// Keep archived drafts distinct from finalized submissions. No migration is
+// necessary because projects are stored as versioned JSON snapshots.
+export function moveProjectToArchive(workspace: string, id: string, archive: boolean) {
+  const db = database()
+  db.exec('BEGIN IMMEDIATE')
+  try {
+    const project = requireProject(workspace,id)
+    if (project.archivedAt && !archive) throw new ProjectError('Freigegebene Angebote können nicht wieder als Entwurf geöffnet werden.',409)
+    project.shelvedAt = archive ? new Date().toISOString() : null
+    project.revision++
+    db.prepare('UPDATE projects SET snapshot = ?, revision = ? WHERE workspace = ? AND id = ?')
+      .run(JSON.stringify(project), project.revision, workspace,id)
+    db.exec('COMMIT')
+    return project
+  } catch(error) { db.exec('ROLLBACK'); throw error }
+}
+
+export function deleteProject(workspace: string, id: string) {
+  const db = database()
+  const deleted = db.prepare('DELETE FROM projects WHERE workspace = ? AND id = ?').run(workspace,id)
+  if (!deleted.changes) throw new ProjectError('Projekt nicht gefunden.',404)
 }

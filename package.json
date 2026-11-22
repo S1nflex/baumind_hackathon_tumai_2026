@@ -9,7 +9,8 @@
     "start": "next start --hostname 127.0.0.1",
     "typecheck": "tsc --noEmit",
     "benchmark": "tsx scripts/benchmark.ts",
-    "setup:pdf": "bash scripts/setup-pdf-import.sh"
+    "setup:pdf": "bash scripts/setup-pdf-import.sh",
+    "setup:ocr": "bash scripts/setup-pdf-ocr.sh"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.143",
