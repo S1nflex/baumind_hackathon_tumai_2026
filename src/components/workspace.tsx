@@ -26,10 +26,20 @@ function formatDate(iso: string) {
   return new Intl.DateTimeFormat('de-DE', { day:'2-digit', month:'short', year:'numeric', timeZone:'Europe/Berlin' }).format(new Date(iso))
 }
 
-async function responseData(response: Response) {
-  const value = await response.json()
+async function responseData<T extends object = Record<string, never>>(response: Response): Promise<T & { error?: string; note?: string }> {
+  const text = await response.text()
+  if (!text) {
+    throw Object.assign(new Error('Der Server hat ohne Antwort geendet (HTTP ' + response.status + ').'), { status: response.status })
+  }
+  let value: { error?: string; [key: string]: unknown }
+  try {
+    value = JSON.parse(text) as T & { error?: string; [key: string]: unknown }
+  } catch {
+    const contentType = response.headers.get('content-type') || 'unbekannt'
+    throw Object.assign(new Error('Der Server hat keine gültige JSON-Antwort geliefert (HTTP ' + response.status + ', ' + contentType + ').'), { status: response.status })
+  }
   if (!response.ok) throw Object.assign(new Error(value.error || 'Die Anfrage konnte nicht bearbeitet werden.'), { status: response.status })
-  return value
+  return value as T & { error?: string; note?: string }
 }
 
 function Dialog({ label, close, children, busy }: { label: string; close: () => void; children: ReactNode; busy: boolean }) {
@@ -155,11 +165,11 @@ export function Workspace() {
   const [page,setPage] = useState(0)
 
   const updateProjects = useCallback(async () => {
-    const data = await responseData(await fetch('/api/projects', {cache:'no-store'}))
+    const data = await responseData<{ projects: ProjectListItem[] }>(await fetch('/api/projects', {cache:'no-store'}))
     setProjects(data.projects)
   }, [])
   const loadProject = useCallback(async (id:string) => {
-    const data = await responseData(await fetch('/api/projects/' + id, {cache:'no-store'}))
+    const data = await responseData<{ project: Project }>(await fetch('/api/projects/' + id, {cache:'no-store'}))
     setCurrent(data.project)
   }, [])
 
@@ -194,7 +204,7 @@ export function Workspace() {
     pending.current = true
     setBusy(true); setError(''); setNotice('')
     try {
-      const data = await responseData(await fetch('/api/projects', {method:'POST',body:form}))
+      const data = await responseData<{ project: Project }>(await fetch('/api/projects', {method:'POST',body:form}))
       setCurrent(data.project); setModal(null); resetTable(); projectUrl(data.project.id)
       setNotice(data.project.positions.filter((item: Position) => item.origin === 'imported').length + ' Positionen importiert.')
       await updateProjects().catch(() => {})
@@ -209,7 +219,7 @@ export function Workspace() {
     const id = current.id
     setBusy(true); setError(''); setNotice('')
     try {
-      const data = await responseData(await fetch('/api/projects/' + id, {
+      const data = await responseData<{ project: Project }>(await fetch('/api/projects/' + id, {
         method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...action, revision:current.revision}),
       }))
       setCurrent(data.project)

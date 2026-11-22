@@ -36,9 +36,15 @@ export function storedPricesToOffers(prices: StoredPrice[], query: string, row: 
   return prices.flatMap(price => {
     if (price.unit === 'unknown' || normalizeUnit(price.unit) !== normalizedUnit) return []
     const sku = price.sku.replace(/[^a-z0-9]/gi, '').toLowerCase()
-    const exact = Boolean(querySku && /\d/.test(querySku) && querySku === sku && price.pack_size !== null)
-    if (!queryTerms.length && !exact) return []
     const title = normalizeName(price.material_name)
+    const exact = Boolean(
+      (querySku && /\d/.test(querySku) && querySku === sku) ||
+      title === normalizedQuery ||
+      title.includes(normalizedQuery) ||
+      normalizedQuery.includes(title) ||
+      (queryTerms.length > 1 && queryTerms.every(term => title.includes(term)))
+    ) && price.pack_size !== null
+    if (!queryTerms.length && !exact) return []
     const matches = queryTerms.filter(term => title.includes(term)).length
     if (!exact && matches < Math.ceil(queryTerms.length / 2)) return []
     return [{

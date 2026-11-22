@@ -111,6 +111,9 @@ test('maps stored prices only to matching units and only treats exact SKU matche
   assert.equal(offers[0].net, 12.9)
   assert.equal(offers[0].pack, 25)
   assert.equal(offers[0].delivery, 3)
+  const titleOffers = storedPricesToOffers([price], 'Zement', row)
+  assert.equal(titleOffers.length, 1)
+  assert.equal(titleOffers[0].exact, true)
 })
 
 test('executes mocked adapters and isolates an individual source failure', async () => {

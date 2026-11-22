@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { PDFDocument } from 'pdf-lib'
 import ExcelJS from 'exceljs'
-import { bestOffer, estimateRow, markupSuggestion, numberDE, offerAmount, summarize } from '../src/lib/estimate'
+import { bestOffer, comparable, estimateRow, markupSuggestion, numberDE, offerAmount, summarize } from '../src/lib/estimate'
 import { position, type Offer, type Project } from '../src/lib/model'
 import { importLv, parseGaebXml, parsePdfText } from '../src/lib/import'
 import { combineFindings, laborSuggestions, reviewRules } from '../src/lib/review'
@@ -120,6 +120,9 @@ test('supplier selection uses delivered pack cost, exact model and shipping', ()
   assert.equal(parsed[0]?.net,100)
   assert.equal(parsed[0]?.delivery,0)
   assert.equal(parsed[0]?.exact,true)
+  const scraped: Offer = {...source,id:'scraped',source:'scraped',delivery:null,exact:true,net:84}
+  assert.equal(comparable(scraped,row),true)
+  assert.equal(estimateRow({...row,offers:[scraped],selectedOfferId:scraped.id},25).totalMaterial,336)
 })
 
 test('suggested trade is grounded, provisional and picks an approved known crew', () => {

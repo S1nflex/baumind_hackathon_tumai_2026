@@ -27,6 +27,7 @@ export class SerpApiAdapter implements PriceSourceAdapter {
       grossPrice: null,
       shippingCost: item.delivery,
       currency: 'EUR',
+      unit: 'St',
       packSize: item.pack,
       supplierName: item.merchant,
       productUrl: item.url ?? null,

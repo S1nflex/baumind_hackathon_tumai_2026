@@ -23,6 +23,9 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const workspace = await workspaceId()
+    if (!request.headers.get('content-type')?.includes('multipart/form-data')) {
+      throw new ProjectError('Bitte die LV-Datei als Formular-Upload senden.')
+    }
     const form = await request.formData()
     const demo = form.get('demo') === '1'
     const file = form.get('file')
@@ -46,8 +49,8 @@ export async function POST(request: Request) {
       for (const row of parsed.positions) row.offers = referenceOffers(row)
       if (availability && form.get('prices') === '1') {
         const selected = parsed.positions.flatMap(row => {
-          if (!/^(st|stk|stück)\.?$/i.test(row.unit)) return []
-          const query = row.supplierQuery ?? catalogLookup(row)?.query
+          if (!row.quantity || !row.unit) return []
+          const query = row.supplierQuery ?? catalogLookup(row)?.query ?? row.title
           return query ? [{ row, query }] : []
         }).slice(0, 8)
         const results = await Promise.allSettled(selected.map(({ row, query }) => findSuppliers(query, row, postcode)))

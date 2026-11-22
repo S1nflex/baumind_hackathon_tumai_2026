@@ -1,7 +1,4 @@
-import { loadEnvConfig } from '@next/env'
 import { runMarketPriceIngestion } from '../src/lib/scraper'
-
-loadEnvConfig(process.cwd(), true)
 
 async function main() {
   const summary = await runMarketPriceIngestion()

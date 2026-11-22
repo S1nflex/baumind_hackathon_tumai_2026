@@ -15,6 +15,13 @@ function parseNumber(value: number | string | null | undefined): number | null {
 
 export function normalizeUnit(value: string | null | undefined): string {
   const input = (value ?? '').trim().toLowerCase()
+  if (input === 'mtr') return 'm'
+  if (input === 'm2' || input === 'mtk') return 'm²'
+  if (input === 'm3' || input === 'mtq') return 'm³'
+  if (input === 'kgm') return 'kg'
+  if (input === 'grm') return 'g'
+  if (input === 'tne') return 't'
+  if (input === 'h87' || input === 'c62') return 'St'
   if (/^(m\s*[²2]|qm|quadratmeter|square\s*meter|m2)$/i.test(input)) return 'm²'
   if (/^(m\s*[³3]|cbm|cubic\s*meter|m3)$/i.test(input)) return 'm³'
   if (/^(st|stk|stück|piece|pieces|pcs?)\.?$/i.test(input)) return 'St'
@@ -64,11 +71,11 @@ export function normalizePricePair(netValue: number | string | null | undefined,
   { net: number; gross: number } | null {
   const net = parseNumber(netValue)
   const gross = parseNumber(grossValue)
-  if (net !== null) {
+  if (net !== null && net > 0) {
     const netRounded = round(new Decimal(net), 4)
-    return { net: netRounded, gross: gross !== null ? round(new Decimal(gross), 4) : round(new Decimal(net).times(VAT), 4) }
+    return { net: netRounded, gross: gross !== null && gross > 0 ? round(new Decimal(gross), 4) : round(new Decimal(net).times(VAT), 4) }
   }
-  if (gross !== null) {
+  if (gross !== null && gross > 0) {
     const grossRounded = round(new Decimal(gross), 4)
     return { net: round(new Decimal(gross).div(VAT), 4), gross: grossRounded }
   }

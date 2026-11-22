@@ -16,8 +16,10 @@ export function unitOf(row: Position) { return row.adjustment?.unit ?? row.unit 
 
 export function comparable(offer: Offer, row: Position) {
   const quantity = quantityOf(row)
-  return (offer.exact || offer.confirmed) && offer.delivery !== null && quantity !== null && quantity > 0 &&
-    (offer.confirmed || /^(st|stk|stück|pcs)\.?$/i.test(unitOf(row)))
+  const confirmedOrExact = offer.exact || offer.confirmed
+  const deliveryKnown = offer.source === 'scraped' ? true : offer.delivery !== null
+  return confirmedOrExact && deliveryKnown && quantity !== null && quantity > 0 &&
+    (offer.confirmed || offer.source === 'scraped' || /^(st|stk|stück|pcs)\.?$/i.test(unitOf(row)))
 }
 
 export function offerAmount(offer: Offer, quantity: number) {

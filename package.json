@@ -9,7 +9,7 @@
     "start": "next start --hostname 127.0.0.1",
     "typecheck": "tsc --noEmit",
     "benchmark": "tsx scripts/benchmark.ts",
-    "scrape:prices": "tsx scripts/scrape-prices.ts"
+    "scrape:prices": "node --env-file-if-exists=.env.local --import=tsx scripts/scrape-prices.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.144",
