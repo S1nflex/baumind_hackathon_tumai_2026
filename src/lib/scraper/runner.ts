@@ -3,7 +3,25 @@ import { getSupabaseAdmin } from '../supabase'
 import { GenericHtmlJsonAdapter } from './adapters/generic'
 import { SerpApiAdapter } from './adapters/serpapi'
 import { normalizeRawItem } from './normalize'
-import { MaterialPriceRecordSchema, type MaterialPriceRecord, type PriceSourceAdapter, type PriceSourceRecord } from './types'
+import { MaterialPriceRecordSchema, PriceSourceRecordSchema, type MaterialPriceRecord, type PriceSourceAdapter, type PriceSourceRecord } from './types'
+
+const noProductsMessage = 'No products were extracted. Check the source URL and confirm it exposes supported product data.'
+
+async function collectRecords(source: PriceSourceRecord, adapters: Map<string, PriceSourceAdapter>, scrapedAt: string) {
+  const adapter = adapters.get(source.adapter_type.toLowerCase())
+  if (!adapter) throw new Error(`Unknown adapter_type: ${source.adapter_type}`)
+  const rawItems = await adapter.scrape(source)
+  if (!rawItems.length) throw new Error(noProductsMessage)
+  const records = rawItems.map(raw =>
+    MaterialPriceRecordSchema.parse(normalizeRawItem(raw, source, scrapedAt)))
+  if (!records.length) throw new Error(noProductsMessage)
+  return records
+}
+
+async function updateRun(supabase: SupabaseClient, runId: string, values: Record<string, unknown>) {
+  const { error } = await supabase.from('scrape_runs').update(values).eq('id', runId)
+  if (error) throw new Error(`Could not update scrape run: ${error.message}`)
+}
 
 export type SourceResult = {
   sourceId: string
@@ -42,11 +60,8 @@ export async function executeAdapters(
   const results: SourceResult[] = []
   for (const [index, source] of sources.entries()) {
     try {
-      const adapter = adapters.get(source.adapter_type.toLowerCase())
-      if (!adapter) throw new Error(`Unknown adapter_type: ${source.adapter_type}`)
       const scrapedAt = new Date().toISOString()
-      const rawItems = await adapter.scrape(source)
-      const records = rawItems.map(raw => MaterialPriceRecordSchema.parse(normalizeRawItem(raw, source, scrapedAt)))
+      const records = await collectRecords(source, adapters, scrapedAt)
       results.push({ sourceId: source.id, sourceName: source.name, itemsCollected: records.length, error: null })
       if (index < sources.length - 1 && delayMs > 0) await new Promise(resolve => setTimeout(resolve, delayMs))
     } catch (error) {
@@ -83,12 +98,16 @@ export async function runMarketPriceIngestion(options: {
       .eq('enabled', true)
       .order('name')
     if (error) throw error
-    sources = (data ?? []) as PriceSourceRecord[]
+    sources = PriceSourceRecordSchema.array().parse(data ?? [])
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    await supabase.from('scrape_runs').update({
-      finished_at: new Date().toISOString(), status: 'failed', items_collected: 0, error_log: [message],
-    }).eq('id', run.id)
+    try {
+      await updateRun(supabase, run.id, {
+        finished_at: new Date().toISOString(), status: 'failed', items_collected: 0, error_log: [message],
+      })
+    } catch (updateError) {
+      throw new Error(`${message}; could not record failed run: ${updateError instanceof Error ? updateError.message : String(updateError)}`)
+    }
     return { runId: run.id, status: 'failed', itemsCollected: 0, sources: [], errors: [message] }
   }
 
@@ -96,26 +115,21 @@ export async function runMarketPriceIngestion(options: {
   const sourceResults: SourceResult[] = []
   const errors: string[] = []
   let itemsCollected = 0
+  if (!sources.length) errors.push('No enabled price sources are configured.')
 
   for (const [index, source] of sources.entries()) {
     try {
-      const adapter = adapters.get(source.adapter_type.toLowerCase())
-      if (!adapter) throw new Error(`Unknown adapter_type: ${source.adapter_type}`)
       const scrapedAt = new Date().toISOString()
-      const rawItems = await adapter.scrape(source)
-      const records: MaterialPriceRecord[] = rawItems.map(raw =>
-        MaterialPriceRecordSchema.parse(normalizeRawItem(raw, source, scrapedAt)))
-      if (records.length) {
-        const scraped = new Date(scrapedAt)
-        const utcDay = scraped.getUTCDay()
-        scraped.setUTCDate(scraped.getUTCDate() - (utcDay === 0 ? 6 : utcDay - 1))
-        const snapshotDate = scraped.toISOString().slice(0, 10)
-        const payload = records.map(record => ({ ...record, snapshot_date: snapshotDate }))
-        const { error } = await supabase
-          .from('material_prices')
-          .upsert(payload, { onConflict: 'source_id,sku,product_url,snapshot_date', ignoreDuplicates: false })
-        if (error) throw error
-      }
+      const records: MaterialPriceRecord[] = await collectRecords(source, adapters, scrapedAt)
+      const scraped = new Date(scrapedAt)
+      const utcDay = scraped.getUTCDay()
+      scraped.setUTCDate(scraped.getUTCDate() - (utcDay === 0 ? 6 : utcDay - 1))
+      const snapshotDate = scraped.toISOString().slice(0, 10)
+      const payload = records.map(record => ({ ...record, snapshot_date: snapshotDate }))
+      const { error } = await supabase
+        .from('material_prices')
+        .upsert(payload, { onConflict: 'source_id,sku,product_url,snapshot_date', ignoreDuplicates: false })
+      if (error) throw error
       itemsCollected += records.length
       sourceResults.push({ sourceId: source.id, sourceName: source.name, itemsCollected: records.length, error: null })
     } catch (error) {
@@ -129,13 +143,14 @@ export async function runMarketPriceIngestion(options: {
     }
   }
 
-  const status = errors.length === 0 ? 'success' : sourceResults.length > 0 ? 'partial' : 'failed'
-  await supabase.from('scrape_runs').update({
+  const status = itemsCollected === 0 ? 'failed' : errors.length ? 'partial' : 'success'
+  if (itemsCollected === 0 && sources.length) errors.push('No price records were collected from any enabled source.')
+  await updateRun(supabase, run.id, {
     finished_at: new Date().toISOString(),
     status,
     items_collected: itemsCollected,
     error_log: errors,
-  }).eq('id', run.id)
+  })
 
   return { runId: run.id, status, itemsCollected, sources: sourceResults, errors }
 }

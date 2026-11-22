@@ -53,7 +53,7 @@ export async function POST(request: Request) {
         const results = await Promise.allSettled(selected.map(({ row, query }) => findSuppliers(query, row, postcode)))
         let incompletes = 0
         results.forEach((result, index) => {
-          if (result.status === 'rejected' || result.value.note) incompletes++
+          if (result.status === 'rejected' || !result.value.offers.length) incompletes++
           if (result.status === 'rejected') return
           const { row } = selected[index]
           row.offers = result.value.offers

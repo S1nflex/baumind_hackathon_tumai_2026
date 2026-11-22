@@ -50,6 +50,15 @@ create table if not exists public.scrape_runs (
 
 create index if not exists scrape_runs_started_at_idx on public.scrape_runs (started_at desc);
 
+alter table public.price_sources enable row level security;
+alter table public.material_prices enable row level security;
+alter table public.scrape_runs enable row level security;
+
+grant usage on schema public to service_role;
+grant all on table public.price_sources to service_role;
+grant all on table public.material_prices to service_role;
+grant all on table public.scrape_runs to service_role;
+
 create or replace view public.latest_material_price_stats as
 with latest_per_supplier as (
   select distinct on (normalized_name, source_id)

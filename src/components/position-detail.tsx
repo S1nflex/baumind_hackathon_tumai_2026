@@ -105,7 +105,9 @@ function OffersPanel({ row, busy, run, project }: { row: Position; busy: boolean
         <p className="small muted">{offer.title}</p>
         <div className="offer-price"><b>{amountLabel(offer.delivery === null ? offer.net : result?.total)}</b>
           <span className="small muted">{offer.delivery === null ? 'je Packung · Versand offen' : 'gesamt netto'}</span></div>
-        <p className="small muted">{offer.source === 'demo' ? 'Beispiel' : offer.source === 'live' ? 'Google Shopping · Richtwert' : 'Hinterlegte Quelle'}
+        <p className="small muted">{offer.source === 'demo' ? 'Beispiel' : offer.source === 'live' ? 'Google Shopping · Richtwert' :
+          offer.source === 'scraped' ? 'Gespeicherter Quellenpreis · ' + new Intl.DateTimeFormat('de-DE', { dateStyle: 'medium' }).format(new Date(offer.checkedAt)) :
+          'Hinterlegte Quelle'}
           {' · '}{offer.pack} je Packung · ab {offer.minPacks} Packung(en)</p>
         {offer.leadTime && <p className="small muted">{offer.leadTime}</p>}
         {!offer.exact && !offer.confirmed && <span className="tag tag-amber">Spezifikation offen</span>}

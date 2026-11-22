@@ -1,9 +1,12 @@
 import { createHash } from 'node:crypto'
 import Decimal from 'decimal.js'
 import { numberDE, round } from './estimate'
+import { findMarketPriceOffers } from './scraper/lookup'
 import type { Offer, Position } from './model'
 
-export const shopConfigured = () => Boolean(process.env.SERPAPI_API_KEY)
+export const marketPriceLookupConfigured = () =>
+  Boolean(process.env.SUPABASE_URL && (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY))
+export const shopConfigured = () => Boolean(process.env.SERPAPI_API_KEY) || marketPriceLookupConfigured()
 const tokens = (value: string) => value.replace(/[^a-z0-9]/gi, '').toLowerCase()
 
 const geberit = [
@@ -48,31 +51,52 @@ export function parseShoppingResults(items: ShoppingItem[], reference: string, d
   }).filter((offer, index, all) => all.findIndex(other => other.id === offer.id) === index)
 }
 
-const cache = new Map<string, { time: number; offers: Offer[] }>()
+const cache = new Map<string, { time: number; offers: Offer[]; note?: string }>()
 export async function findSuppliers(query: string, row: Position, postcode: string) {
   const apiKey = process.env.SERPAPI_API_KEY
   const fallback = referenceOffers(row)
-  if (!apiKey) return { offers: fallback, note: 'Live-Suche benötigt SERPAPI_API_KEY. Vorliegende Quellen und eigene Angebote bleiben verfügbar.' }
-
   const exactSearch = row.supplierQuery || ''
-  const cacheKey = [query, exactSearch, postcode].join('|')
+  const cacheKey = [query, exactSearch, postcode, row.unit].join('|')
   const previous = cache.get(cacheKey)
-  if (previous && Date.now() - previous.time < 1800000) return { offers: previous.offers }
-  const url = new URL('https://serpapi.com/search.json')
-  for (const [key, value] of Object.entries({ engine: 'google_shopping', q: query, gl: 'de', hl: 'de',
-    google_domain: 'google.de', api_key: apiKey })) url.searchParams.set(key, value)
-  if (/^\d{5}$/.test(postcode)) url.searchParams.set('location', postcode + ', Germany')
-  let response = await fetch(url, { signal: AbortSignal.timeout(9000), cache: 'no-store' })
-  // Some postcodes cannot be resolved by the search provider.
-  if (response.status === 400 && url.searchParams.has('location')) {
-    url.searchParams.delete('location')
-    response = await fetch(url, { signal: AbortSignal.timeout(9000), cache: 'no-store' })
+  if (previous && Date.now() - previous.time < 300000) return { offers: previous.offers, note: previous.note }
+
+  const offers = [...fallback]
+  const notes: string[] = []
+  if (marketPriceLookupConfigured()) {
+    try {
+      offers.push(...await findMarketPriceOffers(query, row))
+    } catch (error) {
+      notes.push(error instanceof Error ? error.message : 'Could not search stored market prices.')
+    }
+  } else notes.push('Stored source prices require SUPABASE_URL and a server-side Supabase secret key.')
+
+  if (apiKey) {
+    try {
+      const url = new URL('https://serpapi.com/search.json')
+      for (const [key, value] of Object.entries({ engine: 'google_shopping', q: query, gl: 'de', hl: 'de',
+        google_domain: 'google.de', api_key: apiKey })) url.searchParams.set(key, value)
+      if (/^\d{5}$/.test(postcode)) url.searchParams.set('location', postcode + ', Germany')
+      let response = await fetch(url, { signal: AbortSignal.timeout(9000), cache: 'no-store' })
+      if (response.status === 400 && url.searchParams.has('location')) {
+        url.searchParams.delete('location')
+        response = await fetch(url, { signal: AbortSignal.timeout(9000), cache: 'no-store' })
+      }
+      if (!response.ok) notes.push(`Google Shopping search failed (HTTP ${response.status}).`)
+      else {
+        const data = await response.json() as { shopping_results?: ShoppingItem[] }
+        offers.push(...parseShoppingResults(data.shopping_results ?? [], exactSearch, new Date().toISOString()))
+      }
+    } catch (error) {
+      notes.push(error instanceof Error ? `Google Shopping search failed: ${error.message}` : 'Google Shopping search failed.')
+    }
+  } else {
+    notes.push('Google Shopping search is not configured; showing stored source prices and existing offers only.')
   }
-  if (!response.ok) return { offers: fallback, note: 'Der Preis-Suchdienst ist momentan nicht verfügbar (HTTP ' + response.status + ').' }
-  const data = await response.json() as { shopping_results?: ShoppingItem[] }
-  const live = parseShoppingResults(data.shopping_results ?? [], exactSearch, new Date().toISOString())
-  const offers = live.length ? live : fallback
+
+  const uniqueOffers = offers.filter((offer, index, all) => all.findIndex(other => other.id === offer.id) === index)
+  if (!uniqueOffers.length && !notes.length) notes.push('No stored or live price results matched this search.')
   if (cache.size >= 100) cache.delete(cache.keys().next().value!)
-  cache.set(cacheKey, { time: Date.now(), offers })
-  return { offers, note: live.length ? undefined : 'Keine Live-Treffer. Bitte Artikelnummer oder Suchbegriff prüfen.' }
+  const note = notes.length ? notes.join(' ') : undefined
+  cache.set(cacheKey, { time: Date.now(), offers: uniqueOffers, note })
+  return { offers: uniqueOffers, note }
 }

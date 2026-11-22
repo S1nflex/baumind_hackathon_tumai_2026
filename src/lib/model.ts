@@ -16,7 +16,7 @@ export type Offer = {
   minPacks: number
   leadTime?: string
   exact: boolean
-  source: 'live' | 'demo' | 'manual'
+  source: 'live' | 'scraped' | 'demo' | 'manual'
   checkedAt: string
   confirmed?: boolean
 }

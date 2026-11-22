@@ -11,7 +11,7 @@ export const RawScrapedItemSchema = z.object({
   packSize: z.union([z.number(), z.string()]).nullable().optional(),
   category: z.string().trim().max(80).nullable().optional(),
   supplierName: z.string().trim().max(160).nullable().optional(),
-  productUrl: z.string().trim().url().nullable().optional(),
+  productUrl: z.string().trim().url().refine(value => /^https?:\/\//i.test(value), 'Product URL must use HTTP or HTTPS').nullable().optional(),
 })
 
 export type RawScrapedItem = z.infer<typeof RawScrapedItemSchema>
@@ -35,14 +35,16 @@ export const MaterialPriceRecordSchema = z.object({
 
 export type MaterialPriceRecord = z.infer<typeof MaterialPriceRecordSchema>
 
-export type PriceSourceRecord = {
-  id: string
-  name: string
-  base_url: string
-  adapter_type: string
-  enabled: boolean
-  created_at?: string
-}
+export const PriceSourceRecordSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().trim().min(1).max(160),
+  base_url: z.string().url().refine(value => /^https?:\/\//i.test(value), 'Source URL must use HTTP or HTTPS'),
+  adapter_type: z.string().trim().min(1).max(40),
+  enabled: z.boolean(),
+  created_at: z.string().optional(),
+})
+
+export type PriceSourceRecord = z.infer<typeof PriceSourceRecordSchema>
 
 export interface PriceSourceAdapter {
   readonly type: string

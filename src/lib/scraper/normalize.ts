@@ -78,23 +78,25 @@ export function normalizePricePair(netValue: number | string | null | undefined,
 export function normalizeRawItem(raw: RawScrapedItem, source: PriceSourceRecord, scrapedAt = new Date().toISOString()):
   MaterialPriceRecord {
   const item = RawScrapedItemSchema.parse(raw)
+  const currency = (item.currency ?? 'EUR').toUpperCase()
+  if (currency !== 'EUR') throw new Error(`Unsupported currency ${currency} for ${item.materialName}; only EUR can be compared.`)
   const prices = normalizePricePair(item.netPrice, item.grossPrice)
   if (!prices) throw new Error(`Missing price for ${item.materialName}`)
   const shipping = parseNumber(item.shippingCost)
   const sku = item.sku?.trim() || item.productUrl?.match(/(?:sku|p|id)[=/\-]?([a-zA-Z0-9._-]+)/i)?.[1]?.toUpperCase() ||
-    `URL-${item.productUrl ?? item.materialName}`.slice(0, 160)
+    `NAME-${normalizeName(item.materialName)}`.slice(0, 160)
   return {
     source_id: source.id,
     sku,
     material_name: item.materialName.trim().slice(0, 240),
     normalized_name: normalizeName(item.materialName).slice(0, 240),
     category: inferCategory(item.materialName, item.category),
-    unit: normalizeUnit(item.unit),
+    unit: item.unit?.trim() ? normalizeUnit(item.unit) : 'unknown',
     pack_size: normalizePackSize(item.packSize, item.materialName),
     net_price: prices.net,
     gross_price: prices.gross,
     shipping_cost: shipping === null ? null : round(new Decimal(shipping), 4),
-    currency: (item.currency ?? 'EUR').toUpperCase(),
+    currency,
     supplier_name: (item.supplierName ?? source.name).trim().slice(0, 160),
     product_url: item.productUrl ?? source.base_url,
     scraped_at: scrapedAt,
