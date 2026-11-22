@@ -1,0 +1,62 @@
+[
+  {
+    "query": "Dachabdichtung Bitumenbahn",
+    "category": "roofing",
+    "keywords": ["dachabdichtung", "bitumenbahn", "dachbahn", "bitumen"]
+  },
+  {
+    "query": "Baustahl Bewehrungsstahl",
+    "category": "metal",
+    "keywords": ["baustahl", "bewehrungsstahl", "bewehrung", "stahlmatte"]
+  },
+  {
+    "query": "Transportbeton Beton Sackware",
+    "category": "concrete",
+    "keywords": ["transportbeton", "beton", "zement", "estrich"]
+  },
+  {
+    "query": "Dämmung Mineralwolle EPS",
+    "category": "insulation",
+    "keywords": ["dämmung", "mineralwolle", "eps", "styropor", "steinwolle"]
+  },
+  {
+    "query": "Trockenbau Gipskartonplatte",
+    "category": "drywall",
+    "keywords": ["trockenbau", "gipskarton", "rigips", "gipsplatte"]
+  },
+  {
+    "query": "KG Rohr Kanalrohr DN",
+    "category": "plumbing",
+    "keywords": ["kg rohr", "kanalrohr", "kunststoffrohr", "rohr"]
+  },
+  {
+    "query": "NYM-J Kabel Elektroinstallation",
+    "category": "electrical",
+    "keywords": ["nym", "kabel", "elektrokabel", "leitung"]
+  },
+  {
+    "query": "Konstruktionsholz KVH Bauholz",
+    "category": "wood",
+    "keywords": ["konstruktionsholz", "kvh", "bauholz", "kantholz"]
+  },
+  {
+    "query": "Mauerziegel Porenbetonstein",
+    "category": "masonry",
+    "keywords": ["mauerziegel", "porenbeton", "mauerstein", "ziegel"]
+  },
+  {
+    "query": "Baustoffe Fliesenkleber Abdichtungsbahn",
+    "category": "construction",
+    "keywords": ["fliesenkleber", "abdichtungsbahn", "baustoff", "bauchemie"]
+  },
+  {
+    "query": "Kupferrohr Pressfitting Sanitär",
+    "category": "plumbing",
+    "keywords": ["kupferrohr", "pressfitting", "sanitär", "armatur"]
+  },
+  {
+    "query": "Schalungsmaterial Baufolie",
+    "category": "construction",
+    "keywords": ["schalung", "baufolie", "schalungsplatte", "baustelle"]
+  }
+]
